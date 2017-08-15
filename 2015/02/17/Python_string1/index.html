@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Python 字符串处理1 · Zablog</title><meta name="description" content="Python 字符串处理1 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">Python 字符串处理1</h1><div class="post-info">2015年2月17日</div><div class="post-content"><p>python 为我们提供的最方便的处理文字的工具就是字符串——一个不可改变是序列。这里呢，也不是什么重要的教程，也没有其他任何的重要意义，也就是记录一下最近学习了什么&amp;复习了什么，脉络一般的东西，给自己做一个记录，也可以在有空的时候给自己巩固一下印象。这也印证了本文归属的类别：[object Object]。</p>
+<p>实际上，在这个寒假，自己学了不少有关python语言的新知识，譬如一些像map、reduce一样的内建函数，再或者是python1.5开始新引入的装饰器。可是没有一个好的记录，所以又忘记了许多，说不定整个内容还要复习一遍。这里呢，就以代码为主，记录主要内容，方便以后查阅和概览。</p>
+<p>##表示</p>
+<p>python 的字符串，最基本的表现形式应该是用单引号或者双引号括起来。这些应该早就知道了，可能略有生疏的是三个连续的引号：</p>
+<pre><code>d = &apos;&apos;&apos;
+I am a 
+string 
+with many lines.
+
+    Author: Marchon
+&apos;&apos;&apos;
+</code></pre><p>所以说，在普通的时候采用三个引号，可以理解为产生了一个不需要执行的字符串吧。<br><a id="more"></a><br>字符串之前有一个r，代表不转义。<br>举个例子：</p>
+<pre><code>&gt;&gt;&gt; a = r&apos;\n&apos;
+&gt;&gt;&gt; print a
+\n
+&gt;&gt;&gt; print repr(a)
+&apos;\\n&apos;
+</code></pre><p>但是这样也并不是万能的。<br>譬如：</p>
+<pre><code>&gt;&gt;&gt;a = r&apos;\&apos;
+SyntaxError: EOL while scanning string literal
+</code></pre><p>对于这个例子来说，本来认为repr(a)应该是’\\‘这个样子，但是实际上，还会报语法错误，在真正运行的时候，后一个单引号被忽略了。r是忽略其他的转义了，但是单引号，作为字符串的末尾，如果想要出现在字符串中，还是需要转义的。</p>
+<p>如果采用r标识，一行写不完怎么办。依然是采用斜杠，只不过写法略有区别。</p>
+<pre><code>&gt;&gt;&gt; c = r&apos;\n First Line&apos; \
+...  r&apos; \r Second Line.&apos;
+&gt;&gt;&gt; print c
+\n First Line \r Second Line.
+</code></pre><p>采用u在字符串之前，就可以表示unicode。比如我们知道\u0020是代表空格，那么a = u’\u0020’，那么a就是一个unicode格式的空格。和普通的空格还是不一样的。</p>
+<pre><code>&gt;&gt;&gt; a = u&apos;\u0020&apos;
+&gt;&gt;&gt; b = &apos; &apos;
+&gt;&gt;&gt; a
+u&apos; &apos;
+&gt;&gt;&gt; b
+&apos; &apos;
+</code></pre><p>如果这个时候，c = ‘\u0020’，那么会变成空格吗？事实上如果这么写，那么c只会是一个普通的字符串而已，在普通字符串里，根本就不会有\u的含义，也就不会产生任何转义。</p>
+<h2 id="切片"><a href="#切片" class="headerlink" title="切片"></a>切片</h2><p>对于切片来说，很多内容都已经很熟悉了，只不过对于三个参数的，还是有些忘记。记得第三个参数的意思是步长就可以了。</p>
+<pre><code>&gt;&gt;&gt; a = &apos;1234567890&apos;
+&gt;&gt;&gt; a[1:3]
+&apos;23&apos;
+&gt;&gt;&gt; a[1:7:2]
+&apos;246&apos;
+&gt;&gt;&gt; a[1:7:-1]
+&apos;&apos;
+&gt;&gt;&gt; a[:7:-1]
+&apos;09&apos;
+&gt;&gt;&gt; a[8:2:-1]
+&apos;987654&apos;
+</code></pre><p>写一个包含很多内容的代码，如果过一阵我自己还能看懂，说明最近的学习还是没白费。</p>
+<pre><code>&gt;&gt;&gt; print reduce(lambda x,y: x+&apos;\n&apos;+y , map(&apos; &apos;.join, map(list,&apos;www.maziang.com&apos;.upper().split(&apos;.&apos;))))
+W W W
+M A Z I A N G
+C O M
+</code></pre><p>##字符串对齐<br>就三个函数:<br><em>ljust</em>,<em>rjust</em>,<em>center</em></p>
+<pre><code>&gt;&gt;&gt; print &apos;README&apos;.center(20,&apos;*&apos;)
+*******README*******
+&gt;&gt;&gt; print &apos;README&apos;.ljust(20,&apos;*&apos;)
+README**************
+&gt;&gt;&gt; print &apos;README&apos;.rjust(20,&apos;*&apos;)
+**************README
+</code></pre><p>与此对应的三个函数是：<em>lstrip</em>,<em>rstrp</em>,<em>strip</em><br>下面是strip的例子：</p>
+<pre><code>&gt;&gt;&gt; print &apos;## #  # Secure Guide #*# &apos;.strip(&apos;# *&apos;)
+Secure Guide
+</code></pre></div></article></div></main><footer><div class="paginator"><a href="/2015/02/17/Python_string2/" class="prev">PREV</a><a href="/2014/12/16/RTSP/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2015/02/17/Python_string1/';
+var disqus_title = 'Python 字符串处理1';
+var disqus_url = 'http://zablog.me/2015/02/17/Python_string1/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2017 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

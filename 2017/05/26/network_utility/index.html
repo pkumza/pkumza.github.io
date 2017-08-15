@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 网络实用工具 · Zablog</title><meta name="description" content="网络实用工具 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">网络实用工具</h1><div class="post-info">2017年5月26日</div><div class="post-content"><p>Mac OS X 中超方便的网络小工具<br><a id="more"></a></p>
+<p>早在互联网的早期，事情并不如现在那么稳定，所以系统管理员创建了一套工具来帮助解决问题。许多老板都记得在命令行中键入ping命令后面跟着一个IP地址的“乐趣”，然后等待看是否有响应。</p>
+<p>同样地，traceroute总是有助于找出机器之间通信的计算机，路由器和服务器之间的长链反弹的哪里。 苹果把所有这些有用的工具放在一个名为“网络实用工具”的应用程序中。</p>
+<p>旧版本的Mac可以在Applications文件夹的Utilities文件夹中找到网络实用工具，在 OS X Mavericks 和更高版本中，“网络实用工具”位于“/系统/资源库/CoreServices/Applications”中。当然，也可以用spotlight直接搜索“网络实用工具”，更可以丧心病狂地对Siri说“启动网络实用程序”，应用程序立即在您的屏幕上。每个Mac都可以免费使用，并可以很好地解决互联网连接的问题。<br>您可以在网络实用工具中做的一切事情，当然也可以使用unix工具在终端窗口中实际执行此操作。但是，苹果创建了一个很好的应用程序，让我们可以更轻松地使用这些内容。</p>
+<p>当您首次打开网络实用程序时，可以看到顶部有9个选项卡。</p>
+<p>先做对这些功能的简要介绍（官方）<a href="https://support.apple.com/en-us/HT202790" target="_blank" rel="external">ref</a></p>
+<h2 id="功能列表："><a href="#功能列表：" class="headerlink" title="功能列表："></a>功能列表：</h2><ul>
+<li>Netstat：通过查看使用常用网络协议发送和接收的数据包类型的详细摘要，来检查您电脑的网络路由表。</li>
+<li>Ping：测试您的电脑是否可与位于特定网络地址处的电脑或其他设备进行通信。</li>
+<li>Lookup：查看由您的域名系统 (DNS) 服务器提供的信息。</li>
+<li>Traceroute：跟踪信息在网络中的电脑之间传输时所采用的路径。</li>
+<li>Whois：输入一个域地址，以从 whois 服务器中查找其“whois”信息。</li>
+<li>Finger：输入一个用户名和域地址，以使用 Finger 协议来获取有关用户的信息。</li>
+<li>端口扫描：输入一个互联网或 IP 地址来扫描打开的端口。</li>
+</ul>
+<p><img src="https://blog.macsales.com/wp-content/uploads/2016/10/NetworkUtility-1.png" alt="Info"></p>
+<h2 id="Info-信息"><a href="#Info-信息" class="headerlink" title="Info 信息"></a>Info 信息</h2><p>信息（见上图）提供了一个下拉菜单，其中列出了Mac内置的每个网络接口。 例如，它显示了显示 Wi-Fi（en0），Thunderbolt 1（en1）和Thunderbolt 13（en2）。 选择任何一个网络接口提供了丰富的信息，包括硬件地址（MAC - 媒体访问控制地址，分配给每个网络接口的唯一编号），IP地址（IPv4），链路速度，链路状态，供应商和模型。</p>
+<p>信息屏幕的右侧还显示自Mac上次重新启动以来接口发送或接收的数据包数量。如果可以看到一些错误或冲突，那么丢弃数据包的可能性很小。这通常表现为与网站缓慢的连接，缓慢的下载等。</p>
+<h2 id="Netstat"><a href="#Netstat" class="headerlink" title="Netstat"></a>Netstat</h2><p>对于不是网络管理员的大多数Mac用户，Netstat有点深奥。 它提供了一种通过显示使用常用网络协议（TCP，UDP，IP，ICMP，IGMP，IPSEC，IP6，ICMP6，IPSEC6和PFKEY）发送和接收的数据包类型的摘要，来检查您的Mac网络路由表的方法。<br><img src="https://blog.macsales.com/wp-content/uploads/2016/10/NetworkUtility-2-e1475853654240.png" alt="Netstat"></p>
+<h2 id="Ping"><a href="#Ping" class="headerlink" title="Ping"></a>Ping</h2><p>网络实用程序中可能使用最广泛和最有用的工具可能是ping。 它用于查看您的Mac是否可以与具有已知网络地址的另一个设备通信 - 否则称为“ping”其他设备。例如，如果我在我的iMac（本地网络IP地址10.0.1.6），我想知道我是否可以到达我的AirPort Extreme路由器（本地网络IP地址10.0.1.1），我键入我希望ping的地址 进入网络实用程序的Ping窗格中的字段，然后单击Ping按钮。<br><img src="https://blog.macsales.com/wp-content/uploads/2016/10/NetworkUtility-3.png" alt="ping"></p>
+<p>默认情况下，ping向另一台设备发送10个数据包，测量iMac上每次ping接收的时间。 如果响应显示任何或所有ping返回超时，则表示Mac与路由器之间的连接不正确，并且我可以开始解决具有该知识的问题。</p>
+<h2 id="Lookup"><a href="#Lookup" class="headerlink" title="Lookup"></a>Lookup</h2><p>如果不是域名系统（DNS）服务器，我们都可以在我们的网络浏览器中输入数字地址以访问网站。 DNS将Web地址（如blog.macsales.com）转换为IP地址，以便我们的计算机可以与Web服务器进行会话。 有时您可能会输入网址，并从网页浏览器中找到“服务器未找到”错误。 这通常表示您错误地输入了地址（如“blurg.macsales.com”），DNS服务器可能存在问题，或DNS服务器地址（在“网络参考”中输入）可能不正确。</p>
+<p>Lookup实际上包含两个基本命令 - nslookup和dig。 键入网站的字母数字名称 - 例如“apple.com”，然后单击查找按钮显示与该域名相关联的IP地址，而输入IP地址则显示与该地址相关联的域。 奇怪的是，输入“apple.com”显示的IP地址将“applecentre.info”，“AirTunes.info”和“carbondating.com”作为三个可能的域返回。 前两个地址带你到“apple.com”网站，而第三个地址被遗忘。 我猜？ 苹果公司使用这些奇怪的域名作为抵御对该公司的分布式拒绝服务攻击的一种方式。</p>
+<p><img src="https://blog.macsales.com/wp-content/uploads/2016/10/NetworkUtility-4.png" alt="lookup"></p>
+<h2 id="traceroute"><a href="#traceroute" class="headerlink" title="traceroute"></a>traceroute</h2><p>网络实用程序中最有用的工具之一是traceroute，它正是这个名称所暗示的 - 它跟踪Mac和另一台机器之间的路由。 看看从本电脑traceroute到美国专利商标局（uspto.gov）会发生什么。</p>
+<p><img src="https://blog.macsales.com/wp-content/uploads/2016/10/NetworkUtility-5.png" alt="traceroute"></p>
+<p>事情从我的本地网络（10.0.1.1是我的AirPort Extreme Wi-Fi路由器）开始，然后通过各种Comcast系统到达得克萨斯州的达拉斯地区，然后离开ATT网络上的华盛顿特区（wswdc）。 Traceroute在播放Mac和网络服务器之间可以播放一个野蛮的数据包时很有趣。</p>
+<h2 id="Whois"><a href="#Whois" class="headerlink" title="Whois"></a>Whois</h2><p>想知道域名背后的实体？ 这就是Whois的一切。 虽然许多组织现在购买域名注册信息的隐私，但仍然可以找到网站使用的域名注册商。 如果您从特定的电子邮件地址收到垃圾邮件并希望向域名注册商投诉，这可能非常有用。</p>
+<h2 id="Finger"><a href="#Finger" class="headerlink" title="Finger"></a>Finger</h2><p>Finger创建于1971年，是现在使用微博、QQ完成状态更新的最早形式之一。你可以使用Finger来检查你的朋友是否在线，你可以发布.plan文件到您的个人资料类似博客帖子。</p>
+<p>使用Finger的最佳方式之一是在Mac上输入您的用户名或其他用户的用户名。它会告诉你他们/你当前是否登录，以及他们/你上次登录的时间长短。可以把Finger视为独立个体的whois。</p>
+<p>幸运的是，现在它已经几乎无法正常工作，它曾经在互联网的原始日子里辉煌过。如今，用户名和域名地址的手指很可能会超时。这对于隐私保护来说是一件好事，而且在这个社交网络已经极其发达的时候，Finger说实在的已经没有什么意义了。</p>
+<h2 id="Port-Scan"><a href="#Port-Scan" class="headerlink" title="Port Scan"></a>Port Scan</h2><p>网络实用程序窗口中的最后一个选项卡是端口扫描，可用于确定特定计算机上各种Internet协议端口的状态。 当您的Mac被分配一个特定的IP地址时，它使用的各种服务，包括电子邮件，网页浏览等，都被分配一个TCP或UDP端口号。</p>
+<p>在一个非常安全的世界中，在一个非常安全的Mac上，所有的端口将被关闭 - 这就是防火墙的目的，它作为特定端口的网守，只允许特定流量通过该端口进入。 但是你会发现一些端口是开放的 - 在这次扫描中，我关闭了Mac的内置防火墙（在“系统偏好设置”&gt;防火墙中找到），并发现许多端口都是打开的：<br><img src="https://blog.macsales.com/wp-content/uploads/2016/10/NetworkUtility-6.png" alt="Port Scan"><br>要查看特定端口的使用情况，以下是完整列表。 我发现一些端口（445和4502）用于Windows共享和Silverlight; 将Mac的防火墙重新启动没有关闭这些端口，这显然是我在这台机器上使用的一些应用程序所需要的。</p>
+<hr>
+
+<p>所以，你现在已经学会这个工具啦。它在网络问题解决方面真的是太方便了。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2017/08/04/github_onion_scan/" class="prev">PREV</a><a href="/2016/12/26/multithreading_memory/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2017/05/26/network_utility/';
+var disqus_title = '网络实用工具';
+var disqus_url = 'http://zablog.me/2017/05/26/network_utility/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2017 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

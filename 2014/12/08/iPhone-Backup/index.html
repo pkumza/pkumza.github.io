@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Mac下修改iTunes中iPhone的自动备份路径 · Zablog</title><meta name="description" content="Mac下修改iTunes中iPhone的自动备份路径 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">Mac下修改iTunes中iPhone的自动备份路径</h1><div class="post-info">2014年12月8日</div><div class="post-content"><h1 id="不废话，直入正题"><a href="#不废话，直入正题" class="headerlink" title="不废话，直入正题"></a>不废话，直入正题</h1><h2 id="我的配置"><a href="#我的配置" class="headerlink" title="我的配置"></a>我的配置</h2><table>
+<thead>
+<tr>
+<th>Item</th>
+<th style="text-align:center">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OS</td>
+<td style="text-align:center">OS X El Capitan 10.11.1</td>
+</tr>
+<tr>
+<td>PC</td>
+<td style="text-align:center">Macbook Pro 13’ 8GB 256GB</td>
+</tr>
+<tr>
+<td>Portable Disk</td>
+<td style="text-align:center">WD My Passport 2TB</td>
+</tr>
+<tr>
+<td>NTFS mounting</td>
+<td style="text-align:center">Tuxera NTFS for Mac</td>
+</tr>
+</tbody>
+</table>
+<p>首先连接移动硬盘，那么它会被挂载到位置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/Volumes/Ultra Passport</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>为什么叫做 <em>Ultra Passport</em>，这只是我自己给我的移动硬盘起的卷名而已。它买来默认其实是My Passport。<br>然后，iPhone默认的备份路径是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/Users/marchon/Library/Application Support/MobileSync/Backup</div></pre></td></tr></table></figure>
+<p>为什么叫做 <em>marchon</em>，这只是我自己的用户名而已。<img src="http://i11.tietuku.com/76baa07805638f0d.png"></p>
+<h2 id="配置方法"><a href="#配置方法" class="headerlink" title="配置方法"></a>配置方法</h2><p>如果你以前没有重要的备份的话，那么就直接把/Users/marchon/Library/Application Support/MobileSync/这个文件夹删除。</p>
+<p>然后运行把它连接到目标位置就可以了。</p>
+<p>命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /Volumes/Ultra\ Passport/</div><div class="line">mkdir MobileSync</div><div class="line"><span class="built_in">cd</span> /Users/marchon/Library/Application\ Support/</div><div class="line">rm -rf MobileSync</div><div class="line">ln -sf /Volumes/Ultra\ Passport/MobileSync MobileSync</div></pre></td></tr></table></figure>
+<p>注意，如果运行你自己的程序，要把我的 <em>Ultra Passport</em> 换成你自己的路径。<br>另外不要忘了在空格前面加上’\’。<br>这时候就大功告成了，选择备份iPhone的时候，备份内容会自动备份到移动硬盘里。<br>64GB的iPhone，使用了50多GB，备份出来的内容实际上只有20GB，并没有想象中那么大。<br>另外大家如果不是那么急着每天备份的话，可以把“连接该手机时自动备份”的选项关了。否则，当你连上了手机但是忘了连移动硬盘的时候，它就会给你报备份错误。虽然这个错误无伤大雅，再次连接的时候依然可以正常备份。</p>
+<h1 id="磁盘格式那些事儿"><a href="#磁盘格式那些事儿" class="headerlink" title="磁盘格式那些事儿"></a>磁盘格式那些事儿</h1><p>使用iPhone自动备份当然是一件非常开心的事情，但是 Macbook 的硬盘也并不富裕。中配的13‘ Macbook Pro 也只是 256GB的SSD，在买一个中配的iPhone 64GB， 那么备份一次又要消耗多很多容量。<br>照片的自动备份也是一个很耗费容量的东西，尤其是对于摄影爱好者，存2000张RAW照片，那么40GB空间就没了。录几个4K视频，几十GB又没了。<br>然而 <strong>照片</strong> 这个应用是可以更换默认地址的。只需要按住 <em>alt/option</em> 键，然后点击 <em>照片</em> 的图标就可以了。<br><img src="http://i13.tietuku.com/870bfbc91243cec1.png" alt="修改照片的默认图库地址"></p>
+<p>当然，如果想要转移出去的话，需要一个格式为<strong>HFS+</strong>的移动硬盘。</p>
+<p><strong>照片</strong>应用是可以，但是现在我还是没有发现iTunes有类似的功能，但是实际上也不难搞定。</p>
+<h2 id="HFS-OSX-Extended"><a href="#HFS-OSX-Extended" class="headerlink" title="HFS+ (OSX Extended)"></a>HFS+ (OSX Extended)</h2><p>首先连接上你的移动硬盘，最好是格式化为<strong>HFS+</strong>格式。<br>什么是<strong>HFS+</strong>呢？其实HFS+就是OS X扩展格式。<br><img src="http://i13.tietuku.com/f8970461edc5d97e.png" alt="HFS+"><br>这个格式是苹果自创的磁盘格式，和微软常用的NTFS是不兼容的。直接连到Windows的电脑上，也是读取不了的。不过苹果自己的系统默认就是这个格式。<br>当然，如果不是这个格式也没有关系。<br>OS X 和 Windows 之间通用的格式，有FAT32格式和exFAT格式。</p>
+<h2 id="FAT32"><a href="#FAT32" class="headerlink" title="FAT32"></a>FAT32</h2><p>FAT32格式是从很早的系统中传承过来的，兼容性强，但是致命的缺点是不支持单个4G以上的大小的文件。如果你想要存一个蓝光电影，那么久不要想FAT32了。</p>
+<h2 id="exFAT"><a href="#exFAT" class="headerlink" title="exFAT"></a>exFAT</h2><p>exFAT格式是对FAT的扩展，支持苹果和微软的系统，但是它只是一个折衷的方案，适合于闪存存储（U盘、SSD等是闪存存储），不那么适合于磁盘存储，而且据论坛的人们说不那么稳定，有的时候的热插拔会导致数据丢失，甚至盘区的崩溃、数据的丢失，所以也不是那么建议使用。</p>
+<h2 id="NTFS"><a href="#NTFS" class="headerlink" title="NTFS"></a>NTFS</h2><p>NTFS (New Technology File System)，是 WindowsNT 环境的文件系统。新技术文件系统是Windows NT家族（如，Windows 2000、Windows XP、Windows Vista、Windows 7和 windows 8.1）等的限制级专用的文件系统（操作系统所在的盘符的文件系统必须格式化为NTFS的文件系统，4096簇环境下）。NTFS取代了老式的FAT文件系统。<br>该文件系统的详细定义属于商业秘密 ，微软已经将其注册为知识产权产品。所以现有的支持产品，挂载到Unix/Linux机器上，有可能支持比较好，但是不能完全依赖，因为微软把NTFS的细节作为商业机密隐藏了，不能保证NTFS的100%安全操作。<br>OS X迄今(2015年10月25日)为止是无法原生支持 NTFS 的，连接上NTFS的磁盘以后，是只读的。如果需要写入，那么就需要额外的插件软件。现在的一些软件做得也不错，比如<a href="http://www.paragon-software.com/" target="_blank" rel="external">Paragon</a>公司的<a href="http://www.ntfsformac.cn" target="_blank" rel="external">NTFS For Mac</a> 、<a href="http://www.tuxera.com/products/tuxera-ntfs-for-mac/" target="_blank" rel="external">Tuxera NTFS for Mac</a>等等。<br>这些插件的缺点是：</p>
+<ul>
+<li>收费</li>
+<li>系统更新了，软件也有可能必须更新才能继续支持NTFS。</li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/2014/12/16/RTSP/" class="prev">PREV</a><a href="/2014/11/29/Mahjong/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2014/12/08/iPhone-Backup/';
+var disqus_title = 'Mac下修改iTunes中iPhone的自动备份路径';
+var disqus_url = 'http://zablog.me/2014/12/08/iPhone-Backup/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2017 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Drupal7 Views模块   Part I · Zablog</title><meta name="description" content="Drupal7 Views模块   Part I - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">Drupal7 Views模块   Part I</h1><div class="post-info">2014年6月4日</div><div class="post-content"><p>#简介<br>Views模块在Drupal的重要程度不必多说，从Drupal官方网站上可以看出，Views模块是官网上下载量最高的第三方模块。<br>核心模块：Views实际上是引用了“视图”这个概念，就是说，我们可以在Drupal中把那些节点展示出来，但是没有集中展示的功能，没有按照条件筛选、排序然后展示出来的功能。比如我们想把所有的博客内容放在一起，再把所有的相册内容放在一起，那么就需要Views的帮助。</p>
+<ul>
+<li>PS:之前和Views模块一样重要的还有CCK模块，而在Drupal7发布的时候，已经把CCK这个重要模块的大多数功能集成进系统核心了。因此，Views的第一模块的地位，更没有人动摇了。实际上，因为Views的广泛使用，在Drupal8中，Views也要进入核心模块了。</li>
+</ul>
+<p>这里就实际进行一次Views模块的学习，记录一下操作学习记录。<br>开发环境：</p>
+<ul>
+<li>系统: Mac OS X 10.9.3</li>
+<li>PHP等: XAMPP</li>
+<li>Drupal: Drupal7.28</li>
+<li>Views: 7.x-3.8</li>
+</ul>
+<a id="more"></a>
+<p>Views的下载地址：<a href="http://drupal.org/project/views" target="_blank" rel="external">Views</a><br><img src="http://i13.tietuku.com/c7fa6e3b67f998ff.png" alt="Views主页"></p>
+<p>#安装模块<br>从上面的地址下载到文件。views-7.x-3.8.tar<br>解压，得到views文件夹。复制到 drupal/sites/all/modules/ 文件夹下<br>然后打开Drupal的管理员界面，进入模块选项，就会发现模块的最下方多了Views的栏目。<br>如图：<br><img src="http://i13.tietuku.com/c7fa6e3b67f998ff.png" alt=""><br>我们发现Views模块是依赖于CTools模块的，没有这个模块就没法运行Views，所以我们再到官网上，搜索CTools模块，实际上ctools全名叫做Chaos tool suite，下载压缩包，解压，同样放在 drupal/sites/all/modules/ 目录下就可以了。<br>实际上ctools也是一个非常强大的模块，有很多功能，以后或许还需要专门学习，这里就先放在这里了。<br>下载完成后，我们再去看Views模块，就发现可以点选了。<br><img src="http://i13.tietuku.com/7fee341e00522739.png" alt=""><br>我们把两个复选框点选，然后保存设置。网站提示：</p>
+<blockquote>
+<p>必须启用 Chaos tools 模块以安装 Views UI。<br>需要继续上述步骤么？</p>
+</blockquote>
+<p>选择继续，开启了ctools模块，这个时候Views模块就被激活了。安装成功。</p>
+<p>###中文支持<br>下面尝试多一点中文比较好，因为直接使用的话，Views都是英文的。<br>我到官网上下载到了这个文件：views-7.x-3.8.zh-hans.po<br>然后，首页-&gt;配置-&gt;地区和语言-&gt;翻译<br>在右上角选择导入，导入这个下载的.po文件，画面显示如下：<br><img src="http://i13.tietuku.com/2b51564ef245c846.png" alt=""></p>
+<p>#使用<br>配置Views有两个入口，第一种是在模块选项下面，在Views UI的最右面有“配置”两个字。<br>或者，在主页选择“结构”，然后直接就会看到Views。点击进去就是一样的效果。<br>实际上，刚才我们看到的还是Views，经过刚才的导入po文件，Views已经神奇地变成了“视图”二字。<br>不过可怜的是，下面的介绍还是英文的，但是我们也可以从下面的英文介绍中了解这个模块的功能：</p>
+<blockquote>
+<p>Manage customized lists of content.<br>管理自定义的内容列表。</p>
+</blockquote>
+<p>点击进入，界面如下：<br><img src="http://i13.tietuku.com/bb5437a6ab25a824.png" alt=""><br>令人遗憾的是，好像好不容易导入的中文支持，仅仅只是把Views翻译成了视图，刚才还说导入那么多条目呢，怎么还都是英文的！<br>稍安勿躁，也许真正的翻译，都在里头吧。好在这些英文也都看得懂，比如Archive、Backlinks等等。这个列表是已经帮我建好的一些默认的视图，也都是建站中常见的视图。本站上面，左上角，除了Home还有一个Archive对不对。<br>先不做自定义的视图了，先试一试这些已经有的。比如Front page（头版）。<br>打开这个功能，然后发现可以通过/frontpage来进行访问，于是很开心地输入了这个网址，获得了一个跟首页一样的。这才想起来，自己设置主页的时候很草率，并没有专门设置主页，主页就是一些最新文章的列表，而Frontpage也正好是最新文章的列表，可不是一模一样嘛。这么无聊，能设置什么吗？打开关于Front Page的设置。如图：</p>
+<p><img src="http://i13.tietuku.com/fdfd9f7a24ee41a8.png" alt="Front Page"></p>
+<p>可以设置的东西还是很多很多的，首先吧发布日期弄成升序？保存。然后以前的那些文章，就变成了升序。还是超级简单的一个功能，在一定程度上小小的自定义。不过这也就是Views模块的方便之处。如果没有Views模块，直接拿着Drupal，怎样才能弄出来一个按照时间顺序升序来排列的文章列表呢？<br>其实这只是Views功能的一瞥，Views的各种筛选功能强大了去了，这些使用Drupal核心是达不到的，而且，这如果真的用底层的PHP和数据库对接，再不停地考虑数据库项目；甚至还需要在现实的时候兼顾美工效果，那工作量真是Hold不住哇。</p>
+<p>#新建用户列表<br>这里开始尝试一下Views模块的自定义功能。现在想要自定义一个用户列表。<br>首先，在进入结构-&gt;视图，然后新建视图。不要选择从模板新建。<br>试图名称：用户列表<br>机读名称：userlist<br>显示：用户<br>这个选择很重要，这决定了显示的内容类型。<br>接下来，生成一个页面，页面标题就是 用户列表，路径添加为userlist<br>保存并退出。<br>这个时候，在地址栏输入：<a href="http://localhost/Drupal/userlist" target="_blank" rel="external">http://localhost/Drupal/userlist</a> 就得到了我们的用户列表：<br><img src="http://i13.tietuku.com/27206e05e506f148.png" alt="用户列表"></p>
+<p>显示的是本网站的三个用户，按照注册顺序逆序排列。<br>这里只有用户名，或许太简单了，如果我们需要一些更详细的信息和更好的显示，应当怎么办呢？<br>我们还是来到视图，然后进入编辑。在字段栏目中，点击添加字段。<br>然后在筛选中找到与用户相关的字段，我们吧“创建日期”、“用户e-mail”、“权限”、“语言”的复选框选定。点击应用。保存。<br>再回到<a href="http://localhost/Drupal/userlist" target="_blank" rel="external">http://localhost/Drupal/userlist</a> 就可以发现，现在显示的内容就包含刚才选定的几个内容，只不过是非床混乱地不停地书写下来的。这个时候就可以在编辑里面，把格式改为“表格”或者其他的，再进行几个步骤的简单设置，就可以吧用户列表，按照想要的格式，规矩地显示出来了。<br>如图：<br><img src="http://i13.tietuku.com/f7852167174d1d78.png" alt="表格显示的用户"><br>设置里面可以方便地进行设置，比如我觉得E-mail不好听，我甚至可以在字段标签中，把E-mail改为 电邮儿，保存之后，表格中的列标题就变成了 电邮儿。这只是一个修改的例子，里面可以修改的东西远远不止这一点，只要有查询上的需求，几乎都可以通过Views来进行实现。</p>
+<p>#和CCK进行结合<br>内容类型中，系统自带的有两种，一种是基本页面、一种是文章。假如我们自定义了一种内容类型，如“职员”，然后我想现实一个只包含“职员姓名”和“职员所使用的变成语言”这两种项目的职员列表怎么办？<br>首先，职员这种内容类型可能包含有很多很多的字段，比如姓名、性别、职位、薪酬等等。如果没有Views模块，我们一般只能中规中矩地进行显示。现在可以不这样了。<br>首先，点击结构-&gt;视图，然后添加视图，选取描述和路径。<br>重点在显示这里。第一个框选择“内容”，第二个框选择“职员”，这个很重要。其他的就无所谓了，根据自己的需要调整一下就可以了。<br>在弄完这些以后，选择继续编辑，在格式标签内的显示这里，吧内容改成字段，然后删除已有字段，添加自己需要的两个字段，分别是“姓名”、“编程语言”。选定以后，点击保存，就可以看到想要的结果了。应该说是非常方便。</p>
+<p>第一部分先到这里。关于Views模块，并不是这么简单，关键是里面还有很多很多细节，相关的东西将会在下一个Part进行更细致的讲述。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2014/06/06/Two-Bad-Trival/" class="prev">PREV</a><a href="/2014/06/03/WWDC2014/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2014/06/04/Drupal-View/';
+var disqus_title = 'Drupal7 Views模块   Part I';
+var disqus_url = 'http://zablog.me/2014/06/04/Drupal-View/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2017 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

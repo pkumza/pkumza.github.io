@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> IA64中的VHPT · Zablog</title><meta name="description" content="IA64中的VHPT - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">IA64中的VHPT</h1><div class="post-info">2016年4月21日</div><div class="post-content"><p>安腾的体系结构定义了一套虚拟散列页表 virtual hash page table（VHPT），同时定义了VHPT walker这样一个硬件机制。 VHPT是对TLB的扩展，来加强虚拟地址转换为物理地址的效率，可以显著减小当TLB失效的时候造成的延迟。</p>
+<a id="more"></a>
+<p>本文的原文地址为<a href="http://zablog.me/2016/04/21/VHPT-IA64/">http://zablog.me/2016/04/21/VHPT-IA64/</a>。</p>
+<p>VHPT在虚拟地址空间中可以被设置为操作系统的一级页表，也可以设置为独一无二的大型转换缓存，如图4-9。当TLB失效产生的时候，会使用硬件的哈希函数进行查找。</p>
+<p>PTA的意思是Page Table Address (Register)。</p>
+<p>VHPT可以被操作系统当做一级系统页表使用，也可以用作倒排页表。其中的冲突查找链的实现和操作系统页表的实现都是由软件定义的，是可选的。</p>
+<p><img src="http://imglf0.nosdn.127.net/img/MGpGUW9CdGlzcDZ0d3RiZWFqbDVnUDJWbFFnTk83aGg4NjBlL3JNUmJKTzZjU1RXMFovSy93PT0.png" alt="Figure 4-9"></p>
+<p>安腾体系结构提供了两种VHPT表项的结构，一种是Short格式，一种是Long格式。对于Short格式来说，VHPT就是一个线性的页表，它的PTE的表项大小是8个字节，即2个字的长度，64Bit。如图4-10。</p>
+<p><img src="http://imglf0.nosdn.127.net/img/MGpGUW9CdGlzcDZ0d3RiZWFqbDVnQXZ3MDN0WnhaTHFoMXU2eDJ4TjBjSld3eEtFMFhzYlBRPT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="Figure 4-10"></p>
+<p>当采用Long格式的时候，它的表项就增加为32个字节。这32个字节不仅包含了Short格式的所有内容，还增加了一些位。它是Short格式的超集。</p>
+<p><img src="http://imglf1.nosdn.127.net/img/MGpGUW9CdGlzcDZ0d3RiZWFqbDVnQ3NNdkppaE9rR0EvSVpGL3N3c3k4TEo3WS9manJjVTd3PT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="Figure 4-12"></p>
+<p>增加了主要内容为 ：</p>
+<table>
+<thead>
+<tr>
+<th>bit</th>
+<th>offset</th>
+<th style="text-align:left">Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tag</td>
+<td>+16</td>
+<td style="text-align:left">Tag是VHPT的hash index，是用来确认转换的独一无二性。</td>
+</tr>
+<tr>
+<td>ti</td>
+<td>+16</td>
+<td style="text-align:left">Tag Invalid位，用来确定tag的有效性。</td>
+</tr>
+<tr>
+<td>ig</td>
+<td>+24</td>
+<td style="text-align:left">操作系统可自定义，比如可以用来指示当hash冲突产生的时候，冲突链的下一个链接的地址。正好是8个字节，正好用来放置64bit的地址。</td>
+</tr>
+</tbody>
+</table>
+<p>附录1</p>
+<p>Short Format &amp; Long Format</p>
+<p>The Itanium architecture defines a data structure that allows for the insertion of TLB entries by a hardware mechanism. The data structure is called the “virtual hash page table” (VHPT) and the hardware mechanism is called the VHPT walker.<br>Unlike the IA-32 page tables, the Itanium VHPT itself is virtually mapped, i.e. VHPT walker references can take TLB faults themselves. Virtual mapping of the page tables is needed because the page tables for 264 address space are quite large and typically do not fit into physical memory.<br>The Itanium architecture prescribes the format of a leaf-node page table entry (PTE) seen by the VHPT walker, but does not impose an OS page table data structure itself. As summarized in Table 5-1, the architecture support two different VHPT formats:<br>• Short format uses 8-byte PTEs, and is a linear page table. The short format VHPT does not contain protection key information (there are not enough PTE bits for that). Short format is a per-region linear page table, i.e. the PTEs and hash function are independent of the RID. The short format prefers use of a self-mapped page table. The short format VHPT is an efficient representation for address spaces that contain only a few large clusters of pages, like the text, data, and stack segments of applications running on a MAS operating system.<br>• Long format uses 32-byte PTEs, and is a hashed page table. The hash function embedded in hardware. The long format supports protection keys and the use of multiple page sizes in a region. The long format hash and tag functions incorporate the RID, and allows multiple address space translations to be present in the same VHPT. The long format is expected to be used either as a cache of the real OS page tables, or as a primary page table with collision chains. The long format VHPT is a much better representation for address spaces that are sparsely populated, since the short format VHPT has a linear layout and would consume a large amount of memory. Single address space operating systems may prefer the long format VHPT for this reason. </p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Short Format</th>
+<th style="text-align:left">Long Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entry Size</td>
+<td>8 Byte</td>
+<td style="text-align:left">32 Byte</td>
+</tr>
+<tr>
+<td>Lookup</td>
+<td>Linear</td>
+<td style="text-align:left">Hashed</td>
+</tr>
+<tr>
+<td>Protection Keys</td>
+<td>No</td>
+<td style="text-align:left">Yes</td>
+</tr>
+<tr>
+<td>Page Size</td>
+<td>per region</td>
+<td style="text-align:left">per entry</td>
+</tr>
+</tbody>
+</table>
+<p>附录2：<br>What is RID?<br>The Itanium architecture provides a byte-addressable 64-bit virtual address space. The address space is divided into 8 equally-sized sections called regions. Each region is 261 bytes in size and is tagged with a unique region identifier (RID). As a result, the processor TLBs can hold translations from many different address spaces concurrently, and need not be flushed on address space switches. The regions provide the basic virtual memory architecture to support multiple address space (MAS) operating systems.<br>Additionally, each translation in the TLB contains a protection key that is matched against a set of software maintained protection key registers. The protection keys are orthogonal to the region model and allow efficient object sharing between different address spaces. The protection key registers provide the basic virtual memory architecture to support single address space (SAS) operating systems.<br>安腾的体系结构提供了一个64位的虚拟空间。这个虚拟空间被平分为8个区域（region），每一个区域有261字节的空间，被一个独一无二的区间标识符(RID)来标识……<br> 参考资料：</p>
+<p>1 Intel 白皮书 itanium-architecture - <a href="http://www.intel.com/content/www/us/en/processors/itanium/itanium-architecture-vol-1-2-3-4-reference-set-manual.html" target="_blank" rel="external">http://www.intel.com/content/www/us/en/processors/itanium/itanium-architecture-vol-1-2-3-4-reference-set-manual.html</a><br>2 Itanium Page Table and TLB - <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.14.3453&amp;rep=rep1&amp;type=pdf" target="_blank" rel="external">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.14.3453&amp;rep=rep1&amp;type=pdf</a> </p>
+</div></article></div></main><footer><div class="paginator"><a href="/2016/05/05/AppAnalysisPlatforms/" class="prev">PREV</a><a href="/2016/04/15/discrimination/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2016/04/21/VHPT-IA64/';
+var disqus_title = 'IA64中的VHPT';
+var disqus_url = 'http://zablog.me/2016/04/21/VHPT-IA64/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2017 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>
