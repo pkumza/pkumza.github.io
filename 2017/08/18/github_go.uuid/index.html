@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 每周一个Github项目【第三期】go.uuid · Zablog</title><meta name="description" content="每周一个Github项目【第三期】go.uuid - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">每周一个Github项目【第三期】go.uuid</h1><div class="post-info">2017年8月18日</div><div class="post-content"><p>go语言UUID包 // UUID package for Go</p>
+<a id="more"></a>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>go.uuid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址</td>
+<td><a href="https://github.com/satori/go.uuid" target="_blank" rel="external">Github</a></td>
+</tr>
+<tr>
+<td>作者</td>
+<td>satori等</td>
+</tr>
+<tr>
+<td>brief intro</td>
+<td>UUID package for Go</td>
+</tr>
+<tr>
+<td>简要介绍</td>
+<td>go语言UUID包</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>Stars</td>
+<td>1304</td>
+</tr>
+</tbody>
+</table>
+<h2 id="什么是UUID"><a href="#什么是UUID" class="headerlink" title="什么是UUID"></a>什么是UUID</h2><p>UUID的全称是universally unique identifier，全局唯一认证，它是一个128比特的数字，用来辨认计算机系统中的信息。术语GUID也是这个意思。</p>
+<p>UUID的终极目的是“独特性”,它不希望依赖中央注册机构或协调双方之间产生这种独特性,与大多数其他编号计划。虽然UUID将重复的概率不为零，但是它接近于零，因此可以忽略不计。</p>
+<p>在命令行，有简单的产生UUID的方法，在Unix/Linux系统中，只要简单的执行uuidgen就可以获得一个新的UUID字符串。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ uuidgen</div><div class="line">7d976a86-8414-11e7-8ac3-6c92bf136d47</div></pre></td></tr></table></figure>
+<p>UUID是128比特的数字，如果用16进制表示的话，可以表示为一个32位的十六进制数。一般在格式化的时候，格式化为<code>8-4-4-4-12</code>的形式，如</p>
+<p><code>123e4567-e89b-12d3-a456-426655440000</code><br><code>xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx</code></p>
+<h2 id="为什么要有UUID"><a href="#为什么要有UUID" class="headerlink" title="为什么要有UUID"></a>为什么要有UUID</h2><p>在分布式系统中，因为通信、同步、保持一致性具有很高的成本，所以一些场景下希望不依靠通信就可以生成唯一的身份验证符号。</p>
+<h2 id="如何产生UUID"><a href="#如何产生UUID" class="headerlink" title="如何产生UUID"></a>如何产生UUID</h2><p>那么这样一个UUID是如何产生的呢？</p>
+<p>中国是一个超大规模的国家，如果每个人生成自己的身份证，都需要到相互协调，那么全国肯定一团糟，如果每个人都到中央注册机构来确定独特性的话，那么中央注册机构肯定被挤爆。那么身份证的生成办法是分配前几位数为地区，分配中间几位为时间，后面三位用于一个区域内确定唯一性，最后一位校验即可。这样就可以相对方便地产生唯一的身份号码了。</p>
+<p>同样地，MAC地址和蓝牙地址的确定也是类似的策略，前面的位数是厂商号，后面的位数由厂商内部决定，这样就避免了冲突。</p>
+<p>实际上，UUID的国际标准<a href="https://tools.ietf.org/html/rfc4122" target="_blank" rel="external"><strong>RFC 4122</strong></a>定义了5个版本的生成方式。</p>
+<h4 id="版本1"><a href="#版本1" class="headerlink" title="版本1"></a>版本1</h4><p>根据时间和MAC地址生成。版本1会把48比特的MAC地址和60比特的时间戳串联起来。<br>这个时间戳是从1582年10月15日午夜UTC时间起算起的纳秒数目。<br>按照<code>RFC4122</code>的规定，这个时间可以延续到大概公元3400年。<br>然而，一些软件，譬如libuuid库，把时间戳作为非负数类型使用，在这种方法下可以使用到公元5236年。</p>
+<h4 id="版本2"><a href="#版本2" class="headerlink" title="版本2"></a>版本2</h4><p>根据时间和MAC地址生成，并使用POSIX UID/GID，DCE安全版本。<br>版本2和版本1很类似，除了最重要的八个时钟序列字节被替换为了本地域的数字，最护重要的32个时间戳被替换为与本地域对应的整形数字。在POSIX系统上，它与UID和GID有关。在非POSIX系统上，就靠系统自己定义了。</p>
+<h4 id="版本3"><a href="#版本3" class="headerlink" title="版本3"></a>版本3</h4><p>哈希命名空间和名字，使用MD5作为哈希算法。<br>版本3的生成方法是哈希命名空间的标识符和名字。命名空间标识符本身就是一个UUID，该规格提供UUID来标识URL的命名空间等作用。</p>
+<h4 id="版本4"><a href="#版本4" class="headerlink" title="版本4"></a>版本4</h4><p>随机生成。<br>忘了说，上述所有版本生成的UUID都有字段来规定自己的版本。所以并非128比特都是可以任意使用的。<br>对于随机生成的版本4UUID，理论上有2<sup>122</sup>, 或者说5.3x10<sup>36</sup>种可能性。</p>
+<h4 id="版本5"><a href="#版本5" class="headerlink" title="版本5"></a>版本5</h4><p>哈希命名空间和名字，使用SHA1作为哈希算法。和版本3特别类似。因为SHA1算法产生的字串是160bit，比MD5长，所以强行缩短为128位再插入。</p>
+<h2 id="冲突"><a href="#冲突" class="headerlink" title="冲突"></a>冲突</h2><p>在版本1或者2中，因为是和独一无二的MAC地址相关的，所以只要MAC地址不冲突，则UUID不可能冲突。当然MAC地址是可以伪造的，那个时候冲突就不在我们的讨论范围了。</p>
+<p>但是其他版本的是有可能产生冲突的。譬如版本4，完全依靠随机性来产生，两个UUID一模一样是存在理论可能的。<br>然而，因为位数较多，所以这个可能性极低。<br>经过计算，产生的2.71x10<sup>18</sup>个UUID，有50%的概率会拥有至少一个冲突。</p>
+<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/d5e4534ec6aac67d0d084e7aa8e431d2baed988e" alt="UUID冲突公式"></p>
+<p>这概率可以说实在是太低了，一般应用场景不会有这种问题。</p>
+<h2 id="go-uuid"><a href="#go-uuid" class="headerlink" title="go.uuid"></a>go.uuid</h2><p>最后来讲解一下这个库的用法。这个库相对比较优势的地方就是它实现了<code>RFC4122</code>规定的所有版本，虽然并没有很难哈哈。<br>使用样例很简单，这里是版本4，也是最简单的用法：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/satori/go.uuid"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Creating UUID Version 4</span></div><div class="line">	u1 := uuid.NewV4()</div><div class="line">	fmt.Printf(<span class="string">"UUIDv4: %s\n"</span>, u1)</div><div class="line"></div><div class="line">	<span class="comment">// Parsing UUID from string input</span></div><div class="line">	u2, err := uuid.FromString(<span class="string">"6ba7b810-9dad-11d1-80b4-00c04fd430c8"</span>)</div><div class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">		fmt.Printf(<span class="string">"Something gone wrong: %s"</span>, err)</div><div class="line">	&#125;</div><div class="line">	fmt.Printf(<span class="string">"Successfully parsed: %s"</span>, u2)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>参考文献：</p>
+<ul>
+<li><a href="https://github.com/Knetic/govaluate" target="_blank" rel="external">https://github.com/Knetic/govaluate</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" target="_blank" rel="external">UUID-Wikipedia</a></li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/2017/08/13/github_govaluate/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2017/08/18/github_go.uuid/';
+var disqus_title = '每周一个Github项目【第三期】go.uuid';
+var disqus_url = 'http://zablog.me/2017/08/18/github_go.uuid/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2017 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>
