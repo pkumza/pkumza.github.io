@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-08-18T14:02:06.000Z</updated>
+  <updated>2017-08-27T09:32:27.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,72 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>每周一个Github项目【第四期】hugo</title>
+    <link href="http://zablog.me/2017/08/27/github_hugo/"/>
+    <id>http://zablog.me/2017/08/27/github_hugo/</id>
+    <published>2017-08-27T09:30:00.000Z</published>
+    <updated>2017-08-27T09:32:27.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>一个用Go实现的快速灵活的静态页面生成工具 // A Fast and Flexible Static Site Generator built with love in GoLang.<br><a id="more"></a></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>hugo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址</td>
+<td><a href="https://github.com/gohugoio/hugo" target="_blank" rel="external">Github</a></td>
+</tr>
+<tr>
+<td>作者</td>
+<td>spf13等</td>
+</tr>
+<tr>
+<td>Brief Intro</td>
+<td>A Fast and Flexible Static Site Generator built with love in GoLang.</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td>starts</td>
+<td>19,204</td>
+</tr>
+</tbody>
+</table>
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/static/img/hugo-logo.png" alt="HUGO"></p>
+<p>Hugo 是一个快速灵活的静态页面生成工具。它在速度、易用性和可配置性上进行了优化。Hugo可以把一个包含内容、模板的文件夹渲染为一个完整的HTML网站。</p>
+<p>Hugo基于Markdown文件。</p>
+<p>Hugo可以在瞬间渲染出一个中等大小的网站。从经验来看，每一片内容的渲染只需要大概1微秒。</p>
+<p>Hugo设计之初就是为了服务于博客、tumbles和文档。</p>
+<p><a href="http://gohugo.io/" target="_blank" rel="external">官网gohugo.io</a></p>
+<h1 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h1><p>hugo和hexo可以说是功能类似。</p>
+<p>hexo是离线生成博客网页的工具，由js实现，基于node和npm这一套提醒。可以方便地生成整个博客，渲染markdown，使用theme。</p>
+<p>然而，hexo也存在很多问题，第一是生成速度慢。生成速度和theme有很大关系，但是确实比较慢。最艰难的时候，我曾经每次写一篇新的博客，都需要大概10秒钟以上的时间来生成所有的静态页面。后来换了一个theme，更新了hexo，100个页面，加载时间长达1000ms，生成时间大概是231ms。</p>
+<p>但是hugo在时间上有很大的优势，每次只需要90ms就解决所有的问题，快了十几倍。</p>
+<p>另外，hexo的theme与主hexo的兼容性还有待商榷。有一些主题的兼容性很差，尤其是hexo更新以后，也许就不怎么支持了。</p>
+<p>最后也是最重要的，npm的网络实在不敢恭维，很多时候爆出WARN、Error或者直接下载失败，也就真的卡在npm这里了。对于go来说，本身go的包管理，我认为会比npm好用。</p>
+<p>当然，hexo我已经用了较长时间了，总体也比较熟练。如果没有使用过hexo，但是想要做一个静态博客的话，我建议使用hugo。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;一个用Go实现的快速灵活的静态页面生成工具 // A Fast and Flexible Static Site Generator built with love in GoLang.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
+    
+  </entry>
   
   <entry>
     <title>每周一个Github项目【第三期】go.uuid</title>
@@ -1374,41 +1440,6 @@
     
     
       <category term="C++" scheme="http://zablog.me/tags/C/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>致新年</title>
-    <link href="http://zablog.me/2016/01/01/2016/"/>
-    <id>http://zablog.me/2016/01/01/2016/</id>
-    <published>2015-12-31T16:00:39.000Z</published>
-    <updated>2016-01-01T05:01:04.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>可以说，过去的五六年，我很少在一月一日去回顾过去和展望未来。<br>同时，每当到了这个时候，看着社交媒体上的一些东西，已然觉得可笑。那些媒体，非要给2015来一个如何如何的总结，人也好、国家也好、某种经济数据也好、某个公司也好，也都非要理出一个评价才肯罢休。<br>这样没有错，不过对它的过分追求，也会折射出我们中国人在现有的这个阶段，对于成果的苛求。</p>
-<a id="more"></a>
-<p>中国人很吃这一套，希望通过数据的堆叠来砌出成就感。而且现如今的社会，数据也越来越重要，所以才会有今年双十一的时候九百多亿的营业额，才会有人去关注本季度的经济数据又怎样了。<br>诚然，这些数据对相关专业的应该确实是非常重要的，利益相关嘛。但是也有很多利益无关的人很关心。双十一的营业额什么的，之于我也就是一串没有意义的数字罢了，多一些也好，少一点也罢，对我没有任何的影响。<br>是一种心态在折射吧，好多人都希望把自己的一切都量化起来，然后给一个大汇总。<br>有些东西容易汇总，比如金钱等数据，但是仍然有些东西难以汇总。<br>年终总结，是否容易汇总，和重要和不重要之间，没什么联系。</p>
-<p>那些用手头的钱购买理财产品，或亏或盈的钱，就是容易汇总但不重要的。对于穷学生来说，手头可用来理财的钱就那么一丁点儿，就算10%的收益率也没几个钱，来一次或者失去一次奖学金就完全抵掉。<br>读了几本书，遇到了几个人，懂得了多少道理，这些都是难以汇总但是非常重要的。这些都是人生的巨大财富。如果非要说“读了几本书”很容易汇总，我也不去反驳。然而书本身是没有价值的，有价值的是书的内容，它的知识、论调、情感、情怀。读100本书不一定优于读1本书，因为收获收获的多少除了书的数量以外，还取决于这是什么书，更取决于怎么读，是否被读懂。</p>
-<p>啰里啰嗦说了这么多，很简单，我就是觉得我并没有办法，具象化地把过去一年的收获完整地写出来。2015是丰满的一年，是值得纪念的一年，好多事件可圈可点，好多认识的人让我感到无比幸运。每次回顾过去一年总是感慨万千。每次，以苛刻的视角审视365天以前的自己，都觉得当时的自己真是傻气太重。怎么说呢，觉得过去的自己傻，就证明了这365天的成长。不过我不打算耗费大量的时间去回顾已经过去的2015，因为更凝神的目光应该放眼未来。</p>
-<p>人类的发展导向是指数级增长的。在千年以前，人类的文明还在以类似于线性级别地增长着。祖辈父辈子辈，一代一代的区别不大。父躬耕，子放牛，一个孩子刚刚出生就能一眼望到长大。可是现如今，一个新生的孩子，你完全无法预知他的未来。这样的不确定性带来了一些不利，就像在迷雾中快速行舟，免不得会碰上一些礁石，不过这也正是它美丽的地方。</p>
-<blockquote>
-<p>生活就像一大碗糖豆，各种各样的梦想。 —— Patrick Star</p>
-</blockquote>
-<p>而如我所想的话，</p>
-<blockquote>
-<p>生活就像一大碗糖豆，你永远都不知道下一颗有多粘牙！</p>
-</blockquote>
-<p>甜粘共存，就是这样啊。<br>已经过去的，或好或坏，有得有失，都已无法去追。现在的工作现在的努力，不会有任何一项能够改变过去，能做的只有塑造自己、塑造未来。</p>
-<p>2016、2017、2018……这些数字多么美丽，多么值得去探索。因为未知，所以迷幻，所以绚丽，所以值得万分期待！</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;可以说，过去的五六年，我很少在一月一日去回顾过去和展望未来。&lt;br&gt;同时，每当到了这个时候，看着社交媒体上的一些东西，已然觉得可笑。那些媒体，非要给2015来一个如何如何的总结，人也好、国家也好、某种经济数据也好、某个公司也好，也都非要理出一个评价才肯罢休。&lt;br&gt;这样没有错，不过对它的过分追求，也会折射出我们中国人在现有的这个阶段，对于成果的苛求。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
     
   </entry>
   
