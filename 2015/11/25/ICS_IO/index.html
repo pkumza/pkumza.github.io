@@ -45,7 +45,7 @@
 <h3 id="关闭文件"><a href="#关闭文件" class="headerlink" title="关闭文件"></a>关闭文件</h3><p>关闭文件会告知系统内核，本进程已经不再使用这个文件了。<br>样例代码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> fd;     <span class="comment">/* file descriptor */</span></div><div class="line"><span class="keyword">int</span> retval; <span class="comment">/* return value */</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> ((retval = close(fd)) &lt; <span class="number">0</span>) &#123;</div><div class="line">    perror(<span class="string">"close"</span>);</div><div class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>内核会释放文件打开时，所维护的数据结构，然后把文件描述符恢复到可用的描述符池中。如果没有调用close，进程就因为某种原因终止，那么内核也会关闭它打开的所有文件，并且释放它们的存储器资源。虚拟目录/proc/self/fd 记录了当前进程所打开的文件描述符。</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2015/12/08/ICS_Socket/" class="prev">上一篇</a><a href="/2015/11/23/IPv6AWS/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+</div></article></div></main><footer><div class="paginator"><a href="/2015/12/08/ICS_Socket/" class="prev">PREV</a><a href="/2015/11/23/IPv6AWS/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
 var disqus_identifier = '2015/11/25/ICS_IO/';
 var disqus_title = 'System Level I/O 系统级输入输出';
 var disqus_url = 'http://zablog.me/2015/11/25/ICS_IO/';

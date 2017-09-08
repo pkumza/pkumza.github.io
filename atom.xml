@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-09-04T03:08:30.000Z</updated>
+  <updated>2017-09-08T02:21:39.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -16,13 +16,81 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Go语言技巧</title>
-    <link href="http://zablog.me/2017/09/01/go_tricks_and_tips/"/>
-    <id>http://zablog.me/2017/09/01/go_tricks_and_tips/</id>
-    <published>2017-09-01T13:00:00.000Z</published>
-    <updated>2017-09-04T03:08:30.000Z</updated>
+    <title>Go-技篇第二 命名规范</title>
+    <link href="http://zablog.me/2017/09/08/go_tricks_and_tips_2/"/>
+    <id>http://zablog.me/2017/09/08/go_tricks_and_tips_2/</id>
+    <published>2017-09-08T03:00:00.000Z</published>
+    <updated>2017-09-08T02:21:39.000Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="一句话技巧"><a href="#一句话技巧" class="headerlink" title="一句话技巧"></a>一句话技巧</h2><ul>
+    <content type="html"><![CDATA[<p>本篇主要讲述Go语言的命名规范。<br>优秀的代码必须具备良好的可读性，而可读性的关键即在于命名风格。</p>
+<a id="more"></a>
+<p><a href="http://zablog.me/2017/09/08/go_tricks_and_tips_2/">原文链接: http://zablog.me/2017/09/08/go_tricks_and_tips_2/</a></p>
+<h2 id="优秀的命名"><a href="#优秀的命名" class="headerlink" title="优秀的命名"></a>优秀的命名</h2><p>优秀的命名应当是一贯的、短小的、精确的。<br>所谓一贯，就是说同一个意义在不同的环境下的命名应当一致，譬如依赖关系，不要在一个方法中命名为depend，另一个方法中命名为rely。<br>所谓短小，不必多言，当命名过长的时候，读者可能更关注命名本身，而忽视真正的逻辑内容。<br>所谓精确，就是命名达意、易于理解</p>
+<h2 id="首条经验"><a href="#首条经验" class="headerlink" title="首条经验"></a>首条经验</h2><p>声明位置与使用位置越远，则命名应当越长。</p>
+<h2 id="骆驼命名法"><a href="#骆驼命名法" class="headerlink" title="骆驼命名法"></a>骆驼命名法</h2><p>Go语言应该使用 MixedCase<br>(不要使用 names_with_underscores)<br>首字母缩写词都应该用大写,譬如<code>ServeHTTP</code>、<code>sceneID</code>、<code>CIDRProcessor</code>。</p>
+<h2 id="局部变量"><a href="#局部变量" class="headerlink" title="局部变量"></a>局部变量</h2><p>局部变量应当尽可能短小，譬如使用<code>buf</code>指代<code>buffer</code>，使用<code>i</code>指代<code>index</code><br>在很长的函数中可能会有很多的变量，这个时候可以适当使用一些长名字。<br>但是写出这么长的函数，通常意味着代码需要重构了！🙅🏻‍</p>
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><p>函数的参数和局部变量类似，但是它们默认还具有文档的功能<br>当参数类型具有描述性的时候，参数名就应该尽可能短小：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">AfterFunc</span><span class="params">(d Duration, f <span class="keyword">func</span>()</span>) *<span class="title">Timer</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="title">Escape</span><span class="params">(w io.Writer, s []<span class="keyword">byte</span>)</span></span></div></pre></td></tr></table></figure>
+<p>当参数类型比较模糊的时候，参数名就应当具有文档的功能：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Unix</span><span class="params">(sec, nsec <span class="keyword">int64</span>)</span> <span class="title">Time</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="title">HasPrefix</span><span class="params">(s, prefix []<span class="keyword">byte</span>)</span> <span class="title">bool</span></span></div></pre></td></tr></table></figure>
+<h2 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h2><p>在Go语言中，返回值可以定义名称的，它可以当做一种特殊的参数。<br>尤其重要的是，在外部可见的函数中，返回值的名称应当可以作为文档参考。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Copy</span><span class="params">(dst Writer, src Reader)</span> <span class="params">(written <span class="keyword">int64</span>, err error)</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="title">ScanBytes</span><span class="params">(data []<span class="keyword">byte</span>, atEOF <span class="keyword">bool</span>)</span> <span class="params">(advance <span class="keyword">int</span>, token []<span class="keyword">byte</span>,</span></span></div><div class="line"><span class="function"><span class="params"> err error)</span></span></div></pre></td></tr></table></figure>
+<h2 id="方法接收者（Receiver）"><a href="#方法接收者（Receiver）" class="headerlink" title="方法接收者（Receiver）"></a>方法接收者（Receiver）</h2><p>方法接收者也是一种特殊的参数。Go语言中没有明显的面向对象的概念，可以对方法定义方法接收者来实现类似于对象的方法的概念。</p>
+<p>按照惯例，由于方法接收者在函数内部经常出现，因此它经常采用一两个字母来标识方法接收者的类型。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Buffer)</span> <span class="title">Read</span><span class="params">(p []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="params">(sh serverHandler)</span> <span class="title">ServeHTTP</span><span class="params">(rw ResponseWriter, req *Request)</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="params">(r Rectangle)</span> <span class="title">Size</span><span class="params">()</span> <span class="title">Point</span></span></div></pre></td></tr></table></figure>
+<p>需要注意的是，方法接收者的名字在同一类型的不同方法中应该保持统一，这也是前文所述的一贯性的需求。</p>
+<h2 id="导出包级别命名"><a href="#导出包级别命名" class="headerlink" title="导出包级别命名"></a>导出包级别命名</h2><p>导出名被使用的时候通常是放在包名后<br>所以，在导出变量、常数、函数和类型的时候，<br>不要把包名的意义再写一遍</p>
+<p>比较好的名字<br><code>bytes.Buffer</code> <code>strings.Reader</code></p>
+<p>比较蠢的名字<br><code>bytes.ByteBuffer</code> <code>strings.StringReader</code></p>
+<h2 id="接口类型"><a href="#接口类型" class="headerlink" title="接口类型"></a>接口类型</h2><p>只含有一个方法的接口类型通常以函数名加上<code>er</code>后缀作为名字</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">type</span> Reader <span class="keyword">interface</span> &#123;</div><div class="line">    Read(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>有时候可能导致蹩脚的英文，但别管他，能看懂就好</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> Execer <span class="keyword">interface</span> &#123;</div><div class="line">    Exec(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>有时候可以适当调整一下英文单词的顺序，增加可读性：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> ByteReader <span class="keyword">interface</span> &#123;</div><div class="line">    ReadByte(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当接口含有多个方法的时候，还是要选取一个能够精准描述接口目的的名字，譬如<code>net.Conn</code>、<code>http/ResponseWriter</code></p>
+<h2 id="Error的命名"><a href="#Error的命名" class="headerlink" title="Error的命名"></a>Error的命名</h2><p>Error类型应该写成FooError的形式</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> ExitError <span class="keyword">struct</span> &#123;</div><div class="line">	....</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Error变量协程ErrFoo的形式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">var ErrFormat = errors.New(&quot;unknown format&quot;)</div></pre></td></tr></table></figure>
+<h2 id="包的命名"><a href="#包的命名" class="headerlink" title="包的命名"></a>包的命名</h2><p>应当与它导出代码的内容相关，避免<code>util</code>、<code>common</code>这种宽泛的命名</p>
+<h2 id="引入路径"><a href="#引入路径" class="headerlink" title="引入路径"></a>引入路径</h2><p>包路径的最后一个单词应该和包名一致</p>
+<p>包路径应该尽可能简洁</p>
+<p>记得把库的主要代码直接放在代码库的根目录</p>
+<p>避免在包路径中使用任何大写字母（并非所有文件系统都区分大小写）</p>
+<h2 id="标准库"><a href="#标准库" class="headerlink" title="标准库"></a>标准库</h2><p>上述很多例子都是从标准库中来的</p>
+<p>标准库的很多内容都可以作为参考<br>多看看标准库来寻求灵感吧</p>
+<p>但是要记住：</p>
+<p>当作者写标准库的时候，他们自己也在学习过程中。<br>多数情况下作者是对的，但是偶尔还是会犯一些错误</p>
+<p><hr></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="https://talks.golang.org/2014/names.slide" target="_blank" rel="external">What’s in a name? - Andrew Gerrand</a></li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本篇主要讲述Go语言的命名规范。&lt;br&gt;优秀的代码必须具备良好的可读性，而可读性的关键即在于命名风格。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="go" scheme="http://zablog.me/tags/go/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Go-技篇第一 技巧杂烩</title>
+    <link href="http://zablog.me/2017/09/04/go_tricks_and_tips/"/>
+    <id>http://zablog.me/2017/09/04/go_tricks_and_tips/</id>
+    <published>2017-09-04T13:00:00.000Z</published>
+    <updated>2017-09-08T02:20:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>七个Go语言小技巧，后续持续更新。<br>无论是Go语言小白，还是有经验的开发者，都可能从中获取灵感。</p>
+<a id="more"></a>
+<h2 id="一句话技巧"><a href="#一句话技巧" class="headerlink" title="一句话技巧"></a>一句话技巧</h2><ul>
 <li>把你面向对象的大脑扔到家里吧，去拥抱接口。<a href="https://twitter.com/mikegehard" target="_blank" rel="external">@mikegehard</a></li>
 <li>学习如何使用Go的方式做事，不要把别的的编程风格强行用在Go里面。<a href="https://twitter.com/drnic" target="_blank" rel="external">@DrNic</a></li>
 <li>多用接口总比少用好。<a href="https://twitter.com/evanphx" target="_blank" rel="external">@evanphx</a></li>
@@ -68,6 +136,14 @@
 <p>这里有一段测试代码，正如你所见，这里使用了一个符合Go语言单元测试风格的表格测试：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestUniqStr</span><span class="params">(t *testing.T)</span></span> &#123;</div><div class="line"></div><div class="line">	data := []<span class="keyword">struct</span>&#123; in, out []<span class="keyword">string</span> &#125;&#123;</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;&#125;, []<span class="keyword">string</span>&#123;&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">""</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"a"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>&#125;&#125;,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">for</span> _, exp := <span class="keyword">range</span> data &#123;</div><div class="line">		res := UniqStr(exp.in)</div><div class="line">		<span class="keyword">if</span> !reflect.DeepEqual(res, exp.out) &#123;</div><div class="line">			t.Fatalf(<span class="string">"%q didn't match %q\n"</span>, res, exp.out)</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>经过测试发现，并非每次都能够成功，而是有概率的。因为map是使用hashmap实现的，使用range进行遍历的时候，其遍历顺序和字符串的内容没有必然联系，因此此test有可能失败。在进行DeapEqual比对的时候，可能会爆出类似于<code>[&quot;b&quot; &quot;c&quot; &quot;a&quot;] didn&#39;t match [&quot;a&quot; &quot;b&quot; &quot;c&quot;]</code>的错误。当然，在<a href="https://play.golang.org/p/elRIpSKGjD" target="_blank" rel="external">Playground</a>中，每次执行的上下文环境一模一样，因此这里的test是总能通过的。</p>
+<h2 id="依赖包管理"><a href="#依赖包管理" class="headerlink" title="依赖包管理"></a>依赖包管理</h2><p>很遗憾，Go语言官方并不提供依赖包管理系统。这很可能是因为go语言植根于C语言的文化，因此它没有办法引入特定版本的包。</p>
+<p>这会带来一些严重的问题：</p>
+<ol>
+<li>当多个开发者共同维护一个项目时，不同开发者的依赖版本可能不同。</li>
+<li>依赖也会有他们自身的依赖，所以很难确保所有的依赖都使用同一个版本。</li>
+<li>你的多个项目基于了同一个依赖的不同版本。</li>
+</ol>
+<p>对于最后一种情形，可以通过搭建一个_持续集成环境(Continuous<em>integration)</em>来解决，但是前两者就相对困难。</p>
 <p><hr></p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
 <li><a href="http://www.golangbootcamp.com/book/tricks_and_tips" target="_blank" rel="external"><em>GO BOOTCAMP - Everything you need to know to get started with Go : Tips and Tricks</em></a></li>
@@ -79,8 +155,7 @@
     
     <summary type="html">
     
-      &lt;h2 id=&quot;一句话技巧&quot;&gt;&lt;a href=&quot;#一句话技巧&quot; class=&quot;headerlink&quot; title=&quot;一句话技巧&quot;&gt;&lt;/a&gt;一句话技巧&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;把你面向对象的大脑扔到家里吧，去拥抱接口。&lt;a href=&quot;https://twitter.com/mi
+      &lt;p&gt;七个Go语言小技巧，后续持续更新。&lt;br&gt;无论是Go语言小白，还是有经验的开发者，都可能从中获取灵感。&lt;/p&gt;
     
     </summary>
     
@@ -1336,102 +1411,6 @@
     
     
       <category term="Android" scheme="http://zablog.me/tags/Android/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>IA64中的VHPT</title>
-    <link href="http://zablog.me/2016/04/21/VHPT-IA64/"/>
-    <id>http://zablog.me/2016/04/21/VHPT-IA64/</id>
-    <published>2016-04-21T07:44:52.000Z</published>
-    <updated>2016-04-21T11:51:49.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>安腾的体系结构定义了一套虚拟散列页表 virtual hash page table（VHPT），同时定义了VHPT walker这样一个硬件机制。 VHPT是对TLB的扩展，来加强虚拟地址转换为物理地址的效率，可以显著减小当TLB失效的时候造成的延迟。</p>
-<a id="more"></a>
-<p>本文的原文地址为<a href="http://zablog.me/2016/04/21/VHPT-IA64/">http://zablog.me/2016/04/21/VHPT-IA64/</a>。</p>
-<p>VHPT在虚拟地址空间中可以被设置为操作系统的一级页表，也可以设置为独一无二的大型转换缓存，如图4-9。当TLB失效产生的时候，会使用硬件的哈希函数进行查找。</p>
-<p>PTA的意思是Page Table Address (Register)。</p>
-<p>VHPT可以被操作系统当做一级系统页表使用，也可以用作倒排页表。其中的冲突查找链的实现和操作系统页表的实现都是由软件定义的，是可选的。</p>
-<p><img src="http://imglf0.nosdn.127.net/img/MGpGUW9CdGlzcDZ0d3RiZWFqbDVnUDJWbFFnTk83aGg4NjBlL3JNUmJKTzZjU1RXMFovSy93PT0.png" alt="Figure 4-9"></p>
-<p>安腾体系结构提供了两种VHPT表项的结构，一种是Short格式，一种是Long格式。对于Short格式来说，VHPT就是一个线性的页表，它的PTE的表项大小是8个字节，即2个字的长度，64Bit。如图4-10。</p>
-<p><img src="http://imglf0.nosdn.127.net/img/MGpGUW9CdGlzcDZ0d3RiZWFqbDVnQXZ3MDN0WnhaTHFoMXU2eDJ4TjBjSld3eEtFMFhzYlBRPT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="Figure 4-10"></p>
-<p>当采用Long格式的时候，它的表项就增加为32个字节。这32个字节不仅包含了Short格式的所有内容，还增加了一些位。它是Short格式的超集。</p>
-<p><img src="http://imglf1.nosdn.127.net/img/MGpGUW9CdGlzcDZ0d3RiZWFqbDVnQ3NNdkppaE9rR0EvSVpGL3N3c3k4TEo3WS9manJjVTd3PT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="Figure 4-12"></p>
-<p>增加了主要内容为 ：</p>
-<table>
-<thead>
-<tr>
-<th>bit</th>
-<th>offset</th>
-<th style="text-align:left">Usage</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>tag</td>
-<td>+16</td>
-<td style="text-align:left">Tag是VHPT的hash index，是用来确认转换的独一无二性。</td>
-</tr>
-<tr>
-<td>ti</td>
-<td>+16</td>
-<td style="text-align:left">Tag Invalid位，用来确定tag的有效性。</td>
-</tr>
-<tr>
-<td>ig</td>
-<td>+24</td>
-<td style="text-align:left">操作系统可自定义，比如可以用来指示当hash冲突产生的时候，冲突链的下一个链接的地址。正好是8个字节，正好用来放置64bit的地址。</td>
-</tr>
-</tbody>
-</table>
-<p>附录1</p>
-<p>Short Format &amp; Long Format</p>
-<p>The Itanium architecture defines a data structure that allows for the insertion of TLB entries by a hardware mechanism. The data structure is called the “virtual hash page table” (VHPT) and the hardware mechanism is called the VHPT walker.<br>Unlike the IA-32 page tables, the Itanium VHPT itself is virtually mapped, i.e. VHPT walker references can take TLB faults themselves. Virtual mapping of the page tables is needed because the page tables for 264 address space are quite large and typically do not fit into physical memory.<br>The Itanium architecture prescribes the format of a leaf-node page table entry (PTE) seen by the VHPT walker, but does not impose an OS page table data structure itself. As summarized in Table 5-1, the architecture support two different VHPT formats:<br>• Short format uses 8-byte PTEs, and is a linear page table. The short format VHPT does not contain protection key information (there are not enough PTE bits for that). Short format is a per-region linear page table, i.e. the PTEs and hash function are independent of the RID. The short format prefers use of a self-mapped page table. The short format VHPT is an efficient representation for address spaces that contain only a few large clusters of pages, like the text, data, and stack segments of applications running on a MAS operating system.<br>• Long format uses 32-byte PTEs, and is a hashed page table. The hash function embedded in hardware. The long format supports protection keys and the use of multiple page sizes in a region. The long format hash and tag functions incorporate the RID, and allows multiple address space translations to be present in the same VHPT. The long format is expected to be used either as a cache of the real OS page tables, or as a primary page table with collision chains. The long format VHPT is a much better representation for address spaces that are sparsely populated, since the short format VHPT has a linear layout and would consume a large amount of memory. Single address space operating systems may prefer the long format VHPT for this reason. </p>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Short Format</th>
-<th style="text-align:left">Long Format</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Entry Size</td>
-<td>8 Byte</td>
-<td style="text-align:left">32 Byte</td>
-</tr>
-<tr>
-<td>Lookup</td>
-<td>Linear</td>
-<td style="text-align:left">Hashed</td>
-</tr>
-<tr>
-<td>Protection Keys</td>
-<td>No</td>
-<td style="text-align:left">Yes</td>
-</tr>
-<tr>
-<td>Page Size</td>
-<td>per region</td>
-<td style="text-align:left">per entry</td>
-</tr>
-</tbody>
-</table>
-<p>附录2：<br>What is RID?<br>The Itanium architecture provides a byte-addressable 64-bit virtual address space. The address space is divided into 8 equally-sized sections called regions. Each region is 261 bytes in size and is tagged with a unique region identifier (RID). As a result, the processor TLBs can hold translations from many different address spaces concurrently, and need not be flushed on address space switches. The regions provide the basic virtual memory architecture to support multiple address space (MAS) operating systems.<br>Additionally, each translation in the TLB contains a protection key that is matched against a set of software maintained protection key registers. The protection keys are orthogonal to the region model and allow efficient object sharing between different address spaces. The protection key registers provide the basic virtual memory architecture to support single address space (SAS) operating systems.<br>安腾的体系结构提供了一个64位的虚拟空间。这个虚拟空间被平分为8个区域（region），每一个区域有261字节的空间，被一个独一无二的区间标识符(RID)来标识……<br> 参考资料：</p>
-<p>1 Intel 白皮书 itanium-architecture - <a href="http://www.intel.com/content/www/us/en/processors/itanium/itanium-architecture-vol-1-2-3-4-reference-set-manual.html" target="_blank" rel="external">http://www.intel.com/content/www/us/en/processors/itanium/itanium-architecture-vol-1-2-3-4-reference-set-manual.html</a><br>2 Itanium Page Table and TLB - <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.14.3453&amp;rep=rep1&amp;type=pdf" target="_blank" rel="external">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.14.3453&amp;rep=rep1&amp;type=pdf</a> </p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;安腾的体系结构定义了一套虚拟散列页表 virtual hash page table（VHPT），同时定义了VHPT walker这样一个硬件机制。 VHPT是对TLB的扩展，来加强虚拟地址转换为物理地址的效率，可以显著减小当TLB失效的时候造成的延迟。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="学习笔记" scheme="http://zablog.me/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    
-    
-      <category term="ICS" scheme="http://zablog.me/tags/ICS/"/>
     
   </entry>
   

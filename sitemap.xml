@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://zablog.me/2017/09/01/go_tricks_and_tips/</loc>
+    <loc>http://zablog.me/2017/09/08/go_tricks_and_tips_2/</loc>
     
-    <lastmod>2017-09-04T03:08:30.000Z</lastmod>
+    <lastmod>2017-09-08T02:21:39.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://zablog.me/2017/09/04/go_tricks_and_tips/</loc>
+    
+    <lastmod>2017-09-08T02:20:48.000Z</lastmod>
     
   </url>
   
