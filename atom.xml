@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-09-08T02:21:39.000Z</updated>
+  <updated>2017-09-12T13:12:42.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,92 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>每周一个Github项目【第六期】nes</title>
+    <link href="http://zablog.me/2017/09/12/github_nes/"/>
+    <id>http://zablog.me/2017/09/12/github_nes/</id>
+    <published>2017-09-12T09:30:00.000Z</published>
+    <updated>2017-09-12T13:12:42.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>一个用Go实现的NES模拟器 // NES emulator written in Go.<br><a id="more"></a></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>nes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址</td>
+<td><a href="https://github.com/fogleman/nes" target="_blank" rel="external">Github</a></td>
+</tr>
+<tr>
+<td>作者</td>
+<td>fogleman</td>
+</tr>
+<tr>
+<td>Brief Intro</td>
+<td>NES emulator written in Go.</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>starts</td>
+<td>2,816</td>
+</tr>
+</tbody>
+</table>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>这是一个使用Go实现的NES模拟器。</p>
+<p><img src="https://camo.githubusercontent.com/528b888320bf91dc045537bd738303937f780e72/687474703a2f2f692e696d6775722e636f6d2f764433465856682e706e67" alt="NES"></p>
+<h2 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">github.com/go-gl/gl/v2.1/gl</div><div class="line">github.com/go-gl/glfw/v3.1/glfw</div><div class="line">github.com/gordonklaus/portaudio</div></pre></td></tr></table></figure>
+<p>portaudio-go依赖需要在系统中安装PortAudio</p>
+<p>在ubuntu上，需要执行<code>apt-get install portaudio19-0dev</code>即可，在Mac系统，需要执行<code>brew install portaudio</code></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>使用go get指令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/fogleman/nes</div></pre></td></tr></table></figure>
+<h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nes [rom_file|rom_directory]</div></pre></td></tr></table></figure>
+<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>NES是童年时很多人的挚爱，它的全称是Nintendo Entertainment System，也就是俗称的红白机。当年国内的小霸王就是对NES的盗版。<br>NES上有众多让人印象深刻的游戏，譬如马里奥系列、魂斗罗、松鼠大战、双截龙、泡泡龙等等。那是一个经典游戏的辉煌与井喷的年代。</p>
+<h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><p>本nes工程，是对NES白皮书的一种go的实现。<br>代码中涉及了很多相对底层和硬件的内容，乍一看可能灰色难懂。这里可以循一条线来带你看懂nes的代码。</p>
+<p>首先关注主目录下的文件结构。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">├── LICENSE.md</div><div class="line">├── README.md</div><div class="line">├── main.go</div><div class="line">├── nes</div><div class="line">│   ├── apu.go</div><div class="line">│   ├── cartridge.go</div><div class="line">│   ├── console.go</div><div class="line">│   ├── controller.go</div><div class="line">│   ├── cpu.go</div><div class="line">│   ├── filter.go</div><div class="line">│   ├── ines.go</div><div class="line">│   ├── mapper.go</div><div class="line">│   ├── mapper1.go</div><div class="line">│   ├── mapper2.go</div><div class="line">│   ├── mapper3.go</div><div class="line">│   ├── mapper4.go</div><div class="line">│   ├── mapper7.go</div><div class="line">│   ├── memory.go</div><div class="line">│   ├── palette.go</div><div class="line">│   └── ppu.go</div><div class="line">├── ui</div><div class="line">│   ├── audio.go</div><div class="line">│   ├── director.go</div><div class="line">│   ├── font.go</div><div class="line">│   ├── gameview.go</div><div class="line">│   ├── menuview.go</div><div class="line">│   ├── run.go</div><div class="line">│   ├── texture.go</div><div class="line">│   └── util.go</div><div class="line">└── util</div><div class="line">    └── roms.go</div></pre></td></tr></table></figure>
+<p>直接放在root下的代码文件只有main.go，直接决定了nes这个可执行文件运行之后运行的代码。main.go在整个工程里是最易懂的代码了，简单来说就是判断一下参数，然后调用<code>ui.Run(nes文件路径)</code>。这条线索待会继续跟踪…</p>
+<p>再来看主目录下面的文件夹们。nes文件夹主要负责nes文件的格式解析支持，ui负责界面与交互，util主要用来测试rom。（个人认为把util放在这里，并且起这个名字，从项目结构上不妥）</p>
+<p>下面从nes/ui/run.go入手， 毕竟main函数调用了ui的Run函数，而Run函数可以看做是ui这个包的入口。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// run.go</span></div><div class="line"><span class="keyword">package</span> ui</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"log"</span></div><div class="line">	<span class="string">"runtime"</span></div><div class="line"></div><div class="line">	<span class="string">"github.com/go-gl/gl/v2.1/gl"</span></div><div class="line">	<span class="string">"github.com/go-gl/glfw/v3.1/glfw"</span></div><div class="line">	<span class="string">"github.com/gordonklaus/portaudio"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">const</span> (</div><div class="line">	width  = <span class="number">256</span></div><div class="line">	height = <span class="number">240</span></div><div class="line">	scale  = <span class="number">3</span></div><div class="line">	title  = <span class="string">"NES"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// we need a parallel OS thread to avoid audio stuttering</span></div><div class="line">	runtime.GOMAXPROCS(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// we need to keep OpenGL calls on a single thread</span></div><div class="line">	runtime.LockOSThread()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Run</span><span class="params">(paths []<span class="keyword">string</span>)</span></span> &#123;</div><div class="line">	<span class="comment">// initialize audio</span></div><div class="line">	portaudio.Initialize()</div><div class="line">	<span class="keyword">defer</span> portaudio.Terminate()</div><div class="line"></div><div class="line">	audio := NewAudio()</div><div class="line">	<span class="keyword">if</span> err := audio.Start(); err != <span class="literal">nil</span> &#123;</div><div class="line">		log.Fatalln(err)</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">defer</span> audio.Stop()</div><div class="line"></div><div class="line">	<span class="comment">// initialize glfw</span></div><div class="line">	<span class="keyword">if</span> err := glfw.Init(); err != <span class="literal">nil</span> &#123;</div><div class="line">		log.Fatalln(err)</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">defer</span> glfw.Terminate()</div><div class="line"></div><div class="line">	<span class="comment">// create window</span></div><div class="line">	glfw.WindowHint(glfw.ContextVersionMajor, <span class="number">2</span>)</div><div class="line">	glfw.WindowHint(glfw.ContextVersionMinor, <span class="number">1</span>)</div><div class="line">	window, err := glfw.CreateWindow(width*scale, height*scale, title, <span class="literal">nil</span>, <span class="literal">nil</span>)</div><div class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">		log.Fatalln(err)</div><div class="line">	&#125;</div><div class="line">	window.MakeContextCurrent()</div><div class="line"></div><div class="line">	<span class="comment">// initialize gl</span></div><div class="line">	<span class="keyword">if</span> err := gl.Init(); err != <span class="literal">nil</span> &#123;</div><div class="line">		log.Fatalln(err)</div><div class="line">	&#125;</div><div class="line">	gl.Enable(gl.TEXTURE_2D)</div><div class="line"></div><div class="line">	<span class="comment">// run director</span></div><div class="line">	director := NewDirector(window, audio)</div><div class="line">	director.Start(paths)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>它所依赖的包就不多说了，与上文所述的依赖一致。</p>
+<p>第一个函数是init()函数。看起来这个函数在整个工程中并没有被调用，其实不然。Go里面有两个保留函数，分别是init函数和main函数，其中init函数能够应用于所有的package，而main函数只能应用于main package。当某一个包被引入的时候，首先会引入自身的其他依赖，然后初始化常量，初始化全局变量，接下来就会自动调用这个package的init()函数。</p>
+<p>可以在一个package下的多个文件中都定义init()函数，然而这样不是很便于管理，建议每个package最多写一个init()函数。<br>nes的作者就写了很多个init()函数。</p>
+<p>init的内容是把runtime.GOMAXPROCS设置为2。runtime.GOMAXPROCS可以认为是Go语言最多使用的核心数目，在不设置的时候默认是1。<br>较大的GOMAXPROCS适合于CPU密集型，且并发度较高的情形。如果是IO密集型，CPU之间的切换反而会带来较大的性能损失。<br>nes中的GOMAXPROCS设置，是为了在执行任务的时候，音效不要卡顿。<br>接下来作者调用了runtime.LockOSThread(),这保证了调用OpenGL的时候，go只有一个线程去访问OpenGL的接口。</p>
+<p>在执行Run的时候，NES首先初始化音频部件，然后初始化glfw，接下来使用glfw创建一个窗口，</p>
+<p>glfw是一个C的OpenGL库，而<a href="https://github.com/go-gl/glfw/" target="_blank" rel="external">go glfw</a>则是一个典型的C与GO混合开发的一个库。</p>
+<p>下面，NES初始化了gl，使用TEXTURE_2D模式。</p>
+<p>最终，新建了一个Director，并执行这个Director，至此Run函数结束。</p>
+<h2 id="Director"><a href="#Director" class="headerlink" title="Director"></a>Director</h2><p>Director导演的作用主要是对操作进行一个分发。如果当前有游戏的话，那么就加载游戏的GameView；如果是一个大列表，就把列表展示出来，让用户可以选择一个nes游戏执行。</p>
+<h2 id="按键"><a href="#按键" class="headerlink" title="按键"></a>按键</h2><p>令人伤感的是，作者把按键适配写死在代码里，而且如果只有键盘的话，只能单人玩，简直是不能忍呀。具体的按键写死的代码在util.go中，有兴趣的小朋友可以给他改了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">readKeys</span><span class="params">(window *glfw.Window, turbo <span class="keyword">bool</span>)</span> [8]<span class="title">bool</span></span> &#123;</div><div class="line">	<span class="keyword">var</span> result [<span class="number">8</span>]<span class="keyword">bool</span></div><div class="line">	result[nes.ButtonA] = readKey(window, glfw.KeyZ) || (turbo &amp;&amp; readKey(window, glfw.KeyA))</div><div class="line">	result[nes.ButtonB] = readKey(window, glfw.KeyX) || (turbo &amp;&amp; readKey(window, glfw.KeyS))</div><div class="line">	result[nes.ButtonSelect] = readKey(window, glfw.KeyRightShift)</div><div class="line">	result[nes.ButtonStart] = readKey(window, glfw.KeyEnter)</div><div class="line">	result[nes.ButtonUp] = readKey(window, glfw.KeyUp)</div><div class="line">	result[nes.ButtonDown] = readKey(window, glfw.KeyDown)</div><div class="line">	result[nes.ButtonLeft] = readKey(window, glfw.KeyLeft)</div><div class="line">	result[nes.ButtonRight] = readKey(window, glfw.KeyRight)</div><div class="line">	<span class="keyword">return</span> result</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码规定Z和X对应红白机的A和B键。</p>
+<p>虽然按键不尽如人意，但是fogleman的令人拍案称奇的作品确实还是太多了，估计没时间做nes的按键适配了吧。况且毕竟glfw并不特别方便进行窗口编程。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="https://stackoverflow.com/questions/25361831/benefits-of-runtime-lockosthread-in-golang" target="_blank" rel="external">Benefits of runtime.LockOSThread in Golang - Stackoverflow</a></li>
+<li><a href="https://github.com/golang/go/wiki/LockOSThread" target="_blank" rel="external">LockOSThread</a></li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;一个用Go实现的NES模拟器 // NES emulator written in Go.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
+    
+  </entry>
   
   <entry>
     <title>Go-技篇第二 命名规范</title>
@@ -1135,282 +1221,6 @@
     
     
       <category term="Unix" scheme="http://zablog.me/tags/Unix/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>常见的移动应用分析平台</title>
-    <link href="http://zablog.me/2016/05/05/AppAnalysisPlatforms/"/>
-    <id>http://zablog.me/2016/05/05/AppAnalysisPlatforms/</id>
-    <published>2016-05-05T01:39:39.000Z</published>
-    <updated>2016-05-05T09:38:40.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>市场上的应用分析平台很多很多。这些平台主要是为应用开发者服务的，同时呢也有可能服务于终端用户和应用市场，在这里整理一下这些平台。</p>
-<p>为了方便起见，首先列一个表格吧。</p>
-<h1 id="应用分析平台类别对比表格"><a href="#应用分析平台类别对比表格" class="headerlink" title="应用分析平台类别对比表格"></a>应用分析平台类别对比表格</h1><table>
-<thead>
-<tr>
-<th></th>
-<th>Market Statistics</th>
-<th>Advertisement</th>
-<th>Ranking Track</th>
-<th>In-App Analytics</th>
-<th>ASO</th>
-<th>Attribute</th>
-<th>Compatibility</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Appbrain</td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>AppAnnie</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>AndroidRank</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Appstatic</td>
-<td></td>
-<td></td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Mopapp</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Adjust</td>
-<td></td>
-<td></td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td></td>
-</tr>
-<tr>
-<td>The</td>
-<td>Statistics</td>
-<td>Below</td>
-<td>are</td>
-<td>from</td>
-<td>-</td>
-<td>China</td>
-<td>.</td>
-</tr>
-<tr>
-<td>Umeng</td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Kuchuan</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>ASP100</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Testin</td>
-<td></td>
-<td></td>
-<td></td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-<td>Y</td>
-</tr>
-<tr>
-<td>UTest</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td>Y</td>
-</tr>
-<tr>
-<td>Imofan</td>
-<td></td>
-<td></td>
-<td></td>
-<td>Y</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Huoyanapp</td>
-<td></td>
-<td></td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td>Y</td>
-<td></td>
-</tr>
-<tr>
-<td>Iapprank</td>
-<td>Y</td>
-<td></td>
-<td>Y</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>(数据引用请注明原文地址：<a href="http://zablog.me/2016/05/05/AppAnalysisPlatforms/">http://zablog.me/2016/05/05/AppAnalysisPlatforms/</a>)</p>
-<h1 id="国外平台"><a href="#国外平台" class="headerlink" title="国外平台"></a>国外平台</h1><ol>
-<li><p>App brain -<a href="http://www.appbrain.com/" target="_blank" rel="external">http://www.appbrain.com/</a><br>内容：<br>详细的rating、installs数据（From Google Play）<br>设备数据 包括品牌、系统、国家<br>从Appbrain网站上得到的搜索引擎数据<br>第三方库的数据。<br>盈利模式：</p>
-<ul>
-<li>面向普通用户，提供应用推荐<br>Google Ads</li>
-<li>面向开发者<br>– 推荐应用 - 被广告<br>– 打广告</li>
-<li>Market ranking 数据分析<br>– App brain insights<br>– App timer</li>
-</ul>
-</li>
-<li><p>App Annie - <a href="https://www.appannie.com/" target="_blank" rel="external">https://www.appannie.com/</a><br>内容：<br>完全面向软件公司和开发者<br>盈利模式：</p>
-<ul>
-<li>App Analytics Platform —— User Age Gender etc.</li>
-<li>Ads Analytics Dashboard</li>
-<li>Market Data Guides Market ranking 数据分析、追踪</li>
-</ul>
-</li>
-<li><p>Distimo - <a href="http://www.distimo.com/" target="_blank" rel="external">http://www.distimo.com/</a><br>已经被AppAnnie 收购</p>
-</li>
-<li><p>AndoridRank - <a href="http://www.androidrank.org/" target="_blank" rel="external">http://www.androidrank.org/</a><br>内容：<br>Google Play的实时数据<br>优点，有Google Play的完全的历史数据，比如历史rating的波动、何时安装量的波动等等。<br>盈利模式：</p>
-<ul>
-<li>free数据，投放网页广告。</li>
-</ul>
-</li>
-<li><p>Appstatics <a href="http://www.appstatics.com/" target="_blank" rel="external">http://www.appstatics.com/</a><br>内容：<br>一款iOS应用，用来track &amp; Analyze apps</p>
-</li>
-<li><p>mopapp - <a href="http://www.mopapp.com/" target="_blank" rel="external">http://www.mopapp.com/</a> （英国）<br>内容<br>B2D开发者服务，应用市场数据分析工具，能够帮助移动应用开发者和开发商更好地跟踪应用数据，支持平台App Store Android RIM WindowsPhone Amazon GetJar。</p>
-<ul>
-<li>Revenue Analytics </li>
-<li>Public Ranking</li>
-<li>App Store Comparison</li>
-<li>Sentiment Analysis</li>
-<li>Detailed App Information</li>
-<li>Revenue Forecasting</li>
-</ul>
-</li>
-<li><p>Adjust - <a href="http://www.adjust.com/" target="_blank" rel="external">http://www.adjust.com/</a> （德国）<br>内容</p>
-<ul>
-<li>“Attribution and analytics for apps, we make data work for you”</li>
-<li>Attribution 了解用户来源</li>
-<li>Analytics 应用分析</li>
-<li>Store Stats 市场的数据 app rank 分析</li>
-</ul>
-</li>
-<li><p>AppsFlyer - <a href="http://www.appsflyer.com/" target="_blank" rel="external">http://www.appsflyer.com/</a><br>内容：<br>Make better mobile app marketing decisions with Attribution Analytics.<br>Track Measure Optimize</p>
-</li>
-</ol>
-<h1 id="国内平台"><a href="#国内平台" class="headerlink" title="国内平台"></a>国内平台</h1><ol>
-<li><p>Umeng 友盟 <a href="http://www.umeng.com" target="_blank" rel="external">http://www.umeng.com</a><br>内容：<br>统计分析服务 行业数据解决方案 自助分析工具 运营工具 全域指数 &amp; 运营报告<br>数据内容：<br>手机种类、装机数量、系统比例、机型比例、在不同省份的数据。社交流量分布、应用指数、市场指数等等（Store Rank）。<br>盈利模式：<br>全部面向公司和开发者</p>
-<ul>
-<li>统计分析</li>
-<li>行业解决方案 U-Gplus U-ADplus U-Oplus<br>– U-Gplus Game 流失用户分析、付费率、累计付费用户<br>– U-ADplus 广效宝 广告投放<br>– U-Oplus  Wifi人数智能感应，基于人流量的日常运营分析（线下）</li>
-<li>集成工具。 Share、Push、 Login </li>
-</ul>
-</li>
-<li><p>酷传 <a href="http://kuchuan.com" target="_blank" rel="external">http://kuchuan.com</a><br>内容：<br>数据报告，帮助开发者进行应用上传、审核、通过聚合。27个市场（设立市场联系人）帮助各路开发者进行推广。应用监控。<br>盈利模式：</p>
-<ul>
-<li>帮助开发者发布应用，专业、快速、智能。</li>
-<li>监控在多个市场的应用rank数据，提供细粒度的以天计算的rank信息。</li>
-<li>数据报告 行业报告、机型总榜、应用总榜、系统比例等等。</li>
-</ul>
-</li>
-<li><p>ASO100 <a href="http://aso100.com" target="_blank" rel="external">http://aso100.com</a><br>内容：<br>最专业的App Store数据平台。应用推广、数据分析。<br>盈利模式：</p>
-<ul>
-<li>关键词优化、榜单排名提升、优质流量获取。App Store加速审核。</li>
-<li>热搜词语榜单、监控、上下线应用监控</li>
-<li>应用信息、版本记录、实时排名、关键词、竞品对比、用户评论、评分统计</li>
-</ul>
-</li>
-<li><p>Testin - 云测 <a href="http://www.testin.cn" target="_blank" rel="external">http://www.testin.cn</a><br>内容：<br>内测、兼容性测试、功能测试、崩溃分析、远程真机调试、定制化测试、App推广。<br>盈利模式：<br>为开发者提供测试，可以量身定制测试计划，适用于有特殊需求或者个性化测试服务的应用。<br>全面测试、重点Bug探索、多人在线测试、指定设备验证、兼容性、用户体验反馈、安全测试、A/B测试、流量打假……</p>
-</li>
-<li><p>优测 - Tencent <a href="http://utest.qq.com/" target="_blank" rel="external">http://utest.qq.com</a><br>内容：<br>和云测类似的功能，抄的，但是暂时还不够成熟。</p>
-</li>
-<li><p>魔方 <a href="http://www.imofan.com/" target="_blank" rel="external">http://www.imofan.com/</a><br>内容：<br>移动应用的数据dashboard、开发组件、消息推送、自定义事件等。一个开发辅助工具。</p>
-</li>
-<li><p>清源火眼 <a href="http://www.huoyanapp.com" target="_blank" rel="external">http://www.huoyanapp.com</a><br>内容：<br>榜单、排行，洞察应用数据。检测超过300万个应用运营数据，涵盖下载量、活跃量、用户评价等多个数据检测维度，帮助开发者做出正确决策。<br>可以分析应用概况、渠道监测、用户分析、人群分析、关联应用。<br>ASO优化</p>
-</li>
-<li><p>爱排行 - <a href="http://iapprank.com" target="_blank" rel="external">http://iapprank.com</a><br>内容：<br>iOS Android 应用实时榜单，月度排名，趋势对比，关注列表<br>初创公司，网站做得还比较一般。</p>
-</li>
-<li><p>应用雷达 - <a href="http://www.ann9.com" target="_blank" rel="external">http://www.ann9.com</a><br>内容：<br>iOS实时排名、总榜、排名分析、上升下降、App监控。<br>深度ASO和雷达分析<br>提高交互活跃度，优化App生命周期。<br>只有iOS 无Android</p>
-</li>
-<li><p>应用微风 - <a href="http://www.appvf.com/" target="_blank" rel="external">http://www.appvf.com/</a><br>内容<br>iOS 总榜、分类榜单。<br>历史快照（rank上升下降）<br>热搜榜<br>ASO指数<br>精品应用推荐</p>
-</li>
-</ol>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>现有平台多数拥有的数据是市场的rank、rating、installs数据，因此这些平台主要为开发者提供了rank追踪的服务。<br>另外最多的就是ASO等应用推广、应用上架的帮助工作。<br>还有一些做的是全方位的测试，包括机型测试、系统兼容性测试、各种内测等等。<br>在应用加固，隐私和应用漏洞检测方面，这些平台做得显然不足。然而，无论是对于开发者还是普通用户，隐私与安全漏洞显然都是非常重要的。我相信这是市场上的一个迫切需求。<br>未来移动应用和移动应用的分析平台讲如何发展，让我们拭目以待。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;市场上的应用分析平台很多很多。这些平台主要是为应用开发者服务的，同时呢也有可能服务于终端用户和应用市场，在这里整理一下这些平台。&lt;/p&gt;
-&lt;p&gt;为了方便起见，首先列一个表格吧。&lt;/p&gt;
-&lt;h1 id=&quot;应用分析平台类别对比表格&quot;&gt;&lt;a href=&quot;#应用分析平台类别对比表格
-    
-    </summary>
-    
-      <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
-    
-    
-      <category term="Android" scheme="http://zablog.me/tags/Android/"/>
     
   </entry>
   
