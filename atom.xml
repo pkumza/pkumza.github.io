@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-09-18T06:21:22.000Z</updated>
+  <updated>2017-09-25T03:55:35.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,70 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>每周一个Github项目【第七期】FiraCode</title>
+    <link href="http://zablog.me/2017/09/24/github_firacode/"/>
+    <id>http://zablog.me/2017/09/24/github_firacode/</id>
+    <published>2017-09-24T03:30:00.000Z</published>
+    <updated>2017-09-25T03:55:35.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>具备编程连字功能的等宽字体 // monospaced font with programming ligatures<br><a id="more"></a></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>FiraCode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址</td>
+<td><a href="https://github.com/gohugoio/hugo" target="_blank" rel="external">Github</a></td>
+</tr>
+<tr>
+<td>作者</td>
+<td>tonsky等</td>
+</tr>
+<tr>
+<td>Brief Intro</td>
+<td>monospaced font with programming ligatures</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>SIL Open Font License 1.1</td>
+</tr>
+<tr>
+<td>starts</td>
+<td>17,400</td>
+</tr>
+</tbody>
+</table>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>程序员在编程的时候会使用很多符号。在某些编程语言中，一个逻辑令牌可能由2至3个字符构成，譬如<code>-&gt;</code>，<code>&lt;=</code>或<code>==</code>。<br>理想情况下，所有的编程语言都应该为操作员设计出完整的Unicode符号，但现在还没有。</p>
+<p>Fira代码是Fira Mono字体的扩展，包含一组通用编程多字符组合的连字。这只是一个字体渲染功能：底层代码保持ASCII兼容，这有助于更快地阅读和理解代码。<br>另外，对于某些频繁的序列，如..或//，连字可以让我们纠正间距。</p>
+<p>所有特殊字体：<br><img src="https://github.com/tonsky/FiraCode/raw/master/showcases/all_ligatures.png" alt="all_ligatures"></p>
+<h2 id="编程样例"><a href="#编程样例" class="headerlink" title="编程样例"></a>编程样例</h2><p>Ruby：<br><img src="https://github.com/tonsky/FiraCode/raw/master/showcases/ruby.png" alt="Ruby"></p>
+<p>Elixir:<br><img src="https://github.com/tonsky/FiraCode/raw/master/showcases/elixir.png" alt="elixir"></p>
+<p>Go:<br><img src="https://github.com/tonsky/FiraCode/raw/master/showcases/go.png" alt="Go"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>对于Mac系统来说，安装FiraCode还是比较容易的，只需要运行两条命令即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">brew tap caskroom/fonts</div><div class="line">brew cask install font-fira-code</div></pre></td></tr></table></figure>
+<p>在系统中安装之后，还需要在对应的代码编辑器中进行适配，以VS Code为例，点击<code>⌘</code>+<code>,</code>，然后把以下代码粘贴进去即可：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">"editor.fontFamily": "Fira Code",</div><div class="line">"editor.fontLigatures": true</div></pre></td></tr></table></figure>
+<p>届时安装完毕。这时<code>-&gt;</code>的显示就变成了<code>→</code>咯。当然作为等款字体，它和<code>→</code>还不太一样，还是会占据两个字符宽度的。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;具备编程连字功能的等宽字体 // monospaced font with programming ligatures&lt;br&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
+    
+  </entry>
   
   <entry>
     <title>Emoji与Unicode</title>
@@ -1196,42 +1260,6 @@
     
       <category term="学习笔记" scheme="http://zablog.me/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>Mac连不上smb协议？</title>
-    <link href="http://zablog.me/2016/06/01/smb/"/>
-    <id>http://zablog.me/2016/06/01/smb/</id>
-    <published>2016-06-01T06:48:06.000Z</published>
-    <updated>2016-06-01T06:45:49.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>smb(Server Message Block)协议对于常用NAS的人应该不会陌生。在办公室，家庭安装一个NAS作为存储终端，放置文件、资源、电影，是一件非常方便的事情，尤其是在当今的各路网盘都不是非常安全的情况下，私有的云存储就变得更加重要。</p>
-<blockquote>
-<p>NAS(Network Attached Storage:网络附属存储)按字面简单说就是连接在网络上，具备资料存储功能的装置，因此也称为”网络存储器”。它是一种专用数据存储服务器。它以数据为中心，将存储设备与服务器彻底分离，集中管理数据，从而释放带宽、提高性能、降低总拥有成本、保护投资。其成本远远低于使用服务器存储，而效率却远远高于后者。<br>                ——  360百科</p>
-</blockquote>
-<p>那么什么是SMB协议呢？</p>
-<blockquote>
-<p>In computer networking, Server Message Block (SMB), one version of which was also known as Common Internet File System (CIFS, /ˈsɪfs/), operates as an application-layer network protocol mainly used for providing shared access to files, printers, and serial ports and miscellaneous communications between nodes on a network. It also provides an authenticated inter-process communication mechanism. Most usage of SMB involves computers running Microsoft Windows, where it was known as “Microsoft Windows Network” before the subsequent introduction of Active Directory. Corresponding Windows services are LAN Manager Server (for the server component) and LAN Manager Workstation (for the client component).<br>                 —— Wikipedia</p>
-</blockquote>
-<p>它用起来也极其简单，一般来说，只要连上的相应的局域网，就可以直接在文件夹中访问。<br>譬如在Mac中，如图：<br><img src="http://imglf.nosdn.127.net/img/MGpGUW9CdGlzcDRGK0IyZzFLK0FnSFlwVnhtKyt6MUVVZHQ3NTRaMVhLRG01NTk2ZklGeTdRPT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="Mac"></p>
-<p>*nix都差不多，在Network下一定会有，用同样的方式访问就行了。<br><img src="http://imglf0.nosdn.127.net/img/MGpGUW9CdGlzcDRGK0IyZzFLK0FnSU52ZVdVeEhrMkFETmMwNC9PU3JMeWxId3lBWVRSTllnPT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="Linux"></p>
-<p>Win的环境下，打开“我的电脑”，smb协议支持项目也一定在那里。手头没有Win的电脑…盗个老图（也许会失效，不过好像不重要）<br><img src="http://about.eserver.org/smb_4.jpg" alt="Win"></p>
-<p>但是有一种可能，在Win和Linux都可以开心地访问smb协议的时候，mac却死活登陆不上去。即使连接正确、用户名正确、密码正确，但是依然连接不上。</p>
-<p>这个时候，不要犹豫，直接找到NAS，看看日期是否正确？如果日期时间差距太大的话，mac的smb协议是无法进行的。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;smb(Server Message Block)协议对于常用NAS的人应该不会陌生。在办公室，家庭安装一个NAS作为存储终端，放置文件、资源、电影，是一件非常方便的事情，尤其是在当今的各路网盘都不是非常安全的情况下，私有的云存储就变得更加重要。&lt;/p&gt;
-&lt;blockquo
-    
-    </summary>
-    
-      <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
-    
-    
-      <category term="OS X" scheme="http://zablog.me/tags/OS-X/"/>
     
   </entry>
   
