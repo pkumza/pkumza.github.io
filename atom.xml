@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-09-27T13:58:43.000Z</updated>
+  <updated>2017-09-27T14:18:28.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -17,10 +17,10 @@
   
   <entry>
     <title>剖析Go的读写锁</title>
-    <link href="http://zablog.me/2017/10/27/go_sync/"/>
-    <id>http://zablog.me/2017/10/27/go_sync/</id>
-    <published>2017-10-27T12:00:00.000Z</published>
-    <updated>2017-09-27T13:58:43.000Z</updated>
+    <link href="http://zablog.me/2017/09/27/go_sync/"/>
+    <id>http://zablog.me/2017/09/27/go_sync/</id>
+    <published>2017-09-27T12:00:00.000Z</published>
+    <updated>2017-09-27T14:18:28.000Z</updated>
     
     <content type="html"><![CDATA[<p>源码级剖析Go标准库中的sync.RWMutex。</p>
 <a id="more"></a>
@@ -49,14 +49,14 @@
 <p>读者1和读者2是嵌套关系，按照这种时间安排，上述程序会导致死锁。</p>
 <p>而有些死锁的可怕之处就在于，它不一定会发生。假设上面程序中的time.Sleep都是随机的时间，那么这一段代码每次的结果有可能不一致，这会给Debug带来极大的困难。</p>
 <p><strong>吾闻读锁莫嵌套，写锁嵌套长已矣</strong>。（读锁嵌套了还有概率成功，写锁嵌套了100%完蛋🏥）</p>
-<h2 id="源码剖析"><a href="#源码剖析" class="headerlink" title="源码剖析"></a>源码剖析</h2><p><sub>源码具体内容、行数，以版本<code>go version 1.8.1</code>为例。</sub></p>
-<p>首先，为了方便理解，可以把所有的<code>if race.Enabled {...}</code>扔掉不看。我们以口述的方式重述“七秒例”。🌰</p>
-<p>第一秒，读者1读。</p>
+<h2 id="源码剖析"><a href="#源码剖析" class="headerlink" title="源码剖析"></a>源码剖析</h2><p><sub>（源码具体内容、行数，以版本<code>go version 1.8.1</code>为例。）</sub></p>
+<p>为了方便理解，可以把所有的<code>if race.Enabled {...}</code>扔掉不看。接下来，我们重述“七秒例”。🌰</p>
+<p>第一秒，读者1请求读锁。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Line41: </div><div class="line">	<span class="keyword">if</span> atomic.AddInt32(&amp;rw.readerCount, <span class="number">1</span>) &lt; <span class="number">0</span> &#123;</div><div class="line">		<span class="comment">// A writer is pending, wait for it.</span></div><div class="line">		runtime_Semacquire(&amp;rw.readerSem)</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
-<p>读者数量开始是0，这个时候加一，变成了一，不符合条件所以跳出，成功获得读锁一枚。</p>
-<p>第二秒，写者尝试获取写锁。首先85行获取w的锁，不管这个读写锁有没有获取成功，先排斥别的写者。</p>
+<p>读者数量<code>readerCount</code>开始是0，这个时候加1，变成了1，不符合判负条件所以跳出，成功获得读锁一枚。</p>
+<p>第二秒，写者尝试获取写锁。第85行获取w的锁。不管这个读写锁有没有获取成功，先排斥别的写者。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Line85:</div><div class="line">	<span class="comment">// First, resolve competition with other writers.</span></div><div class="line">	rw.w.Lock()</div><div class="line">	<span class="comment">// Announce to readers there is a pending writer.</span></div><div class="line">	r := atomic.AddInt32(&amp;rw.readerCount, -rwmutexMaxReaders) + rwmutexMaxReaders</div><div class="line">	<span class="comment">// Wait for active readers.</span></div><div class="line">	<span class="keyword">if</span> r != <span class="number">0</span> &amp;&amp; atomic.AddInt32(&amp;rw.readerWait, r) != <span class="number">0</span> &#123;</div><div class="line">		runtime_Semacquire(&amp;rw.writerSem)</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
-<p>刚才说了，一个写者阻塞在这里的时候，也不会让新的读者去读了，所以它干了一件非常坏的事情：<br>它把readerCount变成了1-rwmutexMaxReaders。<br>接下来，可以算出r等于1。<br>因为有读者，所以写者卡在了信号量<code>writerSem</code>上。但是它不甘心啊，心想“等完现在的这几个读者，我就要去写！”，它默默地把现在占有读锁的人记在了<del>小本本</del>rw.readerWait上。在本例子中，readerWait被设置为了1。</p>
+<p>刚才说了，一个写者阻塞在这里的时候，也不会让新的读者去读了，所以它干了一件非常坏的事情：<br>把readerCount变成了1-rwmutexMaxReaders。<br>这样就能卡住新来的读者了。<br>接下来，算出r等于1。这意味着有当前有写者存在。<br>因为有读者，所以写者卡在了信号量<code>writerSem</code>上。但是它不甘心啊，心想“等完现在的这几个读者，我就要去写！”，它默默地把现在占有读锁的人记在了<del>小本本</del>rw.readerWait上。在本例子中，readerWait被设置为了1。</p>
 <p>第三秒，读者2尝试获得读锁，它又来到了第41行，结果发现读者的数量是1-rwmutexMaxReaders，好吧，它只好卡在信号量<code>readerSem</code>上。</p>
 <p>第四秒，读者1调用RUnlock()，它首先把读者数量减一，毕竟自己已经不读了。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Line61:</div><div class="line">	<span class="keyword">if</span> r := atomic.AddInt32(&amp;rw.readerCount, <span class="number">-1</span>); r &lt; <span class="number">0</span> &#123;</div><div class="line">		<span class="comment">// A writer is pending.</span></div><div class="line">		<span class="keyword">if</span> atomic.AddInt32(&amp;rw.readerWait, <span class="number">-1</span>) == <span class="number">0</span> &#123;</div><div class="line">			<span class="comment">// The last reader unblocks the writer.</span></div><div class="line">			runtime_Semrelease(&amp;rw.writerSem)</div><div class="line">		&#125;</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
