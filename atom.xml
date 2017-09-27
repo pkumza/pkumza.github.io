@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-09-25T03:55:35.000Z</updated>
+  <updated>2017-09-27T13:58:43.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,101 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>剖析Go的读写锁</title>
+    <link href="http://zablog.me/2017/10/27/go_sync/"/>
+    <id>http://zablog.me/2017/10/27/go_sync/</id>
+    <published>2017-10-27T12:00:00.000Z</published>
+    <updated>2017-09-27T13:58:43.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>源码级剖析Go标准库中的sync.RWMutex。</p>
+<a id="more"></a>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>RWMutex，读写锁，又称“读写互斥锁”。<br>读写锁简单来说就是可以由任意数量的读者同时使用，或者只由一个写者使用的锁。</p>
+<p>读写锁和互斥量(<code>Mutex</code>)类似，但是比起互斥量有着更高的并行性，它允许多个读者同时读取，因此有一些特殊的应用场景。<br>在并发编程的很多场景下，数据的读取可能比写入更加频繁，这时就要允许多个线程同时读取一块内容。</p>
+<h2 id="用例"><a href="#用例" class="headerlink" title="用例"></a>用例</h2><p>Go中，RWMutex的零值是一个未加锁的互斥量。</p>
+<p>RWMutex使用起来相对比较简单，这里举一个简单的例子：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	rw := <span class="built_in">new</span>(sync.RWMutex)</div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">2</span>; i++ &#123;   <span class="comment">// 建立两个写者</span></div><div class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">			<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">3</span>; j++ &#123;</div><div class="line">				rw.Lock()</div><div class="line">				<span class="comment">// 写</span></div><div class="line">				rw.Unlock()</div><div class="line">			&#125;</div><div class="line">		&#125;()</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123;    <span class="comment">// 建立两个读者</span></div><div class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">			<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">3</span>; j++ &#123;</div><div class="line">				rw.RLock()</div><div class="line">				<span class="comment">// 读</span></div><div class="line">				rw.RUnlock()</div><div class="line">			&#125;</div><div class="line">		&#125;()</div><div class="line">	&#125;</div><div class="line">	time.Sleep(time.Second)</div><div class="line">	fmt.Println(<span class="string">"Done"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><a href="https://play.golang.org/p/joOSIM__Yg" target="_blank" rel="external"><strong>PlayGround</strong></a></p>
+<h2 id="一个（神奇）优秀的（大坑）特性"><a href="#一个（神奇）优秀的（大坑）特性" class="headerlink" title="一个（神奇）优秀的（大坑）特性"></a>一个<del>（神奇）</del>优秀的<del>（大坑）</del>特性</h2><blockquote>
+<p>读者在读的时候，不能够假定别的读者也能够获得锁。因此，禁止读锁嵌套。</p>
+</blockquote>
+<p>是不是有点儿绕？下面举个“七秒例”：🌰</p>
+<ul>
+<li>第一秒：读者1在第1秒成功申请了读锁</li>
+<li>第二秒：写者1在第2秒申请写锁，申请失败，阻塞，但它会防止新的读者获锁</li>
+<li>第三秒：读者2在第3秒申请读锁，申请失败</li>
+<li>第四秒：读者1释放读锁，写者1获得写锁</li>
+<li>第五秒：写者1释放写锁，读者2获得读锁</li>
+<li>第六秒：读者1再次申请读锁，申请成功，与读者2共享</li>
+<li>第七秒：读者1、读者2释放读锁，结束</li>
+</ul>
+<p>当写锁阻塞时，新的读锁是无法申请的，这可以有效防止写者饥饿。<em>如果一个线程因为某种原因，导致得不到CPU运行时间，这种状态被称之为</em> <strong><em>饥饿</em></strong>。</p>
+<p>然而，这种机制也禁止了读锁嵌套。读锁嵌套可能造成死锁：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	rw := <span class="built_in">new</span>(sync.RWMutex)</div><div class="line"></div><div class="line">	<span class="keyword">var</span> deadLockCase time.Duration = <span class="number">1</span></div><div class="line"></div><div class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">		time.Sleep(time.Second * deadLockCase)</div><div class="line">		fmt.Println(<span class="string">"Writer Try"</span>)</div><div class="line">		rw.Lock()</div><div class="line">		fmt.Println(<span class="string">"Writer Fetch"</span>)</div><div class="line">		time.Sleep(time.Second * <span class="number">1</span>)</div><div class="line">		fmt.Println(<span class="string">"Writer Release"</span>)</div><div class="line">		rw.Unlock()</div><div class="line">	&#125;()</div><div class="line">	fmt.Println(<span class="string">"Reader 1 Try"</span>)</div><div class="line">	rw.RLock()</div><div class="line">	fmt.Println(<span class="string">"Reader 1 Fetch"</span>)</div><div class="line">	time.Sleep(time.Second * <span class="number">2</span>)</div><div class="line">	fmt.Println(<span class="string">"Reader 2 Try"</span>)</div><div class="line">	rw.RLock()</div><div class="line">	fmt.Println(<span class="string">"Reader 2 Fetch"</span>)</div><div class="line">	time.Sleep(time.Second * <span class="number">2</span>)</div><div class="line">	fmt.Println(<span class="string">"Reader 1 Release"</span>)</div><div class="line">	rw.RUnlock()</div><div class="line">	time.Sleep(time.Second * <span class="number">1</span>)</div><div class="line">	fmt.Println(<span class="string">"Reader 2 Release"</span>)</div><div class="line">	rw.RUnlock()</div><div class="line">	time.Sleep(time.Second * <span class="number">2</span>)</div><div class="line">	fmt.Println(<span class="string">"Done"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>读者1和读者2是嵌套关系，按照这种时间安排，上述程序会导致死锁。</p>
+<p>而有些死锁的可怕之处就在于，它不一定会发生。假设上面程序中的time.Sleep都是随机的时间，那么这一段代码每次的结果有可能不一致，这会给Debug带来极大的困难。</p>
+<p><strong>吾闻读锁莫嵌套，写锁嵌套长已矣</strong>。（读锁嵌套了还有概率成功，写锁嵌套了100%完蛋🏥）</p>
+<h2 id="源码剖析"><a href="#源码剖析" class="headerlink" title="源码剖析"></a>源码剖析</h2><p><sub>源码具体内容、行数，以版本<code>go version 1.8.1</code>为例。</sub></p>
+<p>首先，为了方便理解，可以把所有的<code>if race.Enabled {...}</code>扔掉不看。我们以口述的方式重述“七秒例”。🌰</p>
+<p>第一秒，读者1读。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Line41: </div><div class="line">	<span class="keyword">if</span> atomic.AddInt32(&amp;rw.readerCount, <span class="number">1</span>) &lt; <span class="number">0</span> &#123;</div><div class="line">		<span class="comment">// A writer is pending, wait for it.</span></div><div class="line">		runtime_Semacquire(&amp;rw.readerSem)</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<p>读者数量开始是0，这个时候加一，变成了一，不符合条件所以跳出，成功获得读锁一枚。</p>
+<p>第二秒，写者尝试获取写锁。首先85行获取w的锁，不管这个读写锁有没有获取成功，先排斥别的写者。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Line85:</div><div class="line">	<span class="comment">// First, resolve competition with other writers.</span></div><div class="line">	rw.w.Lock()</div><div class="line">	<span class="comment">// Announce to readers there is a pending writer.</span></div><div class="line">	r := atomic.AddInt32(&amp;rw.readerCount, -rwmutexMaxReaders) + rwmutexMaxReaders</div><div class="line">	<span class="comment">// Wait for active readers.</span></div><div class="line">	<span class="keyword">if</span> r != <span class="number">0</span> &amp;&amp; atomic.AddInt32(&amp;rw.readerWait, r) != <span class="number">0</span> &#123;</div><div class="line">		runtime_Semacquire(&amp;rw.writerSem)</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<p>刚才说了，一个写者阻塞在这里的时候，也不会让新的读者去读了，所以它干了一件非常坏的事情：<br>它把readerCount变成了1-rwmutexMaxReaders。<br>接下来，可以算出r等于1。<br>因为有读者，所以写者卡在了信号量<code>writerSem</code>上。但是它不甘心啊，心想“等完现在的这几个读者，我就要去写！”，它默默地把现在占有读锁的人记在了<del>小本本</del>rw.readerWait上。在本例子中，readerWait被设置为了1。</p>
+<p>第三秒，读者2尝试获得读锁，它又来到了第41行，结果发现读者的数量是1-rwmutexMaxReaders，好吧，它只好卡在信号量<code>readerSem</code>上。</p>
+<p>第四秒，读者1调用RUnlock()，它首先把读者数量减一，毕竟自己已经不读了。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Line61:</div><div class="line">	<span class="keyword">if</span> r := atomic.AddInt32(&amp;rw.readerCount, <span class="number">-1</span>); r &lt; <span class="number">0</span> &#123;</div><div class="line">		<span class="comment">// A writer is pending.</span></div><div class="line">		<span class="keyword">if</span> atomic.AddInt32(&amp;rw.readerWait, <span class="number">-1</span>) == <span class="number">0</span> &#123;</div><div class="line">			<span class="comment">// The last reader unblocks the writer.</span></div><div class="line">			runtime_Semrelease(&amp;rw.writerSem)</div><div class="line">		&#125;</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<p>在读者数量减一的时候，它发现读者数量是负数，这回读者1明白了，有一个写者在等待写。估计读者1自己已经在这个写者的<del>小本本</del>readerWait上了，因此它把readerWait减一，表示自己不读了。这时候读者1发现自己就是最后一个读者了，所以赶紧祭出writerSem，让写者可以去写。<br>读者1释放了writerSem信号量以后，写者很快就收到了这个提醒，兴高采烈地获得了写锁，开始自己的写作生涯。</p>
+<p>读者2还卡着呢…</p>
+<p>第五秒，写者1写完了一稿便不想写了，调用Unlock()准备释放读锁。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Line114:</div><div class="line">	<span class="comment">// Announce to readers there is no active writer.</span></div><div class="line">	r := atomic.AddInt32(&amp;rw.readerCount, rwmutexMaxReaders)</div><div class="line"></div><div class="line">	<span class="comment">// Unblock blocked readers, if any.</span></div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(r); i++ &#123;</div><div class="line">		runtime_Semrelease(&amp;rw.readerSem)</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<p>只见他重新为readerCount加上rwmutexMaxReaders，使他重新变为了正数。这个正数恰好也是阻塞的读者的数量。<br>接下来，写者按照这个读者的数量，释放了这么多的readerSem信号量，相当于将所有阻塞的读者一一唤醒。读者2在收到readerSem的那一刻喜极而泣，它终于可以读了。</p>
+<p>第六秒，读者1又来了，它把读者数量加1，发现它是正数哎，写者现在又没来，它再次幸运地瞬间获得读锁，与读者2一起读了起来。</p>
+<p>第奇妙，读者1和读者2都释放了自己的读锁。至此，结束。</p>
+<h2 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h2><table>
+<thead>
+<tr>
+<th>中文</th>
+<th>英文</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>信号量 （也称信号灯）</td>
+<td>Semaphore</td>
+<td></td>
+</tr>
+<tr>
+<td>条件变量</td>
+<td>Condition</td>
+<td></td>
+</tr>
+<tr>
+<td>互斥量</td>
+<td>Mutex</td>
+</tr>
+</tbody>
+</table>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="https://en.wikipedia.org/wiki/Semaphore_(programming" target="_blank" rel="external">Wikipedia: Semaphore (programming)</a>)</li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;源码级剖析Go标准库中的sync.RWMutex。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="go" scheme="http://zablog.me/tags/go/"/>
+    
+  </entry>
   
   <entry>
     <title>每周一个Github项目【第七期】FiraCode</title>
@@ -1168,98 +1263,6 @@
       <category term="3D" scheme="http://zablog.me/tags/3D/"/>
     
       <category term="FBX" scheme="http://zablog.me/tags/FBX/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>高等计算机体系结构常用缩写</title>
-    <link href="http://zablog.me/2016/06/22/%E9%AB%98%E7%AD%89%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E5%B8%B8%E7%94%A8%E7%BC%A9%E5%86%99/"/>
-    <id>http://zablog.me/2016/06/22/高等计算机体系结构常用缩写/</id>
-    <published>2016-06-22T02:00:01.000Z</published>
-    <updated>2016-06-22T02:15:22.000Z</updated>
-    
-    <content type="html"><![CDATA[<table>
-<thead>
-<tr>
-<th>缩写</th>
-<th>中文</th>
-<th>英文全称</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>VLSI</td>
-<td>超大规模集成电路</td>
-<td>Very Large Scale Integration</td>
-</tr>
-<tr>
-<td>SMP</td>
-<td>对称多处理</td>
-<td>Symmetric Multi-Processing</td>
-</tr>
-<tr>
-<td>ILP</td>
-<td>指令级并行</td>
-<td>Instruction-level parallelism</td>
-</tr>
-<tr>
-<td>TLP</td>
-<td>线程级并行</td>
-<td>Thread-level parallelism</td>
-</tr>
-<tr>
-<td>RLP</td>
-<td>请求级并行</td>
-<td>Request-level parallelism</td>
-</tr>
-<tr>
-<td>NUMA</td>
-<td>非统一内存访问（架构）</td>
-<td>Non Uniform Memory Access Architecture</td>
-</tr>
-<tr>
-<td>ROB</td>
-<td>重排序缓冲区</td>
-<td>Reorder buffer</td>
-</tr>
-<tr>
-<td>RAID</td>
-<td>廉价磁盘冗余阵列</td>
-<td>Redundant array of inexpensive disks</td>
-</tr>
-<tr>
-<td>PUE</td>
-<td>电力利用效率</td>
-<td>Power Utilization Effectiveness</td>
-</tr>
-<tr>
-<td>SISD</td>
-<td>单处理器</td>
-<td>Single Instrction stream Single Data stream</td>
-</tr>
-<tr>
-<td>SIMD</td>
-<td>单指令流多数据流</td>
-<td>Single Instrction stream Multiple Data stream</td>
-</tr>
-<tr>
-<td>MIMD</td>
-<td>多指令流多数据流</td>
-<td>Multiple Instrction stream Multiple Data stream</td>
-</tr>
-</tbody>
-</table>
-<p>复习的时候记录的。<br>虽然课本的附录中也有足够多的缩写解释，但是实在是太多了，有重点但是也有很多的是不重要的边角信息。<br>这里是相对重要的12个缩写。即使不从事体系结构相关的研究，其实也应该理解的内容。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      只要是计算机相关的从业人员，其实都应该理解的几个计算机体系结构的相关词汇。
-    
-    </summary>
-    
-      <category term="学习笔记" scheme="http://zablog.me/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    
     
   </entry>
   
