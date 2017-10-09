@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 每周一个Github项目【第八期】go-cache · Zablog</title><meta name="description" content="每周一个Github项目【第八期】go-cache - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/about" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">每周一个Github项目【第八期】go-cache</h1><div class="post-info">2017年10月8日</div><div class="post-content"><p>用Go实现的驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用 // An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.<br><a id="more"></a></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>go-cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址</td>
+<td><a href="https://github.com/patrickmn/go-cache" target="_blank" rel="external">Github</a></td>
+</tr>
+<tr>
+<td>作者</td>
+<td><a href="https://github.com/patrickmn" target="_blank" rel="external">patrickmn</a>等</td>
+</tr>
+<tr>
+<td>Brief Intro</td>
+<td>An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>starts</td>
+<td>1,119</td>
+</tr>
+</tbody>
+</table>
+<p>go-cache是一个驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用。<br>它大致上可以认为是一个线程安全的<code>map[string]interface{}</code>，同时支持时间过期。</p>
+<p>任何对象都可以被存储，可以指定过期时间，也可以指定为永久存在。go-cache是线程安全的。</p>
+<p>虽然go-cache并非作为持久存储而设计的，但是整个高速缓存的内容可以通过<code>c.Items()</code>序列化以后存储，然后使用<code>NewFrom()</code>重新加载。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/patrickmn/go-cache</div></pre></td></tr></table></figure>
+<p>用法</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/patrickmn/go-cache"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// 创建一个默认过期时间为5分钟，清理间隔时间为10分钟的高速缓存</span></div><div class="line">	c := cache.New(<span class="number">5</span>*time.Minute, <span class="number">10</span>*time.Minute)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“foo”键的值为“bar”，默认过期时间</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, <span class="string">"bar"</span>, cache.DefaultExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“baz”为42，不过期</span></div><div class="line">	<span class="comment">// 如果没有重置或者删除的话，它不会被删除</span></div><div class="line">	c.Set(<span class="string">"baz"</span>, <span class="number">42</span>, cache.NoExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 获取"foo"对应的字符串</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		fmt.Println(foo)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 因为Go是一种静态类型语言，而cache可以存储任何类型，因此可以使用断言来判断任意类型</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		MyFunction(foo.(<span class="keyword">string</span>))</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 需要高性能？那就存指针吧</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, &amp;MyStruct, cache.DefaultExpiration)</div><div class="line">	<span class="keyword">if</span> x, found := c.Get(<span class="string">"foo"</span>); found &#123;</div><div class="line">		foo := x.(*MyStruct)</div><div class="line">			<span class="comment">// ...</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>用法相对很简单，实现也不难，具体文档参考<a href="https://godoc.org/github.com/patrickmn/go-cache" target="_blank" rel="external">文档</a></p>
+</div></article></div></main><footer><div class="paginator"><a href="/2017/09/27/go_sync/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2017/10/08/github_go-cache/';
+var disqus_title = '每周一个Github项目【第八期】go-cache';
+var disqus_url = 'http://zablog.me/2017/10/08/github_go-cache/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2017 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

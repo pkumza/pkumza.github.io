@@ -2,6 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://zablog.me/2017/10/08/github_go-cache/</loc>
+    
+    <lastmod>2017-10-09T13:03:25.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://zablog.me/2017/09/01/github_free-programming-books/</loc>
+    
+    <lastmod>2017-10-09T12:49:11.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://zablog.me/2017/09/08/go_tricks_and_tips_2/</loc>
+    
+    <lastmod>2017-10-09T12:37:37.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://zablog.me/2017/09/04/go_tricks_and_tips/</loc>
+    
+    <lastmod>2017-10-09T12:37:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://zablog.me/about/index.html</loc>
     
     <lastmod>2017-09-30T16:15:02.000Z</lastmod>
@@ -40,27 +68,6 @@
     <loc>http://zablog.me/2017/09/12/github_nes/</loc>
     
     <lastmod>2017-09-12T13:12:42.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://zablog.me/2017/09/08/go_tricks_and_tips_2/</loc>
-    
-    <lastmod>2017-09-08T02:21:39.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://zablog.me/2017/09/04/go_tricks_and_tips/</loc>
-    
-    <lastmod>2017-09-08T02:20:48.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://zablog.me/2017/09/01/github_free-programming-books/</loc>
-    
-    <lastmod>2017-09-01T16:12:49.000Z</lastmod>
     
   </url>
   

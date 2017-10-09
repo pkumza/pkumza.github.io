@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-09-28T02:40:00.000Z</updated>
+  <updated>2017-10-09T13:03:25.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,66 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>每周一个Github项目【第八期】go-cache</title>
+    <link href="http://zablog.me/2017/10/08/github_go-cache/"/>
+    <id>http://zablog.me/2017/10/08/github_go-cache/</id>
+    <published>2017-10-08T10:00:00.000Z</published>
+    <updated>2017-10-09T13:03:25.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>用Go实现的驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用 // An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.<br><a id="more"></a></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>go-cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址</td>
+<td><a href="https://github.com/patrickmn/go-cache" target="_blank" rel="external">Github</a></td>
+</tr>
+<tr>
+<td>作者</td>
+<td><a href="https://github.com/patrickmn" target="_blank" rel="external">patrickmn</a>等</td>
+</tr>
+<tr>
+<td>Brief Intro</td>
+<td>An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>starts</td>
+<td>1,119</td>
+</tr>
+</tbody>
+</table>
+<p>go-cache是一个驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用。<br>它大致上可以认为是一个线程安全的<code>map[string]interface{}</code>，同时支持时间过期。</p>
+<p>任何对象都可以被存储，可以指定过期时间，也可以指定为永久存在。go-cache是线程安全的。</p>
+<p>虽然go-cache并非作为持久存储而设计的，但是整个高速缓存的内容可以通过<code>c.Items()</code>序列化以后存储，然后使用<code>NewFrom()</code>重新加载。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/patrickmn/go-cache</div></pre></td></tr></table></figure>
+<p>用法</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/patrickmn/go-cache"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// 创建一个默认过期时间为5分钟，清理间隔时间为10分钟的高速缓存</span></div><div class="line">	c := cache.New(<span class="number">5</span>*time.Minute, <span class="number">10</span>*time.Minute)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“foo”键的值为“bar”，默认过期时间</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, <span class="string">"bar"</span>, cache.DefaultExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“baz”为42，不过期</span></div><div class="line">	<span class="comment">// 如果没有重置或者删除的话，它不会被删除</span></div><div class="line">	c.Set(<span class="string">"baz"</span>, <span class="number">42</span>, cache.NoExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 获取"foo"对应的字符串</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		fmt.Println(foo)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 因为Go是一种静态类型语言，而cache可以存储任何类型，因此可以使用断言来判断任意类型</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		MyFunction(foo.(<span class="keyword">string</span>))</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 需要高性能？那就存指针吧</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, &amp;MyStruct, cache.DefaultExpiration)</div><div class="line">	<span class="keyword">if</span> x, found := c.Get(<span class="string">"foo"</span>); found &#123;</div><div class="line">		foo := x.(*MyStruct)</div><div class="line">			<span class="comment">// ...</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>用法相对很简单，实现也不难，具体文档参考<a href="https://godoc.org/github.com/patrickmn/go-cache" target="_blank" rel="external">文档</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;用Go实现的驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用 // An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
+    
+  </entry>
   
   <entry>
     <title>剖析Go的读写锁</title>
@@ -312,11 +372,11 @@
   </entry>
   
   <entry>
-    <title>Go-技篇第二 命名规范</title>
+    <title>Go语言小技巧--二 命名规范</title>
     <link href="http://zablog.me/2017/09/08/go_tricks_and_tips_2/"/>
     <id>http://zablog.me/2017/09/08/go_tricks_and_tips_2/</id>
     <published>2017-09-08T03:00:00.000Z</published>
-    <updated>2017-09-08T02:21:39.000Z</updated>
+    <updated>2017-10-09T12:37:37.000Z</updated>
     
     <content type="html"><![CDATA[<p>本篇主要讲述Go语言的命名规范。<br>优秀的代码必须具备良好的可读性，而可读性的关键即在于命名风格。</p>
 <a id="more"></a>
@@ -378,11 +438,11 @@
   </entry>
   
   <entry>
-    <title>Go-技篇第一 技巧杂烩</title>
+    <title>Go语言小技巧--一 技巧杂烩</title>
     <link href="http://zablog.me/2017/09/04/go_tricks_and_tips/"/>
     <id>http://zablog.me/2017/09/04/go_tricks_and_tips/</id>
     <published>2017-09-04T13:00:00.000Z</published>
-    <updated>2017-09-08T02:20:48.000Z</updated>
+    <updated>2017-10-09T12:37:35.000Z</updated>
     
     <content type="html"><![CDATA[<p>七个Go语言小技巧，后续持续更新。<br>无论是Go语言小白，还是有经验的开发者，都可能从中获取灵感。</p>
 <a id="more"></a>
@@ -463,11 +523,11 @@
   </entry>
   
   <entry>
-    <title>每周一个Github项目【第五期】free-programming-books</title>
+    <title>每周一个Github项目【第五期】免费编程书</title>
     <link href="http://zablog.me/2017/09/01/github_free-programming-books/"/>
     <id>http://zablog.me/2017/09/01/github_free-programming-books/</id>
     <published>2017-09-01T10:00:00.000Z</published>
-    <updated>2017-09-01T16:12:49.000Z</updated>
+    <updated>2017-10-09T12:49:11.000Z</updated>
     
     <content type="html"><![CDATA[<p>📚 免费的编程书 // 📚 Freely available programming books<br><a id="more"></a></p>
 <table>
@@ -1219,41 +1279,6 @@
     <summary type="html">
     
       FBX是3D模型常用的文件格式，为了开发直接处理FBX的软件，AutoDesk公司提供了C/C++和Python的两套SDK。这里介绍一下FBX SDK Sample for C++的内容，顺序按照从易到难，而不是字母顺序。
-    
-    </summary>
-    
-      <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
-    
-    
-      <category term="3D" scheme="http://zablog.me/tags/3D/"/>
-    
-      <category term="FBX" scheme="http://zablog.me/tags/FBX/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>使用FBX SDK导出ASCII的FBX文件</title>
-    <link href="http://zablog.me/2016/07/25/fbx_ascii/"/>
-    <id>http://zablog.me/2016/07/25/fbx_ascii/</id>
-    <published>2016-07-25T06:48:06.000Z</published>
-    <updated>2016-07-25T06:56:47.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>使用<a href="http://www.autodesk.com/products/fbx/overview" target="_blank" rel="external">FBX SDK</a>的时候，导出的FBX默认总是Binary的，也就是说它直接用notepad打开后多数内容是乱码。使用binary的方式可以使文件size变小，但是却失去了可读性，这对于FBX SDK的初学者是很不利的。所以我认为FBX SDK一定会有导出ASCII的方法，然而<a href="http://help.autodesk.com/view/FBX/2017/ENU/" target="_blank" rel="external">FBX SDK Help文档</a>里并没有相关的直接指导。最后还是看到了一篇<a href="http://forums.autodesk.com/t5/fbx-sdk/fbx-export-binary-ascii/td-p/4146847?nobounce" target="_blank" rel="external">论坛文章</a>才让我茅塞顿开。<br>当然这个论坛讨论中，第一个solution采用了EXP_ASCIIFBX，这个经过测试是无效的，但是第二个方法却很有用。<br>如果只是寻找解决方法的话，那么完全没有必要去点开那个论坛，我会在下面详细说明。</p>
-<a id="more"></a>
-<p>其实Sample程序中就有内容可以参照：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$FBXSDK_DIR</span>/201X.X/samples/ConvertScene/main.cxx</div></pre></td></tr></table></figure>
-<p>这一段就是与导出的格式直接相关的。总体来说，它的实现很简单，只是通过</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> lFormat = lSdkManager-&gt;GetIOPluginRegistry()-&gt;FindWriterIDByDescription(fileTypeExpression);</div></pre></td></tr></table></figure>
-<p>找到Format对应的标号，然后导出的时候作为参数导出即可。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">lExporter-&gt;Initialize(lNewFileName, lFormat, lSdkManager-&gt;GetIOSettings());</div><div class="line">lExporter-&gt;Export(lScene);</div></pre></td></tr></table></figure>
-<p>这篇短文没什么技术含量，做一小记，希望能够帮助后来人。</p>
-<p>附main.cxx代码全文。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/****************************************************************************************</span></div><div class="line"><span class="comment"></span></div><div class="line"><span class="comment">   Copyright (C) 2014 Autodesk, Inc.</span></div><div class="line"><span class="comment">   All rights reserved.</span></div><div class="line"><span class="comment"></span></div><div class="line"><span class="comment">   Use of this software is subject to the terms of the Autodesk license agreement</span></div><div class="line"><span class="comment">   provided at the time of installation or download, or which otherwise accompanies</span></div><div class="line"><span class="comment">   this software in either electronic or hard copy form.</span></div><div class="line"><span class="comment"></span></div><div class="line"><span class="comment">****************************************************************************************/</span></div><div class="line"></div><div class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////</span></div><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">// This program converts any file in a format supported by the FBX SDK</span></div><div class="line"><span class="comment">// into DAE, FBX, 3DS, OBJ and DXF files.</span></div><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">// Steps:</span></div><div class="line"><span class="comment">// 1. Initialize SDK objects.</span></div><div class="line"><span class="comment">// 2. Load a file(fbx, obj,...) to a FBX scene.</span></div><div class="line"><span class="comment">// 3. Create a exporter.</span></div><div class="line"><span class="comment">// 4. Retrieve the writer ID according to the description of file format.</span></div><div class="line"><span class="comment">// 5. Initialize exporter with specified file format</span></div><div class="line"><span class="comment">// 6. Export.</span></div><div class="line"><span class="comment">// 7. Destroy the exporter</span></div><div class="line"><span class="comment">// 8. Destroy the FBX SDK manager</span></div><div class="line"><span class="comment">//</span></div><div class="line"><span class="comment">/////////////////////////////////////////////////////////////////////////</span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fbxsdk.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"../Common/Common.h"</span></span></div><div class="line"></div><div class="line"><span class="meta">#<span class="meta-keyword">define</span> SAMPLE_FILENAME <span class="meta-string">"box.fbx"</span></span></div><div class="line"></div><div class="line"><span class="keyword">const</span> <span class="keyword">char</span>* lFileTypes[] =</div><div class="line">&#123;</div><div class="line">    <span class="string">"_dae.dae"</span>,            <span class="string">"Collada DAE (*.dae)"</span>,</div><div class="line">    <span class="string">"_fbx7binary.fbx"</span>, <span class="string">"FBX binary (*.fbx)"</span>,</div><div class="line">    <span class="string">"_fbx7ascii.fbx"</span>,  <span class="string">"FBX ascii (*.fbx)"</span>,</div><div class="line">    <span class="string">"_fbx6binary.fbx"</span>, <span class="string">"FBX 6.0 binary (*.fbx)"</span>,</div><div class="line">    <span class="string">"_fbx6ascii.fbx"</span>,  <span class="string">"FBX 6.0 ascii (*.fbx)"</span>,</div><div class="line">    <span class="string">"_obj.obj"</span>,            <span class="string">"Alias OBJ (*.obj)"</span>,</div><div class="line">    <span class="string">"_dxf.dxf"</span>,            <span class="string">"AutoCAD DXF (*.dxf)"</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span></span></div><div class="line"><span class="function"></span>&#123;</div><div class="line">	<span class="function">FbxString <span class="title">lFilePath</span><span class="params">(<span class="string">""</span>)</span></span>;</div><div class="line">	<span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">1</span>, c = argc; i &lt; c; ++i )</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span>( FbxString(argv[i]) == <span class="string">"-test"</span> ) <span class="keyword">continue</span>;</div><div class="line">		<span class="keyword">else</span> <span class="keyword">if</span>( lFilePath.IsEmpty() ) lFilePath = argv[i];</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">if</span>( lFilePath.IsEmpty() ) lFilePath = SAMPLE_FILENAME;</div><div class="line"></div><div class="line">    FbxManager* lSdkManager = <span class="literal">NULL</span>;</div><div class="line">    FbxScene* lScene = <span class="literal">NULL</span>;</div><div class="line"></div><div class="line">    <span class="comment">// Prepare the FBX SDK.</span></div><div class="line">    InitializeSdkObjects(lSdkManager, lScene);</div><div class="line"></div><div class="line">	<span class="keyword">bool</span> lResult = LoadScene(lSdkManager, lScene, lFilePath.Buffer());</div><div class="line">    <span class="keyword">if</span>( lResult )</div><div class="line">    &#123;		</div><div class="line">		<span class="keyword">const</span> <span class="keyword">size_t</span> lFileNameLength = <span class="built_in">strlen</span>((argc&gt;=<span class="number">3</span>)?argv[<span class="number">2</span>]:lFilePath.Buffer());</div><div class="line">        <span class="keyword">char</span>* lNewFileName = <span class="keyword">new</span> <span class="keyword">char</span>[lFileNameLength+<span class="number">64</span>];</div><div class="line">        FBXSDK_strcpy(lNewFileName,lFileNameLength+<span class="number">64</span>,(argc&gt;=<span class="number">3</span>)?argv[<span class="number">2</span>]:lFilePath.Buffer());</div><div class="line"></div><div class="line">        <span class="keyword">const</span> <span class="keyword">size_t</span> lFileTypeCount = <span class="keyword">sizeof</span>(lFileTypes)/<span class="keyword">sizeof</span>(lFileTypes[<span class="number">0</span>])/<span class="number">2</span>;</div><div class="line"></div><div class="line">        <span class="keyword">for</span>(<span class="keyword">size_t</span> i=<span class="number">0</span>; i&lt;lFileTypeCount; ++i)</div><div class="line">        &#123;</div><div class="line">            <span class="comment">// Retrieve the writer ID according to the description of file format.</span></div><div class="line">            <span class="keyword">int</span> lFormat = lSdkManager-&gt;GetIOPluginRegistry()-&gt;FindWriterIDByDescription(lFileTypes[i*<span class="number">2</span>+<span class="number">1</span>]);</div><div class="line"></div><div class="line">            <span class="comment">// Construct the output file name.</span></div><div class="line">            FBXSDK_strcpy(lNewFileName+lFileNameLength<span class="number">-4</span>,<span class="number">60</span>, lFileTypes[i*<span class="number">2</span>]);</div><div class="line"></div><div class="line">            <span class="comment">// Create an exporter.</span></div><div class="line">            FbxExporter* lExporter = FbxExporter::Create(lSdkManager, <span class="string">""</span>);</div><div class="line"></div><div class="line">            <span class="comment">// Initialize the exporter.</span></div><div class="line">			lResult = lExporter-&gt;Initialize(lNewFileName, lFormat, lSdkManager-&gt;GetIOSettings());</div><div class="line">            <span class="keyword">if</span>( !lResult )</div><div class="line">            &#123;</div><div class="line">                FBXSDK_printf(<span class="string">"%s:\tCall to FbxExporter::Initialize() failed.\n"</span>, lFileTypes[i*<span class="number">2</span>+<span class="number">1</span>]);</div><div class="line">                FBXSDK_printf(<span class="string">"Error returned: %s\n\n"</span>, lExporter-&gt;GetStatus().GetErrorString());</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">else</span></div><div class="line">            &#123;</div><div class="line">                <span class="comment">// Export the scene.</span></div><div class="line">				lResult = lExporter-&gt;Export(lScene);</div><div class="line">                <span class="keyword">if</span>( !lResult )</div><div class="line">                &#123;</div><div class="line">                    FBXSDK_printf(<span class="string">"Call to FbxExporter::Export() failed.\n"</span>);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// Destroy the exporter.</span></div><div class="line">            lExporter-&gt;Destroy();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">delete</span>[] lNewFileName;</div><div class="line">    &#125;</div><div class="line">	<span class="keyword">else</span></div><div class="line">    &#123;</div><div class="line">        FBXSDK_printf(<span class="string">"Call to LoadScene() failed.\n"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// Delete the FBX SDK manager. All the objects that have been allocated</span></div><div class="line">    <span class="comment">// using the FBX SDK manager and that haven't been explicitly destroyed</span></div><div class="line">    <span class="comment">// are automatically destroyed at the same time.</span></div><div class="line">    DestroySdkObjects(lSdkManager, lResult);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;使用&lt;a href=&quot;http://www.autodesk.com/products/fbx/overview&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;FBX SDK&lt;/a&gt;的时候，导出的FBX默认总是Binary的，也就是说它直接用notepad打开后多数内容是乱码。使用binary的方式可以使文件size变小，但是却失去了可读性，这对于FBX SDK的初学者是很不利的。所以我认为FBX SDK一定会有导出ASCII的方法，然而&lt;a href=&quot;http://help.autodesk.com/view/FBX/2017/ENU/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;FBX SDK Help文档&lt;/a&gt;里并没有相关的直接指导。最后还是看到了一篇&lt;a href=&quot;http://forums.autodesk.com/t5/fbx-sdk/fbx-export-binary-ascii/td-p/4146847?nobounce&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;论坛文章&lt;/a&gt;才让我茅塞顿开。&lt;br&gt;当然这个论坛讨论中，第一个solution采用了EXP_ASCIIFBX，这个经过测试是无效的，但是第二个方法却很有用。&lt;br&gt;如果只是寻找解决方法的话，那么完全没有必要去点开那个论坛，我会在下面详细说明。&lt;/p&gt;
     
     </summary>
     
