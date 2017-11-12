@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://zablog.me/2017/11/12/crawler/</loc>
+    
+    <lastmod>2017-11-12T13:29:09.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://zablog.me/2017/10/08/github_go-cache/</loc>
     
     <lastmod>2017-10-09T13:03:25.000Z</lastmod>

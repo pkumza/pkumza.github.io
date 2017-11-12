@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-10-09T13:03:25.000Z</updated>
+  <updated>2017-11-12T13:29:09.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>爬虫小纪</title>
+    <link href="http://zablog.me/2017/11/12/crawler/"/>
+    <id>http://zablog.me/2017/11/12/crawler/</id>
+    <published>2017-11-12T13:00:00.000Z</published>
+    <updated>2017-11-12T13:29:09.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>最近比较繁忙，所以博客也没有什么新文章。<br>说一下爬虫吧。<br>自从互联网时代开始，爬虫就没停止活跃…恐怕今后很长一段时间爬虫都会长期存在。当人们谈到XSS、DDos、SQL injection、SSL attacks的时候，多数你在谈论计算机安全，当你谈到爬虫的时候，你更多的在关心内容安全。爬虫有时候会涉及内容安全，有些内容是别人的立站根本，譬如PGC、UGC的文章；有的内容是别人的商业机密，譬如酒店、商品的价格。</p>
+<p>对于爬虫来说，有没有规范定义它不允许爬取的内容呢。有一个文件叫做robots.txt，它是是一种存放于网站根目录下的ASCII编码的文本文件，通常用来告诉搜索引擎的爬取器哪些内容是不应该被获取的。</p>
+<p>曾经阿里巴巴有一个很火的网站<a href="http://etao.com/" target="_blank" rel="external">一淘</a>，这个网站的最大优势是可以在线比价。它可以将一件商品在各个平台上的价格放在一起，消费者可以在这里瞬间看到很多平台的价格，从而找到最便宜的。</p>
+<p>而更杀手级的功能是，它提供历史价格的功能。譬如对于京东来说，它可以看到京东里面某件商品的价格历史。当前虽然在搞促销，但是也许并非历史最低价格，消费者可能就继续观望了。</p>
+<p>这对京东这种商家的损害很大，一淘这样就侵犯京东的商业机密了。京东不希望别人知道一件商品的价格历史。所以，京东的robots.txt设置为了这样：<a href="https://www.jd.com/robots.txt" target="_blank" rel="external">robots.txt</a><br>其中有一条写作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">User-agent: EtaoSpider </div><div class="line">Disallow: /</div></pre></td></tr></table></figure></p>
+<p>也就是说，对于Etao的爬虫来说，我不允许你爬取京东的任何内容。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近比较繁忙，所以博客也没有什么新文章。&lt;br&gt;说一下爬虫吧。&lt;br&gt;自从互联网时代开始，爬虫就没停止活跃…恐怕今后很长一段时间爬虫都会长期存在。当人们谈到XSS、DDos、SQL injection、SSL attacks的时候，多数你在谈论计算机安全，当你谈到爬虫的时候
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="crawler" scheme="http://zablog.me/tags/crawler/"/>
+    
+  </entry>
   
   <entry>
     <title>每周一个Github项目【第八期】go-cache</title>
@@ -1241,53 +1269,6 @@
     
     
       <category term="Python" scheme="http://zablog.me/tags/Python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>FBX SDK Sample Guide - for beginners</title>
-    <link href="http://zablog.me/2016/08/02/FBX%20SDK%20Sample%20Guide/"/>
-    <id>http://zablog.me/2016/08/02/FBX SDK Sample Guide/</id>
-    <published>2016-08-02T04:46:23.000Z</published>
-    <updated>2016-09-11T13:46:27.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Current Version: FBX SDK 2016.1.1 for VS2012</p>
-<p>介绍一下FBX SDK Sample的内容，顺序按照从易到难，而不是字母顺序。</p>
-<h2 id="UI-Example"><a href="#UI-Example" class="headerlink" title="UI Example"></a>UI Example</h2><p>最简单的Example，UI Example，是直接运行之后就有图案的。<br>文件夹下有三个例子，分别是：</p>
-<ul>
-<li>CubeCreator</li>
-<li>ImportExport</li>
-<li>SceneTreeView</li>
-</ul>
-<p>首先看的是ImportExport，这个最基础。因为使用FBX SDK的最基础的内容，无非是Import和Export。</p>
-<p>使用方法很简单，首先打开VS2012，然后点击FILE-Open-Project/Solution，然后再文件浏览器中选择C:\Program Files\Autodesk\FBX\FBX SDK\2016.1.1\samples\UI Examples\ImportExport\ImportExport_net2012.vcxproj即可。不用修改任何东西，点击运行，就会出现如下界面。</p>
-<p><img src="http://imglf.nosdn.127.net/img/MGpGUW9CdGlzcDdWYkNFM1BkbE5FQ0FPOEErYzhwN25maXc0d1RnV3JTaXpTZ2RmWkFoTzJnPT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="ImportExport1"></p>
-<p>执行。</p>
-<p><img src="http://imglf2.nosdn.127.net/img/MGpGUW9CdGlzcDdWYkNFM1BkbE5FT05WbXBMQlFmRWZDaGdHZXV4K1NnSnQ3cHBqZk0yczlBPT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="ImportExport2"></p>
-<p>没错就是这么简单，具体的功能就是导入然后直接导出而已，没有什么特别的。在我这个例子中，我导入了一个叫做cubes.fbx的文件，然后导出了cube.1.1.fbx文件。</p>
-<h2 id="SceneTreeView"><a href="#SceneTreeView" class="headerlink" title="SceneTreeView"></a>SceneTreeView</h2><p>下面的例子我就不去一一运行了，因为确实是很简单。</p>
-<p>SceneTreeView这个例子，是打开一个FBX，然后把这个FBX的所有内容按照树形图的方式展示。当然展示的主要内容是Node，包含着mesh、Attribute、Skin、Skeleton、Animation等等…</p>
-<h2 id="CubeCreator"><a href="#CubeCreator" class="headerlink" title="CubeCreator"></a>CubeCreator</h2><p>不断地创建Cube。从这个例子可以好好地学习更基础的FBX中的模型的数据结构。再有就是映射方式，Direct和IndextoDirect的区别一定要掌握。</p>
-<h2 id="Instance"><a href="#Instance" class="headerlink" title="Instance"></a>Instance</h2><p>/<strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><em>**</em></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>/<br>/<em> This example shows how to instanciate meshes and curves in FBX.          </em>/<br>/<em>  - Create a cube                                                         </em>/<br>/<em>  - Create instances of this cube (new nodes that point to the same mesh) </em>/<br>/<em>  - Apply the same materials to the polygons of these cubes               </em>/<br>/<em>  - Create an animation curve                                             </em>/<br>/<em>  - Animate all cubes using the same animation curve.                     </em>/<br>/<strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><em>**</em></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>/</p>
-<p>创建一个立方体<br>创建立方体的多个实例<br>为这些立方体的面应用同样的材质<br>创建一个动画轨迹<br>为所有的立方体应用同样的动画轨迹</p>
-<h4 id="实例化"><a href="#实例化" class="headerlink" title="实例化"></a>实例化</h4><p>为了节约模型的空间，有的模型在一个场景中需要出现多次的。比如草地上的草，桌子上的杯子，赛场的座位等等。这些模型没有必要做那么多，否则很耗费文件大小。这个时候一样的东西只要定义一次，然后挂载到不同的Node上就可以了，这个过程称之为实例化。</p>
-<h2 id="UserProperties"><a href="#UserProperties" class="headerlink" title="UserProperties"></a>UserProperties</h2><p>用户自定义的内容。</p>
-<p>/////////////////////////////////////////////////////////////////////////<br>//<br>// In this example a scene is created containing a cube and a pyramid.<br>//<br>// The example illustrates two things:<br>//  1) How to create user properties, attach them to the cube and<br>//     animate them.<br>//  2) How to create a constraint, constraining the pyramid to the cube.<br>//<br>//<br>/////////////////////////////////////////////////////////////////////////</p>
-<p>在这个例子中，首先创建了一个含有一个立方体和一个金字塔的场景。<br>这个例子展示了两个功能：<br>1） 如何创建用户内容，然后把内容附到cube上。<br>2） 如何创建一个约束，使金字塔约束到立方体上。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      FBX是3D模型常用的文件格式，为了开发直接处理FBX的软件，AutoDesk公司提供了C/C++和Python的两套SDK。这里介绍一下FBX SDK Sample for C++的内容，顺序按照从易到难，而不是字母顺序。
-    
-    </summary>
-    
-      <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
-    
-    
-      <category term="3D" scheme="http://zablog.me/tags/3D/"/>
-    
-      <category term="FBX" scheme="http://zablog.me/tags/FBX/"/>
     
   </entry>
   
