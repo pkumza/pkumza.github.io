@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-11-12T13:29:09.000Z</updated>
+  <updated>2017-12-04T14:07:56.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,38 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>匿名代理、透传代理和精英代理之间的区别</title>
+    <link href="http://zablog.me/2017/12/04/proxy/"/>
+    <id>http://zablog.me/2017/12/04/proxy/</id>
+    <published>2017-12-04T13:00:00.000Z</published>
+    <updated>2017-12-04T14:07:56.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>匿名代理、透传代理和精英代理之间的区别 / differences between transparent, anonymous and elite proxy<br><a id="more"></a></p>
+<p>作为一个代理的普通用户，你也许不知道你在用的代理到底是透明的，匿名的还是精英的。<br>你也许会倾向于使用精英代理，正如它名字指示的那样。那么这几种代理到底有什么区别呢？</p>
+<p>首先，代理一般会在HTTP的Header中传输以下3个字段：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">REMOTE_ADDR</div><div class="line">HTTP_X_FORWARDED_FOR</div><div class="line">HTTP_VIA</div></pre></td></tr></table></figure>
+<p>REMOTE_ADDR总是发送代理服务器的IP地址。</p>
+<h2 id="透传代理"><a href="#透传代理" class="headerlink" title="透传代理"></a>透传代理</h2><p>对于透传代理（Transparent Proxy）来说，你真实IP地址会被放在HTTP_X_FORWARDED_FOR里面。这意味着网站可以知道代理的IP，还知道你真正的IP地址。<br>HTTP_VIA头也会发送，显示你正在使用代理服务器</p>
+<h2 id="匿名代理"><a href="#匿名代理" class="headerlink" title="匿名代理"></a>匿名代理</h2><p>匿名代理不会把你的真实IP写在<code>HTTP_X_FORWARDED_FOR</code>头里面。但是HTTP_VIA头还是透露了您正在使用一个代理服务器。</p>
+<h2 id="精英代理"><a href="#精英代理" class="headerlink" title="精英代理"></a>精英代理</h2><p>精英代理只发送REMOTE_ADDR头,因此让你看起来像一个普通互联网用户不使用代理。</p>
+<h2 id="检测精英代理"><a href="#检测精英代理" class="headerlink" title="检测精英代理"></a>检测精英代理</h2><p>精英代理并非不可以检测。<br>网站可以检查这个IP，是否使用了常用的代理接口（如8080、3128、8080、3128）。</p>
+<p>可以使用以下网站来检测你是否匿名:<a href="http://whoer.net/ext" target="_blank" rel="external">http://whoer.net/ext</a> 或 <a href="https://whoer.net/zh#extended" target="_blank" rel="external">https://whoer.net/zh#extended</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;匿名代理、透传代理和精英代理之间的区别 / differences between transparent, anonymous and elite proxy&lt;br&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
+    
+  </entry>
   
   <entry>
     <title>爬虫小纪</title>
@@ -1239,36 +1271,6 @@
     
       <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>PyCharm EDU</title>
-    <link href="http://zablog.me/2016/09/07/PyCharm-EDU/"/>
-    <id>http://zablog.me/2016/09/07/PyCharm-EDU/</id>
-    <published>2016-09-07T13:38:16.000Z</published>
-    <updated>2016-09-11T13:25:44.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="PyCharm"><a href="#PyCharm" class="headerlink" title="PyCharm"></a>PyCharm</h1><p>PyCharm 实在是Python程序员所赞叹的优秀IDE。这不重装了Windows之后，第一件事就是安装PyCharm。不过这次看官网，有一点儿区别，多了一个PyCharm EDU。</p>
-<p>本来呢，我以为EDU版本就是只需要上传学号或者是使用edu邮箱验证，就可以免费使用收费功能。不过现实却完全不是这样。囧oz</p>
-<h1 id="EDU"><a href="#EDU" class="headerlink" title="EDU"></a>EDU</h1><p>实际上呢，EDU版本只是为了方便老师教学，方便学生学习的一个PyCharm版本而已。自己学了Python很久了，正好看到有一个入门，想看看有什么知识可以巩固，不过看了一下发现这实在是太简单了。</p>
-<p>不过不得不说，初学者的这些章节设计还是蛮好的，对于初学Python有很大帮助。以前别人问我怎么学Python，我会推荐liaoxuefeng.org去学，但是现在，我可以直接推荐PyCharm了。</p>
-<p>从界面上看，和PyCharm略有区别，但是总体来说很相似。<br>安装文件呢要比CE还要略小一点。<br>功能当然看起来是不够全面的啦，不说了我去装PyCharm CE了。暂时没钱买Pro。</p>
-<p><img src="http://imglf.nosdn.127.net/img/MGpGUW9CdGlzcDZ3Q2F5L2N4alRKYXh4Znh2YkFrZWhXMW5GQUV1Mm56N1IrQ0hhQnBtby93PT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt=""></p>
-<p><img src="http://imglf0.nosdn.127.net/img/MGpGUW9CdGlzcDZ3Q2F5L2N4alRKZjUvOWRpczlEU2drUG1vV1NxeXBJRnpwbU5YU2RuV1FnPT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt=""></p>
-<p><img src="http://imglf1.nosdn.127.net/img/MGpGUW9CdGlzcDZ3Q2F5L2N4alRKYXh4Znh2YkFrZWhCK1JXS1RseHpEMkVqSU1pc0J1dUV3PT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt=""></p>
-]]></content>
-    
-    <summary type="html">
-    
-      PyCharm 实在是Python程序员所赞叹的优秀IDE。这不重装了Windows之后，第一件事就是安装PyCharm。不过这次看官网，有一点儿区别，多了一个PyCharm EDU。本来呢，我以为EDU版本就是只需要上传学号或者是使用edu邮箱验证，就可以免费使用收费功能。不过现实却完全不是这样。囧oz
-    
-    </summary>
-    
-      <category term="学习笔记" scheme="http://zablog.me/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-    
-    
-      <category term="Python" scheme="http://zablog.me/tags/Python/"/>
     
   </entry>
   
