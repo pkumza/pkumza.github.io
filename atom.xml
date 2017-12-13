@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-12-04T14:07:56.000Z</updated>
+  <updated>2017-12-13T09:28:14.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -16,11 +16,37 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Go语言小技巧——合理使用Pool</title>
+    <link href="http://zablog.me/2017/12/13/go_pool/"/>
+    <id>http://zablog.me/2017/12/13/go_pool/</id>
+    <published>2017-12-13T13:00:00.000Z</published>
+    <updated>2017-12-13T09:28:14.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>垃圾回收一直是Go语言的一块心病，在它执行垃圾回收的时间中，你很难做什么。<br>在垃圾回收压力大的服务中，GC占据的CPU有可能超过2%，造成的Pause经常超过2ms。垃圾严重的时候，秒级的GC也出现过。<br>如果经常临时使用一些大型结构体，可以用Pool来减少GC。</p>
+<p>示例代码</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">type</span> structR6 <span class="keyword">struct</span> &#123;</div><div class="line">	B1 [<span class="number">100000</span>]<span class="keyword">int</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> r6Pool = sync.Pool&#123;</div><div class="line">	New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</div><div class="line">		<span class="keyword">return</span> <span class="built_in">new</span>(structR6)</div><div class="line">	&#125;,</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">usePool</span><span class="params">()</span></span> &#123;</div><div class="line">	startTime := time.Now()</div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++ &#123;</div><div class="line">		sr6 := r6Pool.Get().(*structR6)</div><div class="line">		sr6.B1[<span class="number">0</span>] = <span class="number">0</span></div><div class="line">		r6Pool.Put(sr6)</div><div class="line">	&#125;</div><div class="line">	fmt.Println(<span class="string">"pool Used:"</span>, time.Since(startTime))</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">standard</span><span class="params">()</span></span> &#123;</div><div class="line">	startTime := time.Now()</div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++ &#123;</div><div class="line">		<span class="keyword">var</span> sr6 structR6</div><div class="line">		sr6.B1[<span class="number">0</span>] = <span class="number">0</span></div><div class="line">	&#125;</div><div class="line">	fmt.Println(<span class="string">"standard Used:"</span>, time.Since(startTime))</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	standard()</div><div class="line">	usePool()</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>一个含有100000个int值的结构体，在标准方法中，每次均新建，重复10000次，一共需要耗费193ms；<br>如果用完的struct可以废物利用，放回pool中。需要新的结构体的时候，尝试去pool中取，而不是重新生成，重复10000次仅需要693us。<br>这样简单的操作，却节约了99.65%的时间，也节约了各方面的资源。最重要的是它可以有效减少GC CPU和GC Pause。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;垃圾回收一直是Go语言的一块心病，在它执行垃圾回收的时间中，你很难做什么。&lt;br&gt;在垃圾回收压力大的服务中，GC占据的CPU有可能超过2%，造成的Pause经常超过2ms。垃圾严重的时候，秒级的GC也出现过。&lt;br&gt;如果经常临时使用一些大型结构体，可以用Pool来减少GC。
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="go" scheme="http://zablog.me/tags/go/"/>
+    
+  </entry>
+  
+  <entry>
     <title>匿名代理、透传代理和精英代理之间的区别</title>
     <link href="http://zablog.me/2017/12/04/proxy/"/>
     <id>http://zablog.me/2017/12/04/proxy/</id>
     <published>2017-12-04T13:00:00.000Z</published>
-    <updated>2017-12-04T14:07:56.000Z</updated>
+    <updated>2017-12-05T02:35:11.000Z</updated>
     
     <content type="html"><![CDATA[<p>匿名代理、透传代理和精英代理之间的区别 / differences between transparent, anonymous and elite proxy<br><a id="more"></a></p>
 <p>作为一个代理的普通用户，你也许不知道你在用的代理到底是透明的，匿名的还是精英的。<br>你也许会倾向于使用精英代理，正如它名字指示的那样。那么这几种代理到底有什么区别呢？</p>
@@ -43,7 +69,7 @@
       <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
+      <category term="计数随笔" scheme="http://zablog.me/tags/%E8%AE%A1%E6%95%B0%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
@@ -1218,59 +1244,6 @@
     
     
       <category term="Android" scheme="http://zablog.me/tags/Android/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>更换GPU</title>
-    <link href="http://zablog.me/2016/09/11/replace-GPU/"/>
-    <id>http://zablog.me/2016/09/11/replace-GPU/</id>
-    <published>2016-09-11T12:26:44.000Z</published>
-    <updated>2016-12-07T11:50:10.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>哈哈我承认我没有拍摄什么高质量的图像。记录一下更换显卡的过程，供参考。</p>
-<p>主板和显卡之间的连接通道是PCI-E接口。<br>现在的主板越来越厉害了，所以可能有多个PCI-E接口，同时要有版本的区别，比如PCI-E v3/v2, x16/x8。当然要学会插对，这个可以参考<a href="http://diy.pconline.com.cn/graphics/reviews/1210/3047220_all.html" target="_blank" rel="external">显卡插错插槽的后果?PCI-E X16与X8性能PK</a><br>一般来说问题不大，显卡和主板的兼容性是很好的，很少有说因为主板不支持而无法连接显卡的情况，除非那主板实在是过于过于过于古老了。</p>
-<h1 id="原机"><a href="#原机" class="headerlink" title="原机"></a>原机</h1><p>台式机的型号是 2013年07月02日的 ThinkCentre M8400t，现在类似的版本应该已经升级到M8600t了吧。Core i7 3770 的CPU。<br>长得大概这个样子。<br><img src="https://img.alicdn.com/imgextra/i1/318290277/T2fUmmXT0XXXXXXXXX_!!318290277.jpg" alt=""></p>
-<h1 id="购买"><a href="#购买" class="headerlink" title="购买"></a>购买</h1><p>好啦，首先我在京东买了一个显卡，<a href="http://item.jd.com/3281156.html" target="_blank" rel="external">“索泰（ZOTAC）Geforce GTX1060-6GD5 X-GAMING OC 1569-1784MHz/8008MHz 6G/192bit GDDR5 PCI-E显卡”</a>。</p>
-<p><img src="http://img20.360buyimg.com/vc/jfs/t2731/180/3429863697/149042/496970ed/578d99afN946f7efb.jpg" alt=""></p>
-<p>GTX 1060 虽然没有呼吸灯，但是依然是2016年秋季最具性价比最值得购买的产品之一，性能和GTX980相当。</p>
-<h1 id="拆机箱"><a href="#拆机箱" class="headerlink" title="拆机箱"></a>拆机箱</h1><p>这部分没啥好说的，螺丝卸了就拆了，太熟练，没有坎儿。前几天拆下来原有的硬盘，换了一个2TB的硬盘，重新安装Win10系统，版本号10240，使用学校公共购买的激活了一下<a href="http://software.pku.edu.cn/" target="_blank" rel="external">北大良心软件</a>。</p>
-<h1 id="连电源"><a href="#连电源" class="headerlink" title="连电源"></a>连电源</h1><p>实现拆开瞅了一下，并没有给显卡供电的接口。提前做了一下知识，现在的主流显卡有 8pin/6pin 两种接口，就是8口线和6口线。<br>一般低端显卡，只需要主板供电即可。主板直插可以给显卡供给大概75W吧，这对于低端显卡已经足够了。<br>中端显卡一般是6pin的供电，比如GTX950什么的。<br>今年大概10月份英伟达应该会推出GTX1050，它也许就会使用6pin供电。<br>GTX1060的定位是中高端显卡，和GTX1080 GTX1070同属于高端系列。GTX1060这种显卡的供电需要就更大了，所以使用了8pin供电。<br>GTX1080这种高端显卡甚至需要8+8pin供电。</p>
-<p>联想自带电源非常可怜，功率上还不错，可以提供360W的功率，但是在线材上就太可怜了，只提供了一个14pin和一个小4pin出来。这显然不能供显卡使用。</p>
-<p>以前有些显卡是不接外接电源也能使用，但是效果比较差的。现在这些显卡没有外接电源的后果就是黑屏，没什么好说的。</p>
-<p>于是买了一个电源来给显卡供电。<a href="http://item.jd.com/251340.html" target="_blank" rel="external">“安钛克（Antec）额定450W VP 450P 电脑电源（双显卡接头/两年质保/主动式PFC/12CM静音风扇/台式机电源）”</a></p>
-<p><img src="http://img20.360buyimg.com/vc/jfs/t1705/276/1215416282/100651/6e726fde/55e53779N387e8184.jpg" alt=""></p>
-<p>现在终于有8pin的口了。PS：事实上是6+2pin。6+2pin的设置就是既支持6pin，又支持8pin。</p>
-<p>VP-450p 这个电源支持双8pin的，不过我的小显卡不需要。如果买了1080或者双显卡，肯定就需要了吧。</p>
-<p>不过现在难题来了。VP-450p只提供20+4pin，并不提供14pin的主板供电电源。这个好坑，只有联想等少数厂商才用这种无聊的14pin来给主板供电。我并没有别的办法啊。我异想天开地决定使用两个电源，即老电源供电主板，新电源供电显卡。不过无情的现实还是啪啪啪地打脸。没有主板向电源发送的“开机信号”，电源根本就不供电啊，所以显卡的灯不亮，风扇也连转都不转。</p>
-<p>机器都拆开了，没办法装，这可咋办。好在依托了北大的位置优势。上某宝上迅速查找一个20转14pin的连接线。当然啦最后只找到了24转14pin的连接线，不过没关系，我的电源是20+4pin的，可以组合为24pin。询问商家，真巧，那个商家就在中关村。骑上单车十分钟就买了来，才花了RMB10。上图！</p>
-<p><img src="http://imglf2.nosdn.127.net/img/MGpGUW9CdGlzcDZXMU9GY2JtZHhmeG9EVTFKTmtzYWxqMytiemFKNUExdFJ3dDJ6b21sd2tRPT0.jpeg?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt=""></p>
-<p>大拇指端是24pin，右边是14pin。回来连接上，左手连接电源，右手连接主板，Works。</p>
-<h1 id="连接显卡"><a href="#连接显卡" class="headerlink" title="连接显卡"></a>连接显卡</h1><p>首先把旧的显卡拔下来，注意的是主板PCI-E接口都有一个卡口，要拨动一下才能够拔下显卡。新的显卡明显比原来的显卡要大，长了1.5倍，宽了1.4倍，厚了大概3倍。</p>
-<p><img src="http://imglf1.nosdn.127.net/img/MGpGUW9CdGlzcDZXMU9GY2JtZHhmL1N2N1lFellDR1FIQklqMFVnQzl3WlR0UmlsL3BvblJ3PT0.jpeg?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt=""></p>
-<p>令人失望的是，主板的结构实在是太坑了，所以因为体积占掉了两个SATA数据接口。SATA3给占掉了，只剩下SATA2，大概也许就没有升级SSD的任何必要了。</p>
-<h1 id="安装驱动"><a href="#安装驱动" class="headerlink" title="安装驱动"></a>安装驱动</h1><p>ZOTAC赠送的光盘大概也许没什么意义，除了一个FireStorm，可以用来调节风扇、频率、电压等等。</p>
-<p>好不容易把最新的驱动安装程序下载下来，但是提示</p>
-<blockquote>
-<p>NVIDIA安装程序无法继续</p>
-<p>此NVIDIA驱动程序与此Windows版本不兼容。</p>
-</blockquote>
-<p><img src="http://imglf1.nosdn.127.net/img/MGpGUW9CdGlzcDZXMU9GY2JtZHhmemhUWVNJQnhOSXUzNEFodnVYRlk2ckhuTlRBeU81RE5RPT0.jpeg?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt=""></p>
-<p>明明是Windows10，明明是64位，明明是GTX1060，哪里就不兼容了呢？答案是这个驱动和10240不兼容。</p>
-<p>话说，Win10在可预见的年限内不会有版本号的变更了，就是说没有Win11的计划了。但是这不代表Windows10没有更新。版本号还是在一直变更的，10240是最初的基础版本的版本号，后面有很多更新。距离Win10推出已经一年多了，势必有很大的更新。</p>
-<p>我搞了一个微软Windows10易升，把Window升级到了版本1607，然后再次安装，就成功了。</p>
-<p>效果就不晒了，和网上宣传的没有太大差别。撸大师显卡跑分可以超过97%的用户。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>做好调研再买东西。做好调研再买东西。做好调研再买东西。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      记录一下自己更换显卡的过程。
-    
-    </summary>
-    
-      <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
-    
     
   </entry>
   
