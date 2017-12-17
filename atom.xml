@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-12-17T02:46:16.000Z</updated>
+  <updated>2017-12-17T02:53:56.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -20,9 +20,10 @@
     <link href="http://zablog.me/2017/12/16/markdown/"/>
     <id>http://zablog.me/2017/12/16/markdown/</id>
     <published>2017-12-16T13:00:00.000Z</published>
-    <updated>2017-12-17T02:46:16.000Z</updated>
+    <updated>2017-12-17T02:53:56.000Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="几款MarkDown对比"><a href="#几款MarkDown对比" class="headerlink" title="几款MarkDown对比"></a>几款MarkDown对比</h1><p>今天来比较三款MarkDown工具。入选的三个工具分别叫做<code>马克飞象</code>、<code>小书匠</code>、<code>作业部落Cmd Markdown</code>。入选的必要条件是支持所有的中断，且可以导到其他的笔记平台。单个端的Markdown解析器、或者文本编辑器的插件之类的，不在今天的讨论之列。</p>
+    <content type="html"><![CDATA[<p>今天来比较三款MarkDown工具。入选的三个工具分别叫做<code>马克飞象</code>、<code>小书匠</code>、<code>作业部落Cmd Markdown</code>。入选的必要条件是支持所有的终端，且可以导到其他的笔记平台。单个端的Markdown解析器、或者文本编辑器的插件之类的，不在今天的讨论之列。</p>
+<a id="more"></a>
 <p>这几款Markdown工具都是国产，各有优劣。下面将给大家具体分析</p>
 <h2 id="笔记平台"><a href="#笔记平台" class="headerlink" title="笔记平台"></a>笔记平台</h2><p>印象笔记等笔记平台不在今天的比较队列里，这里首先来讲述一下使用Markdown的痛点所在。</p>
 <p>印象笔记其实在格式方面是存在很多问题的。其实印象笔记这个公司在2016年就在融资上出现了很大的问题，确实它的格式在2006年左右还是杀手级的，但是恐怕这个公司已经对兼容性焦头烂额了。</p>
@@ -30,11 +31,9 @@
 <p>Wiz笔记作为国内的笔记旗帜，对于Markdown的支持还是令人很欣慰的。早在五年前，我还是Wiz的忠实用户。但是切换Macbook以后，发现这个软件对于Mac段的支持一直不尽如人意，所以后来还是转了印象笔记，并成为印象笔记的忠实付费高级用户。</p>
 <p>而且Wiz笔记现在不付费好像是几乎没法用了，这个也是有点不太好呀。</p>
 <p>有道云笔记也使用过，但是没有留下太强烈的印象，后来也放弃了。</p>
-<p>对于问题，三款Markdown都能够完好的解决，毕竟markdown嘛，可以用```来写代码的。</p>
+<p>对于问题，三款Markdown都能够完好的解决，毕竟Markdown嘛，可以用```来写代码的。</p>
 <hr>
-<p>##马克飞象</p>
-<p>马克飞象对于各个客户端做得相对来说比较<code>native</code>，所以算是支持的比较好的。对于同步笔记来说，它并没有把印象笔记的原有内容同步过来。这一方面说是一个问题，另一方面说也是一个优点。毕竟原来的笔记并不是支持这样一个markdown的格式的，而且那么多笔记，总共也得有1000篇了吧，总体弄过来真的比较乱。</p>
-<p><img src="http://imglf6.nosdn.127.net/img/MGpGUW9CdGlzcDVTTDdrOTczckNrcEJPcmNwS1VWOU80S2sxNlAzVmx1dUdycXFCRE1NcFVBPT0.png?imageView&amp;thumbnail=2274y1398&amp;type=jpg&amp;quality=96&amp;stripmeta=0%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=680&amp;dx=32&amp;dy=36&amp;stripmeta=0" alt="马克飞象"></p>
+<h2 id="马克飞象"><a href="#马克飞象" class="headerlink" title="马克飞象"></a>马克飞象</h2><p>马克飞象对于各个客户端做得相对来说比较<code>native</code>，所以算是支持的比较好的。对于同步笔记来说，它并没有把印象笔记的原有内容同步过来。这一方面说是一个问题，另一方面说也是一个优点。毕竟原来的笔记并不是支持这样一个markdown的格式的，而且那么多笔记，总共也得有1000篇了吧，总体弄过来真的比较乱。</p>
 <p>现在的问题是这个内容能不能自动同步。但是从“正在从印象笔记载入”字样来看应该没这个顾虑。</p>
 <p>缺陷：</p>
 <ul>
@@ -60,9 +59,7 @@
 <p>不过它还是以自身为主，对于笔记平台的依赖性相对比较低。如果想要同步到印象笔记的话，得专门点击设置，然后用导出的方式来导出到笔记，这个是我不太希望的。我期待的结果是直接点击<code>⌘</code>+<code>S</code>就给我乖乖同步到印象笔记，这个功能，前面两款做的都非常好。</p>
 <p>更何况，从cmd markdown导出到印象笔记还需要充会员，连试用的机会都没有，￥90/year。</p>
 <p>马克飞象和小书匠都支持非常非常丰富的主题列表，而cmd markdown对主题的支持相对来说简陋了一些，只支持亮暗两种。</p>
-<p><img src="http://imglf6.nosdn.127.net/img/MGpGUW9CdGlzcDVTTDdrOTczckNrcW9CNnQrK3F0UU9wclZwTTZwV2drem9rK3V0eXQyL1JnPT0.png?imageView&amp;thumbnail=2874y1626&amp;type=jpg&amp;quality=96&amp;stripmeta=0%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=680&amp;dx=32&amp;dy=36&amp;stripmeta=0" alt="cmd markdown"></p>
 <p>cmd markdown的展示还是非常方便的，当文档写得好的话，就直接不需要专门做Keynote了。</p>
-<p><img src="http://imglf3.nosdn.127.net/img/MGpGUW9CdGlzcDVTTDdrOTczckNralMxbkhXNzJGaC9ETjhmT3NmT1Y5bUVXdXJsOWpVa0J3PT0.png?imageView&amp;thumbnail=2668y1596&amp;type=jpg&amp;quality=96&amp;stripmeta=0%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=680&amp;dx=32&amp;dy=36&amp;stripmeta=0" alt="全屏展示"></p>
 <hr>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这些编辑器有一些共同的优点，譬如他们都支持导出，都支持非常程序员喜爱的操作方式，导出方式，保存方式。甚至是把数据仓库都指示了出来。</p>
 <p>它们都是全平台的工具，而且都支持加载很快，非常方便的web端，效率比Google Docs高得多。因此，它们都一定程度上解决了印象笔记的痛点，当然，有的时候也会不小心引入新的痛点。</p>
@@ -72,7 +69,7 @@
     
     <summary type="html">
     
-      &lt;h1 id=&quot;几款MarkDown对比&quot;&gt;&lt;a href=&quot;#几款MarkDown对比&quot; class=&quot;headerlink&quot; title=&quot;几款MarkDown对比&quot;&gt;&lt;/a&gt;几款MarkDown对比&lt;/h1&gt;&lt;p&gt;今天来比较三款MarkDown工具。入选的三个工具分别叫做&lt;
+      &lt;p&gt;今天来比较三款MarkDown工具。入选的三个工具分别叫做&lt;code&gt;马克飞象&lt;/code&gt;、&lt;code&gt;小书匠&lt;/code&gt;、&lt;code&gt;作业部落Cmd Markdown&lt;/code&gt;。入选的必要条件是支持所有的终端，且可以导到其他的笔记平台。单个端的Markdown解析器、或者文本编辑器的插件之类的，不在今天的讨论之列。&lt;/p&gt;
     
     </summary>
     
