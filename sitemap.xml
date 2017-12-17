@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://zablog.me/2017/12/16/markdown/</loc>
+    
+    <lastmod>2017-12-17T02:46:16.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://zablog.me/2017/12/13/go_pool/</loc>
     
-    <lastmod>2017-12-13T09:28:14.000Z</lastmod>
+    <lastmod>2017-12-13T09:29:09.000Z</lastmod>
     
   </url>
   
