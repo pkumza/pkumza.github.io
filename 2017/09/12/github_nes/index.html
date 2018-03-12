@@ -9,7 +9,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/fogleman/nes" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/fogleman/nes" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
@@ -50,7 +50,7 @@
 <p>可以在一个package下的多个文件中都定义init()函数，然而这样不是很便于管理，建议每个package最多写一个init()函数。<br>nes的作者就写了很多个init()函数。</p>
 <p>init的内容是把runtime.GOMAXPROCS设置为2。runtime.GOMAXPROCS可以认为是Go语言最多使用的核心数目，在不设置的时候默认是1。<br>较大的GOMAXPROCS适合于CPU密集型，且并发度较高的情形。如果是IO密集型，CPU之间的切换反而会带来较大的性能损失。<br>nes中的GOMAXPROCS设置，是为了在执行任务的时候，音效不要卡顿。<br>接下来作者调用了runtime.LockOSThread(),这保证了调用OpenGL的时候，go只有一个线程去访问OpenGL的接口。</p>
 <p>在执行Run的时候，NES首先初始化音频部件，然后初始化glfw，接下来使用glfw创建一个窗口，</p>
-<p>glfw是一个C的OpenGL库，而<a href="https://github.com/go-gl/glfw/" target="_blank" rel="external">go glfw</a>则是一个典型的C与GO混合开发的一个库。</p>
+<p>glfw是一个C的OpenGL库，而<a href="https://github.com/go-gl/glfw/" target="_blank" rel="noopener">go glfw</a>则是一个典型的C与GO混合开发的一个库。</p>
 <p>下面，NES初始化了gl，使用TEXTURE_2D模式。</p>
 <p>最终，新建了一个Director，并执行这个Director，至此Run函数结束。</p>
 <h2 id="Director"><a href="#Director" class="headerlink" title="Director"></a>Director</h2><p>Director导演的作用主要是对操作进行一个分发。如果当前有游戏的话，那么就加载游戏的GameView；如果是一个大列表，就把列表展示出来，让用户可以选择一个nes游戏执行。</p>
@@ -59,8 +59,8 @@
 <p>上述代码规定Z和X对应红白机的A和B键。</p>
 <p>虽然按键不尽如人意，但是fogleman的令人拍案称奇的作品确实还是太多了，估计没时间做nes的按键适配了吧。况且毕竟glfw并不特别方便进行窗口编程。</p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://stackoverflow.com/questions/25361831/benefits-of-runtime-lockosthread-in-golang" target="_blank" rel="external">Benefits of runtime.LockOSThread in Golang - Stackoverflow</a></li>
-<li><a href="https://github.com/golang/go/wiki/LockOSThread" target="_blank" rel="external">LockOSThread</a></li>
+<li><a href="https://stackoverflow.com/questions/25361831/benefits-of-runtime-lockosthread-in-golang" target="_blank" rel="noopener">Benefits of runtime.LockOSThread in Golang - Stackoverflow</a></li>
+<li><a href="https://github.com/golang/go/wiki/LockOSThread" target="_blank" rel="noopener">LockOSThread</a></li>
 </ol>
 </div></article></div></main><footer><div class="paginator"><a href="/2017/09/18/emoji/" class="prev">PREV</a><a href="/2017/09/08/go_tricks_and_tips_2/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
 var disqus_identifier = '2017/09/12/github_nes/';

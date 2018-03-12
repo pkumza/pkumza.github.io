@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Mediakit报告设备商的空间不足以执行此操作的纯MAC解法 · Zablog</title><meta name="description" content="Mediakit报告设备商的空间不足以执行此操作的纯MAC解法 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/about" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">Mediakit报告设备商的空间不足以执行此操作的纯MAC解法</h1><div class="post-info">2018年3月9日</div><div class="post-content"><h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><p>买了一个4TB的移动硬盘，准备进行分区给Time Machine用。<br>硬盘自带是HDFS的，所以连上Mac之后，准备使用自带的<code>磁盘工具.app</code>进行格式化。<br>无论是选择 <code>OS X 扩展（日志式）</code>还是选择<code>Apple文件系统</code>，都会报错</p>
+<blockquote>
+<p>Mediakit 报告设备上空间足以执行此操作</p>
+</blockquote>
+<p>然而网上的所有中文解决办法，全部都是需要动用大名鼎鼎的<code>DiskGenius</code>磁盘工具。这个工具我以前使用过，确实做的很用心，在PC上使用非常方便。</p>
+<p>但是，我临时手头没有任何Windows设备！怎么办？！</p>
+<h1 id="How"><a href="#How" class="headerlink" title="How"></a>How</h1><p>开门见山，直接说说怎么解决。</p>
+<p>首先打开命令行<br>如果你不知道什么是命令行，可以使用(访达/Finder)，在个人收藏里面打开<code>终端.app</code>。</p>
+<p>键入如下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">diskutil list</div></pre></td></tr></table></figure>
+<p>这个时候你会获得你的所有磁盘内容。</p>
+<p>找到你刚连上的移动硬盘。如果你实在不知道哪个是你刚连上的，注意哪个地方有<code>external</code>或<code>physical</code> </p>
+<p>找到这个磁盘，譬如<code>disk2</code>，就运行下面的命令。如果不是<code>disk2</code>，那么用你的disk替换一下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">diskutil unmountDisk force disk2</div></pre></td></tr></table></figure>
+<p>然后写入一个纯0的200M启动扇区</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo dd <span class="keyword">if</span>=/dev/zero of=/dev/disk2 bs=1024 count=1024</div></pre></td></tr></table></figure>
+<p>最后，再次尝试使用命令行进行分区。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">diskutil partitionDisk disk2 GPT JHFS+ <span class="string">"AWESOME DISK"</span> 0g</div></pre></td></tr></table></figure>
+<p>至此，搞定。</p>
+<h1 id="Why"><a href="#Why" class="headerlink" title="Why"></a>Why</h1><p>产生错误的原因是对于超过4TB的磁盘来说，一定是使用GUID分区表。在这种情况下，必须需要一个200M的EFI分区，才能够进行分区。</p>
+<p>APFS确实比HFS+有更高的优势，譬如COW等等，因此性能更高。<br>APFS甚至支持动态分区。<br>但是APFS不支持时间机器，所以我这个磁盘还是要用HFS+。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2017/12/16/markdown/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2018/03/09/diskutil/';
+var disqus_title = 'Mediakit报告设备商的空间不足以执行此操作的纯MAC解法';
+var disqus_url = 'http://zablog.me/2018/03/09/diskutil/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2018 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

@@ -66,7 +66,7 @@
 <p>[0047]    本发明的具体实施方式如下:</p>
 <p>[0048]    A.在对应用程序文件进行预处理时，执行如下操作(如图2所示):</p>
 <p>[0049]    Al.使用现有工具，例如 keytool (JDK (Java Development Kit)开发组件工具)，从相应apk文件中提取作者签名内容；</p>
-<p>[0050]    A2.使用现有工具，例如 apktool (<a href="https://code" target="_blank" rel="external">https://code</a>, google, com/apktool/),将 apk包中的压缩的二进制代码提取并转换为smali代码文件。</p>
+<p>[0050]    A2.使用现有工具，例如 apktool (<a href="https://code" target="_blank" rel="noopener">https://code</a>, google, com/apktool/),将 apk包中的压缩的二进制代码提取并转换为smali代码文件。</p>
 <p>[0051]    B.在对smali文件进行处理组成特征向量时，执行如下操作(如图3所示):</p>
 <p>[0052]    B1.对步骤A2得到的smali代码文件进行处理,读取smali文件的内容,使用正则表达式进行匹配，将应用变成接口函数与其他信息进行剥离，并以文件夹为单位，统计汇</p>
 <p>[0053]    B2.把步骤BI中得到的应用程序编程接口数据转化为易于程序识别和操作的欧几里德空间特征向量。</p>

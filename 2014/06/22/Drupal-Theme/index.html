@@ -29,7 +29,7 @@
 <li>templates——包含了Bartik主题的模版文件</li>
 </ul>
 <p>下面介绍模板文件。<br>基于PHPTemplate的主题都包含一个或者多个模版文件。他们的扩展名是tpl.php。<br>模版文件为页面提供了布局框架。Drupal系统中有一些默认的模板。当主题不含有相应的模版文件的时候，将会采用默认模板。所以当一些内容不需要定制的时候，很多模版文件并不是必需的。与之类似的还有CSS文件，系统中也有很多默认的CSS。当用户自定义CSS的时候，这个CSS文件的优先级要高于内核的CSS。<br>在主题模板文件中，最核心的还是page.tpl.php。它是主题中最关键的文件之一。<br>同时，在CSS文件夹中，最核心的是style.css。<br>在Bartik中，有一个文件叫做teplate.php。这个文件看似是一个最重要的模板，因为它出现在了Bartik文件夹下，而且一看名字就很重要。但是实际上，打开这个文件并没有看到预想中很多的div，而是一些代码。这个文件主要就是包含很多的高级代码片段，是一些主题化函数的重写。这个文件并不是所有主题必需的。</p>
-<p>#添加主题<br>这个部分也是一个相对来说非常简单的部分。<br>点击<a href="https://www.drupal.org/project/project_theme" target="_blank" rel="external">https://www.drupal.org/project/project_theme</a>就可以看到一大堆主题。<br>复制某个主题的下载链接，然后打开Drupal的管理页面，外观-》安装新主题-》从URL安装，就可以直接获得了。<br>或者，从网上下载到本地，然后解压到前面所说的这个文件夹内。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/sites/all/themes</div></pre></td></tr></table></figure></p>
+<p>#添加主题<br>这个部分也是一个相对来说非常简单的部分。<br>点击<a href="https://www.drupal.org/project/project_theme" target="_blank" rel="noopener">https://www.drupal.org/project/project_theme</a>就可以看到一大堆主题。<br>复制某个主题的下载链接，然后打开Drupal的管理页面，外观-》安装新主题-》从URL安装，就可以直接获得了。<br>或者，从网上下载到本地，然后解压到前面所说的这个文件夹内。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">/sites/all/themes</div></pre></td></tr></table></figure></p>
 <p>然后再打开Drupal的管理员设置，设置一下外观，就发现该主题了。首先启用（Enable），然后设为默认（set default）就大功告成了。<br>不仅在Drupal官网上，还有很多网站也提供Drupal的主题。收费的主题一般都更加精美，而且小众化，也可以进行考虑。<br>常见的网站有：</p>
 <ul>
 <li>Acquia.com</li>

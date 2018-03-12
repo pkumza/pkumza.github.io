@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2017-12-17T02:53:56.000Z</updated>
+  <updated>2018-03-12T02:14:10.596Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,47 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Mediakit报告设备商的空间不足以执行此操作的纯MAC解法</title>
+    <link href="http://zablog.me/2018/03/09/diskutil/"/>
+    <id>http://zablog.me/2018/03/09/diskutil/</id>
+    <published>2018-03-09T11:06:39.000Z</published>
+    <updated>2018-03-12T02:14:10.596Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><p>买了一个4TB的移动硬盘，准备进行分区给Time Machine用。<br>硬盘自带是HDFS的，所以连上Mac之后，准备使用自带的<code>磁盘工具.app</code>进行格式化。<br>无论是选择 <code>OS X 扩展（日志式）</code>还是选择<code>Apple文件系统</code>，都会报错</p>
+<blockquote>
+<p>Mediakit 报告设备上空间足以执行此操作</p>
+</blockquote>
+<p>然而网上的所有中文解决办法，全部都是需要动用大名鼎鼎的<code>DiskGenius</code>磁盘工具。这个工具我以前使用过，确实做的很用心，在PC上使用非常方便。</p>
+<p>但是，我临时手头没有任何Windows设备！怎么办？！</p>
+<h1 id="How"><a href="#How" class="headerlink" title="How"></a>How</h1><p>开门见山，直接说说怎么解决。</p>
+<p>首先打开命令行<br>如果你不知道什么是命令行，可以使用(访达/Finder)，在个人收藏里面打开<code>终端.app</code>。</p>
+<p>键入如下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">diskutil list</div></pre></td></tr></table></figure>
+<p>这个时候你会获得你的所有磁盘内容。</p>
+<p>找到你刚连上的移动硬盘。如果你实在不知道哪个是你刚连上的，注意哪个地方有<code>external</code>或<code>physical</code> </p>
+<p>找到这个磁盘，譬如<code>disk2</code>，就运行下面的命令。如果不是<code>disk2</code>，那么用你的disk替换一下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">diskutil unmountDisk force disk2</div></pre></td></tr></table></figure>
+<p>然后写入一个纯0的200M启动扇区</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo dd <span class="keyword">if</span>=/dev/zero of=/dev/disk2 bs=1024 count=1024</div></pre></td></tr></table></figure>
+<p>最后，再次尝试使用命令行进行分区。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">diskutil partitionDisk disk2 GPT JHFS+ <span class="string">"AWESOME DISK"</span> 0g</div></pre></td></tr></table></figure>
+<p>至此，搞定。</p>
+<h1 id="Why"><a href="#Why" class="headerlink" title="Why"></a>Why</h1><p>产生错误的原因是对于超过4TB的磁盘来说，一定是使用GUID分区表。在这种情况下，必须需要一个200M的EFI分区，才能够进行分区。</p>
+<p>APFS确实比HFS+有更高的优势，譬如COW等等，因此性能更高。<br>APFS甚至支持动态分区。<br>但是APFS不支持时间机器，所以我这个磁盘还是要用HFS+。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;What&quot;&gt;&lt;a href=&quot;#What&quot; class=&quot;headerlink&quot; title=&quot;What&quot;&gt;&lt;/a&gt;What&lt;/h1&gt;&lt;p&gt;买了一个4TB的移动硬盘，准备进行分区给Time Machine用。&lt;br&gt;硬盘自带是HDFS的，所以连上Mac之后，准备使
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>几款MarkDown对比</title>
@@ -47,7 +88,7 @@
 <p>居然可以把印象笔记的所有内容都同步过来，并且都尝试以Markdown的方式进行打开。</p>
 <p>小书匠免费版的功能是最强大的，收费版的费用也并不贵。20元一年，也就一碗帝都牛肉面而已。</p>
 <p>小书匠的缺陷，个人认为也是三个编辑器中最大的。首先是它使用了一个比较奇怪的引擎，导致用起来的流畅度不足。</p>
-<p>为了省事儿，很多软件的跨平台，实际上都是js的功劳。启示还是有很多js框架做的不错的，譬如 <a href="https://github.com/electron/electron" target="_blank" rel="external">Electron</a>，然而小书匠用的这个是<a href="https://github.com/nwjs/nw.js" target="_blank" rel="external">nwjs</a>。感觉上会稍微不那么原生。最基本的，对于一个Mac用户来说，它不支持最大化就罢了，关闭、满窗口（非最大化）、最小化三个按钮居然还在界面右端，非常不习惯。</p>
+<p>为了省事儿，很多软件的跨平台，实际上都是js的功劳。启示还是有很多js框架做的不错的，譬如 <a href="https://github.com/electron/electron" target="_blank" rel="noopener">Electron</a>，然而小书匠用的这个是<a href="https://github.com/nwjs/nw.js" target="_blank" rel="noopener">nwjs</a>。感觉上会稍微不那么原生。最基本的，对于一个Mac用户来说，它不支持最大化就罢了，关闭、满窗口（非最大化）、最小化三个按钮居然还在界面右端，非常不习惯。</p>
 <p>不过这些并不足以让我放弃一个编辑器，让我最终放弃它的原因是它对<code>Undo</code>的支持非常差。</p>
 <p>假若你输入一段中文<code>今日头条</code>，输入完之后，点击<code>⌘</code>+<code>Z</code>进行Undo操作，你会得到一个字符串<code>jin&#39;ri&#39;tou&#39;tiao</code>，然后不停地点击<code>⌘</code>+<code>Z</code>，这堆英文字母才能挨个消失。这是让人无法忍受的。</p>
 <p>而如果你先输入了中文<code>今日头条</code>，然后又使用delete键删除了<code>条</code>，这个时候你的界面上剩下<code>今日头</code>，你会发现你的<code>⌘</code>+<code>Z</code>键完全失效了。这种失灵也完全无法忍受。</p>
@@ -123,7 +164,7 @@
 <h2 id="匿名代理"><a href="#匿名代理" class="headerlink" title="匿名代理"></a>匿名代理</h2><p>匿名代理不会把你的真实IP写在<code>HTTP_X_FORWARDED_FOR</code>头里面。但是HTTP_VIA头还是透露了您正在使用一个代理服务器。</p>
 <h2 id="精英代理"><a href="#精英代理" class="headerlink" title="精英代理"></a>精英代理</h2><p>精英代理只发送REMOTE_ADDR头,因此让你看起来像一个普通互联网用户不使用代理。</p>
 <h2 id="检测精英代理"><a href="#检测精英代理" class="headerlink" title="检测精英代理"></a>检测精英代理</h2><p>精英代理并非不可以检测。<br>网站可以检查这个IP，是否使用了常用的代理接口（如8080、3128、8080、3128）。</p>
-<p>可以使用以下网站来检测你是否匿名:<a href="http://whoer.net/ext" target="_blank" rel="external">http://whoer.net/ext</a> 或 <a href="https://whoer.net/zh#extended" target="_blank" rel="external">https://whoer.net/zh#extended</a></p>
+<p>可以使用以下网站来检测你是否匿名:<a href="http://whoer.net/ext" target="_blank" rel="noopener">http://whoer.net/ext</a> 或 <a href="https://whoer.net/zh#extended" target="_blank" rel="noopener">https://whoer.net/zh#extended</a></p>
 ]]></content>
     
     <summary type="html">
@@ -148,9 +189,9 @@
     
     <content type="html"><![CDATA[<p>最近比较繁忙，所以博客也没有什么新文章。<br>说一下爬虫吧。<br>自从互联网时代开始，爬虫就没停止活跃…恐怕今后很长一段时间爬虫都会长期存在。当人们谈到XSS、DDos、SQL injection、SSL attacks的时候，多数你在谈论计算机安全，当你谈到爬虫的时候，你更多的在关心内容安全。爬虫有时候会涉及内容安全，有些内容是别人的立站根本，譬如PGC、UGC的文章；有的内容是别人的商业机密，譬如酒店、商品的价格。</p>
 <p>对于爬虫来说，有没有规范定义它不允许爬取的内容呢。有一个文件叫做robots.txt，它是是一种存放于网站根目录下的ASCII编码的文本文件，通常用来告诉搜索引擎的爬取器哪些内容是不应该被获取的。</p>
-<p>曾经阿里巴巴有一个很火的网站<a href="http://etao.com/" target="_blank" rel="external">一淘</a>，这个网站的最大优势是可以在线比价。它可以将一件商品在各个平台上的价格放在一起，消费者可以在这里瞬间看到很多平台的价格，从而找到最便宜的。</p>
+<p>曾经阿里巴巴有一个很火的网站<a href="http://etao.com/" target="_blank" rel="noopener">一淘</a>，这个网站的最大优势是可以在线比价。它可以将一件商品在各个平台上的价格放在一起，消费者可以在这里瞬间看到很多平台的价格，从而找到最便宜的。</p>
 <p>而更杀手级的功能是，它提供历史价格的功能。譬如对于京东来说，它可以看到京东里面某件商品的价格历史。当前虽然在搞促销，但是也许并非历史最低价格，消费者可能就继续观望了。</p>
-<p>这对京东这种商家的损害很大，一淘这样就侵犯京东的商业机密了。京东不希望别人知道一件商品的价格历史。所以，京东的robots.txt设置为了这样：<a href="https://www.jd.com/robots.txt" target="_blank" rel="external">robots.txt</a><br>其中有一条写作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">User-agent: EtaoSpider </div><div class="line">Disallow: /</div></pre></td></tr></table></figure></p>
+<p>这对京东这种商家的损害很大，一淘这样就侵犯京东的商业机密了。京东不希望别人知道一件商品的价格历史。所以，京东的robots.txt设置为了这样：<a href="https://www.jd.com/robots.txt" target="_blank" rel="noopener">robots.txt</a><br>其中有一条写作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">User-agent: EtaoSpider </div><div class="line">Disallow: /</div></pre></td></tr></table></figure></p>
 <p>也就是说，对于Etao的爬虫来说，我不允许你爬取京东的任何内容。</p>
 ]]></content>
     
@@ -185,11 +226,11 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/patrickmn/go-cache" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/patrickmn/go-cache" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
-<td><a href="https://github.com/patrickmn" target="_blank" rel="external">patrickmn</a>等</td>
+<td><a href="https://github.com/patrickmn" target="_blank" rel="noopener">patrickmn</a>等</td>
 </tr>
 <tr>
 <td>Brief Intro</td>
@@ -211,7 +252,7 @@
 <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/patrickmn/go-cache</div></pre></td></tr></table></figure>
 <p>用法</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/patrickmn/go-cache"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// 创建一个默认过期时间为5分钟，清理间隔时间为10分钟的高速缓存</span></div><div class="line">	c := cache.New(<span class="number">5</span>*time.Minute, <span class="number">10</span>*time.Minute)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“foo”键的值为“bar”，默认过期时间</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, <span class="string">"bar"</span>, cache.DefaultExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“baz”为42，不过期</span></div><div class="line">	<span class="comment">// 如果没有重置或者删除的话，它不会被删除</span></div><div class="line">	c.Set(<span class="string">"baz"</span>, <span class="number">42</span>, cache.NoExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 获取"foo"对应的字符串</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		fmt.Println(foo)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 因为Go是一种静态类型语言，而cache可以存储任何类型，因此可以使用断言来判断任意类型</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		MyFunction(foo.(<span class="keyword">string</span>))</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 需要高性能？那就存指针吧</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, &amp;MyStruct, cache.DefaultExpiration)</div><div class="line">	<span class="keyword">if</span> x, found := c.Get(<span class="string">"foo"</span>); found &#123;</div><div class="line">		foo := x.(*MyStruct)</div><div class="line">			<span class="comment">// ...</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>用法相对很简单，实现也不难，具体文档参考<a href="https://godoc.org/github.com/patrickmn/go-cache" target="_blank" rel="external">文档</a></p>
+<p>用法相对很简单，实现也不难，具体文档参考<a href="https://godoc.org/github.com/patrickmn/go-cache" target="_blank" rel="noopener">文档</a></p>
 ]]></content>
     
     <summary type="html">
@@ -241,7 +282,7 @@
 <h2 id="用例"><a href="#用例" class="headerlink" title="用例"></a>用例</h2><p>Go中，RWMutex的零值是一个未加锁的互斥量。</p>
 <p>RWMutex使用起来相对比较简单，这里举一个简单的例子：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	rw := <span class="built_in">new</span>(sync.RWMutex)</div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">2</span>; i++ &#123;   <span class="comment">// 建立两个写者</span></div><div class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">			<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">3</span>; j++ &#123;</div><div class="line">				rw.Lock()</div><div class="line">				<span class="comment">// 写</span></div><div class="line">				rw.Unlock()</div><div class="line">			&#125;</div><div class="line">		&#125;()</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123;    <span class="comment">// 建立两个读者</span></div><div class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">			<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">3</span>; j++ &#123;</div><div class="line">				rw.RLock()</div><div class="line">				<span class="comment">// 读</span></div><div class="line">				rw.RUnlock()</div><div class="line">			&#125;</div><div class="line">		&#125;()</div><div class="line">	&#125;</div><div class="line">	time.Sleep(time.Second)</div><div class="line">	fmt.Println(<span class="string">"Done"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><a href="https://play.golang.org/p/joOSIM__Yg" target="_blank" rel="external"><strong>PlayGround</strong></a></p>
+<p><a href="https://play.golang.org/p/joOSIM__Yg" target="_blank" rel="noopener"><strong>PlayGround</strong></a></p>
 <h2 id="一个（神奇）优秀的（大坑）特性"><a href="#一个（神奇）优秀的（大坑）特性" class="headerlink" title="一个（神奇）优秀的（大坑）特性"></a>一个<del>（神奇）</del>优秀的<del>（大坑）</del>特性</h2><blockquote>
 <p>读者在读的时候，不能够假定别的读者也能够获得锁。因此，禁止读锁嵌套。</p>
 </blockquote>
@@ -305,7 +346,7 @@
 </tbody>
 </table>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://en.wikipedia.org/wiki/Semaphore_(programming" target="_blank" rel="external">Wikipedia: Semaphore (programming)</a>)</li>
+<li><a href="https://en.wikipedia.org/wiki/Semaphore_(programming" target="_blank" rel="noopener">Wikipedia: Semaphore (programming)</a>)</li>
 </ol>
 ]]></content>
     
@@ -340,7 +381,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/gohugoio/hugo" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
@@ -394,10 +435,10 @@
     <updated>2017-09-18T06:21:22.000Z</updated>
     
     <content type="html"><![CDATA[<p>Unicode的资源是非常宝贵的，而emoji的表情真的是越来越多，那么emoji是如何编码的呢？<br><a id="more"></a><br>在普通的聊天软件中，譬如QQ，一些基本表情是采用普通字符的转义表示。譬如在字符串中检测到<code>[微笑]</code>，就自动替换为表情。<br>但是Emoji是一种特殊的字符，它是真正被编码入Unicode的字符。它在字符集里占据了U+1F300到U+1F9EF中的部分范围。</p>
-<p>但是为了实现丰富的Emoji，这种表情不一定只占据一个字符，尤其是为了实现<a href="https://emojipedia.org/neutral/" target="_blank" rel="external">emoji中立</a>的时候，就需要1-2个字符来完成一个表情，最多需要7个字符。</p>
+<p>但是为了实现丰富的Emoji，这种表情不一定只占据一个字符，尤其是为了实现<a href="https://emojipedia.org/neutral/" target="_blank" rel="noopener">emoji中立</a>的时候，就需要1-2个字符来完成一个表情，最多需要7个字符。</p>
 <p>现在用一段代码来举例 ：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></div><div class="line"><span class="keyword">import</span> <span class="string">"unicode/utf8"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	strs := []<span class="keyword">string</span>&#123;<span class="string">`Golang够浪`</span>, <span class="string">`a`</span>, <span class="string">`©`</span>, <span class="string">``</span>, <span class="string">`🐵`</span>, <span class="string">`👲🏻`</span>, <span class="string">`👲🏿`</span>, <span class="string">`💇🏽‍♂️`</span>, <span class="string">`👨‍👨‍👦‍👦`</span>&#125;</div><div class="line">	<span class="keyword">for</span> _, str := <span class="keyword">range</span> strs &#123;</div><div class="line">		fmt.Printf(<span class="string">"%s, rune count:%d, len:%d\n"</span>, str, utf8.RuneCountInString(str), <span class="built_in">len</span>(str))</div><div class="line">		<span class="keyword">for</span> _, theRune := <span class="keyword">range</span> str &#123;</div><div class="line">			fmt.Printf(<span class="string">"%s : 0x%x | "</span>, <span class="keyword">string</span>(theRune), theRune)</div><div class="line">		&#125;</div><div class="line">		fmt.Print(<span class="string">"\n------\n"</span>)</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><a href="https://play.golang.org/p/tnSsUw0nvf" target="_blank" rel="external"><em>到 Playground中运行一下，查看结果</em></a></p>
+<p><a href="https://play.golang.org/p/tnSsUw0nvf" target="_blank" rel="noopener"><em>到 Playground中运行一下，查看结果</em></a></p>
 <p>我们来逐段分析每一个内容。</p>
 <p>字串<code>Golang够浪</code>一共有8个字符，其中<code>Golang</code>这六个字符，每个字符在utf8里占据1个字节的空间，而词语<code>够浪</code>中的每个汉字占据3个字节的空间。</p>
 <p><code>a</code>这种最基本的内容，在utf8里只占据1个字节，因为它们太常见了，依霍夫曼编码的思路，也必然应当使用短小的编码方式。</p>
@@ -409,18 +450,18 @@
 <p><code>💇🏽‍♂️</code>剪头发的棕色人种男人由<code>💇‍</code>剪头发的普通女人加上<code>🏽‍</code>棕色肤色，加上200d连接符，再加上‍♂男性符号，最后加上U+fe0f符号构成，一共耗费17个字节。这一版本的Mac和iOS系统可能还显示不出来，新版本iOS推出以后估计就能显示出来了。</p>
 <p>最长的，也是最能够体现中立性质的一个emoji表情是<code>👨‍👨‍👦‍👦</code>，它代表着<code>两个爸爸和两个儿子一家</code>。它由7个字符组成，分别是👨 : U+1f468 普通男人 | ‍ : U+200d 连接符 | 👨 : U+1f468 普通男人 | ‍ : U+200d 连接符 | 👦 : U+1f466  普通男孩 | ‍ : U+200d  连接符 | 👦 : U+1f466 普通男孩 | 组成。</p>
 <p>相信这对你理解utf8和unicode概念上的区别也有帮助😆 ~ Enjoy the Emoji!🙂</p>
-<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p>Emoji在不同的平台上的显示是不同的，参考<a href="https://apps.timwhitlock.info/emoji/tables/unicode#block-1-emoticons" target="_blank" rel="external">Emoji Unicode Tables</a>，总体来说Apple的Emoji实现最尊重原版。</p>
-<p>Emoji随着时间的推移在不断地丰富，按照年份，版本也在不断整张，参考<a href="http://unicode.org/emoji/charts/emoji-versions.html" target="_blank" rel="external">emoji-versions</a></p>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p>Emoji在不同的平台上的显示是不同的，参考<a href="https://apps.timwhitlock.info/emoji/tables/unicode#block-1-emoticons" target="_blank" rel="noopener">Emoji Unicode Tables</a>，总体来说Apple的Emoji实现最尊重原版。</p>
+<p>Emoji随着时间的推移在不断地丰富，按照年份，版本也在不断整张，参考<a href="http://unicode.org/emoji/charts/emoji-versions.html" target="_blank" rel="noopener">emoji-versions</a></p>
 <p>Unicode 10.0在22个块中使用1,182个字符的表情符号标识，其中1,085个是单个表情符号，26个是区分指示符符号、成对组合形成标志表情符号，12个（＃，*和0-9）是键帽的基本字符emoji序列。</p>
 <p>杂项符号和象形图块中768个代码点中的637个被认为是表情符号。补充符号和象形图块中148个代码点中的134个被认为是表情符号。表情符号块中的所有80个代码点都被认为是表情符号。运输和地图符号块中的107个代码点中的94个被认为是表情符号。杂项符号块中的256个代码点中的80个被认为是表情符号。Dingbats块中192个代码点中的33个被认为是表情符号。</p>
-<p>所谓<a href="https://emojipedia.org/neutral/" target="_blank" rel="external">emoji中立</a>就是防止歧视。表情应该是无种族的，应该是无性别特异性的，同样一个表情应该拥有各种肤色，有男有女。</p>
+<p>所谓<a href="https://emojipedia.org/neutral/" target="_blank" rel="noopener">emoji中立</a>就是防止歧视。表情应该是无种族的，应该是无性别特异性的，同样一个表情应该拥有各种肤色，有男有女。</p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://en.wikipedia.org/wiki/Emoji" target="_blank" rel="external">Emoji - Wikipedia</a></li>
-<li><a href="https://gist.github.com/x7hub/ecacd20401042d61f68f" target="_blank" rel="external">Emoji表情传输和保存：对非BMP范围的Unicode字符的处理</a></li>
-<li><a href="https://apps.timwhitlock.info/emoji/tables/unicode#block-1-emoticons" target="_blank" rel="external">Emoji Unicode Tables</a></li>
-<li><a href="http://www.unicode.org/Public/emoji/5.0/emoji-data.txt" target="_blank" rel="external">Emoji 5.0 data</a></li>
-<li><a href="https://emojipedia.org/neutral/" target="_blank" rel="external">Emoji中立</a></li>
-<li><a href="http://newping.cn/447" target="_blank" rel="external">Mac——如何输入⌘、⌥、⇧、⌃、⎋等特殊字符（链接1）</a>、 <a href="http://blog.sina.com.cn/s/blog_5656bf3e0102w3ic.html" target="_blank" rel="external">（链接2）</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Emoji" target="_blank" rel="noopener">Emoji - Wikipedia</a></li>
+<li><a href="https://gist.github.com/x7hub/ecacd20401042d61f68f" target="_blank" rel="noopener">Emoji表情传输和保存：对非BMP范围的Unicode字符的处理</a></li>
+<li><a href="https://apps.timwhitlock.info/emoji/tables/unicode#block-1-emoticons" target="_blank" rel="noopener">Emoji Unicode Tables</a></li>
+<li><a href="http://www.unicode.org/Public/emoji/5.0/emoji-data.txt" target="_blank" rel="noopener">Emoji 5.0 data</a></li>
+<li><a href="https://emojipedia.org/neutral/" target="_blank" rel="noopener">Emoji中立</a></li>
+<li><a href="http://newping.cn/447" target="_blank" rel="noopener">Mac——如何输入⌘、⌥、⇧、⌃、⎋等特殊字符（链接1）</a>、 <a href="http://blog.sina.com.cn/s/blog_5656bf3e0102w3ic.html" target="_blank" rel="noopener">（链接2）</a></li>
 </ol>
 ]]></content>
     
@@ -455,7 +496,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/fogleman/nes" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/fogleman/nes" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
@@ -496,7 +537,7 @@
 <p>可以在一个package下的多个文件中都定义init()函数，然而这样不是很便于管理，建议每个package最多写一个init()函数。<br>nes的作者就写了很多个init()函数。</p>
 <p>init的内容是把runtime.GOMAXPROCS设置为2。runtime.GOMAXPROCS可以认为是Go语言最多使用的核心数目，在不设置的时候默认是1。<br>较大的GOMAXPROCS适合于CPU密集型，且并发度较高的情形。如果是IO密集型，CPU之间的切换反而会带来较大的性能损失。<br>nes中的GOMAXPROCS设置，是为了在执行任务的时候，音效不要卡顿。<br>接下来作者调用了runtime.LockOSThread(),这保证了调用OpenGL的时候，go只有一个线程去访问OpenGL的接口。</p>
 <p>在执行Run的时候，NES首先初始化音频部件，然后初始化glfw，接下来使用glfw创建一个窗口，</p>
-<p>glfw是一个C的OpenGL库，而<a href="https://github.com/go-gl/glfw/" target="_blank" rel="external">go glfw</a>则是一个典型的C与GO混合开发的一个库。</p>
+<p>glfw是一个C的OpenGL库，而<a href="https://github.com/go-gl/glfw/" target="_blank" rel="noopener">go glfw</a>则是一个典型的C与GO混合开发的一个库。</p>
 <p>下面，NES初始化了gl，使用TEXTURE_2D模式。</p>
 <p>最终，新建了一个Director，并执行这个Director，至此Run函数结束。</p>
 <h2 id="Director"><a href="#Director" class="headerlink" title="Director"></a>Director</h2><p>Director导演的作用主要是对操作进行一个分发。如果当前有游戏的话，那么就加载游戏的GameView；如果是一个大列表，就把列表展示出来，让用户可以选择一个nes游戏执行。</p>
@@ -505,8 +546,8 @@
 <p>上述代码规定Z和X对应红白机的A和B键。</p>
 <p>虽然按键不尽如人意，但是fogleman的令人拍案称奇的作品确实还是太多了，估计没时间做nes的按键适配了吧。况且毕竟glfw并不特别方便进行窗口编程。</p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://stackoverflow.com/questions/25361831/benefits-of-runtime-lockosthread-in-golang" target="_blank" rel="external">Benefits of runtime.LockOSThread in Golang - Stackoverflow</a></li>
-<li><a href="https://github.com/golang/go/wiki/LockOSThread" target="_blank" rel="external">LockOSThread</a></li>
+<li><a href="https://stackoverflow.com/questions/25361831/benefits-of-runtime-lockosthread-in-golang" target="_blank" rel="noopener">Benefits of runtime.LockOSThread in Golang - Stackoverflow</a></li>
+<li><a href="https://github.com/golang/go/wiki/LockOSThread" target="_blank" rel="noopener">LockOSThread</a></li>
 </ol>
 ]]></content>
     
@@ -572,7 +613,7 @@
 <p>当作者写标准库的时候，他们自己也在学习过程中。<br>多数情况下作者是对的，但是偶尔还是会犯一些错误</p>
 <p><hr></p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://talks.golang.org/2014/names.slide" target="_blank" rel="external">What’s in a name? - Andrew Gerrand</a></li>
+<li><a href="https://talks.golang.org/2014/names.slide" target="_blank" rel="noopener">What’s in a name? - Andrew Gerrand</a></li>
 </ol>
 ]]></content>
     
@@ -599,15 +640,15 @@
     <content type="html"><![CDATA[<p>七个Go语言小技巧，后续持续更新。<br>无论是Go语言小白，还是有经验的开发者，都可能从中获取灵感。</p>
 <a id="more"></a>
 <h2 id="一句话技巧"><a href="#一句话技巧" class="headerlink" title="一句话技巧"></a>一句话技巧</h2><ul>
-<li>把你面向对象的大脑扔到家里吧，去拥抱接口。<a href="https://twitter.com/mikegehard" target="_blank" rel="external">@mikegehard</a></li>
-<li>学习如何使用Go的方式做事，不要把别的的编程风格强行用在Go里面。<a href="https://twitter.com/drnic" target="_blank" rel="external">@DrNic</a></li>
-<li>多用接口总比少用好。<a href="https://twitter.com/evanphx" target="_blank" rel="external">@evanphx</a></li>
+<li>把你面向对象的大脑扔到家里吧，去拥抱接口。<a href="https://twitter.com/mikegehard" target="_blank" rel="noopener">@mikegehard</a></li>
+<li>学习如何使用Go的方式做事，不要把别的的编程风格强行用在Go里面。<a href="https://twitter.com/drnic" target="_blank" rel="noopener">@DrNic</a></li>
+<li>多用接口总比少用好。<a href="https://twitter.com/evanphx" target="_blank" rel="noopener">@evanphx</a></li>
 <li>拥抱这种简洁、并行、工整的语言。<a href="">@francesc</a></li>
-<li>阅读官网<a href="http://golang.org/" target="_blank" rel="external">golang.org</a>上所有的文档，真是棒呆了。<a href="https://twitter.com/vbatts" target="_blank" rel="external">@vbatts</a></li>
-<li>别忘了用<code>gofmt</code>。<a href="https://twitter.com/darkhelmetlive" target="_blank" rel="external">@darkhelmetlive</a></li>
-<li>多读源代码。<a href="https://twitter.com/drnic" target="_blank" rel="external">@DrNic</a></li>
-<li>学习工具和组件，然后创造你自己的！码代码和学代码一样对成功必不可少。<a href="https://twitter.com/coreyprak" target="_blank" rel="external">@coreyprak</a></li>
-<li>学而不思则罔，思而不学则殆。<a href="https://www.zhihu.com/question/21111579" target="_blank" rel="external">《论语》</a></li>
+<li>阅读官网<a href="http://golang.org/" target="_blank" rel="noopener">golang.org</a>上所有的文档，真是棒呆了。<a href="https://twitter.com/vbatts" target="_blank" rel="noopener">@vbatts</a></li>
+<li>别忘了用<code>gofmt</code>。<a href="https://twitter.com/darkhelmetlive" target="_blank" rel="noopener">@darkhelmetlive</a></li>
+<li>多读源代码。<a href="https://twitter.com/drnic" target="_blank" rel="noopener">@DrNic</a></li>
+<li>学习工具和组件，然后创造你自己的！码代码和学代码一样对成功必不可少。<a href="https://twitter.com/coreyprak" target="_blank" rel="noopener">@coreyprak</a></li>
+<li>学而不思则罔，思而不学则殆。<a href="https://www.zhihu.com/question/21111579" target="_blank" rel="noopener">《论语》</a></li>
 </ul>
 <h2 id="引入package的多种方式"><a href="#引入package的多种方式" class="headerlink" title="引入package的多种方式"></a>引入package的多种方式</h2><p>有几种非常规方式来引入包（package）。接下来我会使用<code>fmt</code>来作为例子：</p>
 <ul>
@@ -615,14 +656,14 @@
 <li><code>import . &quot;fmt&quot;</code> - 允许包内的内容不加<code>fmt</code>前缀而被被直接引用</li>
 <li><code>import _ &quot;fmt&quot;</code> - 阻止编译器为引入<code>fmt</code>却不使用里面的内容做引发的警告，执行package中的初始化函数。提醒一句，在这种情况下<code>fmt</code>是不可调用的</li>
 </ul>
-<p>看这篇<a href="http://learngowith.me/alternate-ways-of-importing-packages/" target="_blank" rel="external">博客</a>来了解更多细节。</p>
+<p>看这篇<a href="http://learngowith.me/alternate-ways-of-importing-packages/" target="_blank" rel="noopener">博客</a>来了解更多细节。</p>
 <h2 id="Goimports"><a href="#Goimports" class="headerlink" title="Goimports"></a>Goimports</h2><p>命令<code>goimports</code>可以更新您的Go导入行，添加缺少的行，并删除未引用的引导行。</p>
 <p>它拥有和<code>gofmt</code>(插入式替换)相同的能力，但是<code>goimports</code>额外增加了修复imports的功能。</p>
 <h2 id="组织"><a href="#组织" class="headerlink" title="组织"></a>组织</h2><p>Go是一种相对来说易学习的编程语言，但对于开发者来说，起初接触这门语言最困难的事情就是如何组织代码。<code>scaffolding</code>是人们喜欢<code>Rails</code>的原因之一，它可以给新晋的开发者清晰的方向，让他们明白在哪里插入代码，应该遵循怎样的编程风格。</p>
 <p>作为扩展，Go使用<code>go fmt</code>这样的工具来提供开发者相同的功能。同样地，Go的编译器非常严格，它不会去编译没有使用的变量，或者没有使用的import声明。</p>
 <h2 id="自定义构造函数"><a href="#自定义构造函数" class="headerlink" title="自定义构造函数"></a>自定义构造函数</h2><p>我经常听到别人问，“我什么时候应该使用像<code>NewJob</code>这样的自定义构造函数？”，我的回答是“大多数情形下你没必要这么做”。然而，当你需要在初始化的时候就设置值，且你有一些默认值的时候，这就最好使用一个构造函数。在这个例子中，构造函数就比较有意义了，因此我们用如下的代码可以构建一个默认的logger：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"log"</span></div><div class="line">	<span class="string">"os"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">type</span> Job <span class="keyword">struct</span> &#123;</div><div class="line">	Command <span class="keyword">string</span></div><div class="line">	*log.Logger</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewJob</span><span class="params">(command <span class="keyword">string</span>)</span> *<span class="title">Job</span></span> &#123;</div><div class="line">	<span class="keyword">return</span> &amp;Job&#123;command, log.New(os.Stderr, <span class="string">"Job: "</span>, log.Ldate)&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	NewJob(<span class="string">"demo"</span>).Print(<span class="string">"starting now..."</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h2 id="把代码分解到不同的package中"><a href="#把代码分解到不同的package中" class="headerlink" title="把代码分解到不同的package中"></a>把代码分解到不同的package中</h2><p>参考这篇博客<a href="http://matt.aimonetti.net/posts/2014/04/28/refactoring-go-code/" target="_blank" rel="external">重构Go代码</a>，第一部分就讲了package的组织。</p>
+<h2 id="把代码分解到不同的package中"><a href="#把代码分解到不同的package中" class="headerlink" title="把代码分解到不同的package中"></a>把代码分解到不同的package中</h2><p>参考这篇博客<a href="http://matt.aimonetti.net/posts/2014/04/28/refactoring-go-code/" target="_blank" rel="noopener">重构Go代码</a>，第一部分就讲了package的组织。</p>
 <p>以工程<code>Gobot</code>为例，它可以被分割为一个核心package和一些其他package。gobot的开发者们准备每个部分放在自己的package里。经过讨论，他们选择把所有的官方库放在同一个repository下，让import路径变得干净而富有逻辑。</p>
 <p>所以，他们不打算把路径设置为：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">github.com/hybridgroup/gobot</div><div class="line">github.com/hybridgroup/gobot-sphero</div><div class="line">github.com/hybridgroup/gobot-...</div></pre></td></tr></table></figure>
@@ -631,7 +672,7 @@
 <p>现在package的名字不再是冗长的gobot-sphero，而变成了简要的sphero。</p>
 <h2 id="集合（Sets）"><a href="#集合（Sets）" class="headerlink" title="集合（Sets）"></a>集合（Sets）</h2><p>在其他的程序语言中，经常会有一种数据结构叫做sets，它允许把元素存入，但是不允许重复。Go并不直接支持这种结构，但是这个结构在Go里面的实现并不困难。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// UniqStr returns a copy if the passed slice with only unique string results.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">UniqStr</span><span class="params">(col []<span class="keyword">string</span>)</span> []<span class="title">string</span></span> &#123;</div><div class="line">	m := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">struct</span>&#123;&#125;&#123;&#125;</div><div class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> col &#123;</div><div class="line">		<span class="keyword">if</span> _, ok := m[v]; !ok &#123;</div><div class="line">			m[v] = <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	list := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="built_in">len</span>(m))</div><div class="line"></div><div class="line">	i := <span class="number">0</span></div><div class="line">	<span class="keyword">for</span> v := <span class="keyword">range</span> m &#123;</div><div class="line">		list[i] = v</div><div class="line">		i++</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> list</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><a href="http://play.golang.org/p/AtG9pTe8yt" target="_blank" rel="external">Playground链接</a></p>
+<p><a href="http://play.golang.org/p/AtG9pTe8yt" target="_blank" rel="noopener">Playground链接</a></p>
 <p>在这里，我会使用一些非常有意思的花招。首先，对空结构的映射：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">m := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">struct</span>&#123;&#125;&#123;&#125;</div></pre></td></tr></table></figure>
 <p>我们创建了一个<code>map</code>，这可以确保<code>key</code>是独一无二的，而相关联的<code>value</code>其实是我们不关心的。<br>我们当然可以使用：</p>
@@ -643,7 +684,7 @@
 <p>一旦我们拥有了一个充满独一无二key的map以后，就可以把他们放到一个切片里，返回结果了。</p>
 <p>这里有一段测试代码，正如你所见，这里使用了一个符合Go语言单元测试风格的表格测试：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestUniqStr</span><span class="params">(t *testing.T)</span></span> &#123;</div><div class="line"></div><div class="line">	data := []<span class="keyword">struct</span>&#123; in, out []<span class="keyword">string</span> &#125;&#123;</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;&#125;, []<span class="keyword">string</span>&#123;&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">""</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"a"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>&#125;&#125;,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">for</span> _, exp := <span class="keyword">range</span> data &#123;</div><div class="line">		res := UniqStr(exp.in)</div><div class="line">		<span class="keyword">if</span> !reflect.DeepEqual(res, exp.out) &#123;</div><div class="line">			t.Fatalf(<span class="string">"%q didn't match %q\n"</span>, res, exp.out)</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>经过测试发现，并非每次都能够成功，而是有概率的。因为map是使用hashmap实现的，使用range进行遍历的时候，其遍历顺序和字符串的内容没有必然联系，因此此test有可能失败。在进行DeapEqual比对的时候，可能会爆出类似于<code>[&quot;b&quot; &quot;c&quot; &quot;a&quot;] didn&#39;t match [&quot;a&quot; &quot;b&quot; &quot;c&quot;]</code>的错误。当然，在<a href="https://play.golang.org/p/elRIpSKGjD" target="_blank" rel="external">Playground</a>中，每次执行的上下文环境一模一样，因此这里的test是总能通过的。</p>
+<p>经过测试发现，并非每次都能够成功，而是有概率的。因为map是使用hashmap实现的，使用range进行遍历的时候，其遍历顺序和字符串的内容没有必然联系，因此此test有可能失败。在进行DeapEqual比对的时候，可能会爆出类似于<code>[&quot;b&quot; &quot;c&quot; &quot;a&quot;] didn&#39;t match [&quot;a&quot; &quot;b&quot; &quot;c&quot;]</code>的错误。当然，在<a href="https://play.golang.org/p/elRIpSKGjD" target="_blank" rel="noopener">Playground</a>中，每次执行的上下文环境一模一样，因此这里的test是总能通过的。</p>
 <h2 id="依赖包管理"><a href="#依赖包管理" class="headerlink" title="依赖包管理"></a>依赖包管理</h2><p>很遗憾，Go语言官方并不提供依赖包管理系统。这很可能是因为go语言植根于C语言的文化，因此它没有办法引入特定版本的包。</p>
 <p>这会带来一些严重的问题：</p>
 <ol>
@@ -654,10 +695,10 @@
 <p>对于最后一种情形，可以通过搭建一个_持续集成环境(Continuous<em>integration)</em>来解决，但是前两者就相对困难。</p>
 <p><hr></p>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="http://www.golangbootcamp.com/book/tricks_and_tips" target="_blank" rel="external"><em>GO BOOTCAMP - Everything you need to know to get started with Go : Tips and Tricks</em></a></li>
-<li><a href="https://www.zhihu.com/question/21111579" target="_blank" rel="external">论语</a></li>
-<li><a href="http://matt.aimonetti.net/posts/2014/04/28/refactoring-go-code/" target="_blank" rel="external">refactoring Go code</a></li>
-<li><a href="http://learngowith.me/alternate-ways-of-importing-packages/" target="_blank" rel="external">Alternate Ways of Importing Packages</a></li>
+<li><a href="http://www.golangbootcamp.com/book/tricks_and_tips" target="_blank" rel="noopener"><em>GO BOOTCAMP - Everything you need to know to get started with Go : Tips and Tricks</em></a></li>
+<li><a href="https://www.zhihu.com/question/21111579" target="_blank" rel="noopener">论语</a></li>
+<li><a href="http://matt.aimonetti.net/posts/2014/04/28/refactoring-go-code/" target="_blank" rel="noopener">refactoring Go code</a></li>
+<li><a href="http://learngowith.me/alternate-ways-of-importing-packages/" target="_blank" rel="noopener">Alternate Ways of Importing Packages</a></li>
 </ol>
 ]]></content>
     
@@ -692,7 +733,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/EbookFoundation/free-programming-books" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/EbookFoundation/free-programming-books" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>组织</td>
@@ -714,8 +755,8 @@
 </table>
 <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>这周比较忙，所以就不介绍一些需要深入了解的Repo了，写一个比较水的，但是点赞数特别多的。</p>
 <p>这一个Repo在Github上的Star数目为92.2k，为世界第三，但是对应的编程语言却是空。如果非要说一种语言的话，那么这个repo是用markdown来组成的。</p>
-<p>里面免费的书籍实在是太多了，汇集各种语言、各类领域的计算机类免费书籍，支持的语言也有26种之多，大家可以重点关注一下<a href="https://github.com/EbookFoundation/free-programming-books/blob/master/free-programming-books-zh.md" target="_blank" rel="external">中文书籍</a>和<a href="https://github.com/EbookFoundation/free-programming-books/blob/master/free-programming-books.md" target="_blank" rel="external">英文书籍</a></p>
-<p>顺便一提下，想搜搜看Github上最最最最最火的Repo，点<a href="https://github.com/search?o=desc&amp;q=stars%3A%3E1000&amp;s=stars&amp;type=Repositories&amp;utf8=%E2%9C%93" target="_blank" rel="external">这个链接</a>就可以了。越火的repo，相关介绍也就越多，中文版的也有，所以接下来一般不会选择太火的介绍。如果又介绍了个，只能说明近期较忙啦。</p>
+<p>里面免费的书籍实在是太多了，汇集各种语言、各类领域的计算机类免费书籍，支持的语言也有26种之多，大家可以重点关注一下<a href="https://github.com/EbookFoundation/free-programming-books/blob/master/free-programming-books-zh.md" target="_blank" rel="noopener">中文书籍</a>和<a href="https://github.com/EbookFoundation/free-programming-books/blob/master/free-programming-books.md" target="_blank" rel="noopener">英文书籍</a></p>
+<p>顺便一提下，想搜搜看Github上最最最最最火的Repo，点<a href="https://github.com/search?o=desc&amp;q=stars%3A%3E1000&amp;s=stars&amp;type=Repositories&amp;utf8=%E2%9C%93" target="_blank" rel="noopener">这个链接</a>就可以了。越火的repo，相关介绍也就越多，中文版的也有，所以接下来一般不会选择太火的介绍。如果又介绍了个，只能说明近期较忙啦。</p>
 ]]></content>
     
     <summary type="html">
@@ -749,7 +790,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/gohugoio/hugo" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
@@ -774,7 +815,7 @@
 <p>Hugo基于Markdown文件。</p>
 <p>Hugo可以在瞬间渲染出一个中等大小的网站。从经验来看，每一片内容的渲染只需要大概1微秒。</p>
 <p>Hugo设计之初就是为了服务于博客、tumbles和文档。</p>
-<p><a href="http://gohugo.io/" target="_blank" rel="external">官网gohugo.io</a></p>
+<p><a href="http://gohugo.io/" target="_blank" rel="noopener">官网gohugo.io</a></p>
 <h1 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h1><p>hugo和hexo可以说是功能类似。</p>
 <p>hexo是离线生成博客网页的工具，由js实现，基于node和npm这一套提醒。可以方便地生成整个博客，渲染markdown，使用theme。</p>
 <p>然而，hexo也存在很多问题，第一是生成速度慢。生成速度和theme有很大关系，但是确实比较慢。最艰难的时候，我曾经每次写一篇新的博客，都需要大概10秒钟以上的时间来生成所有的静态页面。后来换了一个theme，更新了hexo，100个页面，加载时间长达1000ms，生成时间大概是231ms。</p>
@@ -816,7 +857,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/satori/go.uuid" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/satori/go.uuid" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
@@ -850,7 +891,7 @@
 <h2 id="如何产生UUID"><a href="#如何产生UUID" class="headerlink" title="如何产生UUID"></a>如何产生UUID</h2><p>那么这样一个UUID是如何产生的呢？</p>
 <p>中国是一个超大规模的国家，如果每个人生成自己的身份证，都需要到相互协调，那么全国肯定一团糟，如果每个人都到中央注册机构来确定独特性的话，那么中央注册机构肯定被挤爆。那么身份证的生成办法是分配前几位数为地区，分配中间几位为时间，后面三位用于一个区域内确定唯一性，最后一位校验即可。这样就可以相对方便地产生唯一的身份号码了。</p>
 <p>同样地，MAC地址和蓝牙地址的确定也是类似的策略，前面的位数是厂商号，后面的位数由厂商内部决定，这样就避免了冲突。</p>
-<p>实际上，UUID的国际标准<a href="https://tools.ietf.org/html/rfc4122" target="_blank" rel="external"><strong>RFC 4122</strong></a>定义了5个版本的生成方式。</p>
+<p>实际上，UUID的国际标准<a href="https://tools.ietf.org/html/rfc4122" target="_blank" rel="noopener"><strong>RFC 4122</strong></a>定义了5个版本的生成方式。</p>
 <h4 id="版本1"><a href="#版本1" class="headerlink" title="版本1"></a>版本1</h4><p>根据时间和MAC地址生成。版本1会把48比特的MAC地址和60比特的时间戳串联起来。<br>这个时间戳是从1582年10月15日午夜UTC时间起算起的纳秒数目。<br>按照<code>RFC4122</code>的规定，这个时间可以延续到大概公元3400年。<br>然而，一些软件，譬如libuuid库，把时间戳作为非负数类型使用，在这种方法下可以使用到公元5236年。</p>
 <h4 id="版本2"><a href="#版本2" class="headerlink" title="版本2"></a>版本2</h4><p>根据时间和MAC地址生成，并使用POSIX UID/GID，DCE安全版本。<br>版本2和版本1很类似，除了最重要的八个时钟序列字节被替换为了本地域的数字，最护重要的32个时间戳被替换为与本地域对应的整形数字。在POSIX系统上，它与UID和GID有关。在非POSIX系统上，就靠系统自己定义了。</p>
 <h4 id="版本3"><a href="#版本3" class="headerlink" title="版本3"></a>版本3</h4><p>哈希命名空间和名字，使用MD5作为哈希算法。<br>版本3的生成方法是哈希命名空间的标识符和名字。命名空间标识符本身就是一个UUID，该规格提供UUID来标识URL的命名空间等作用。</p>
@@ -864,8 +905,8 @@
 <figure class="highlight golang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/satori/go.uuid"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Creating UUID Version 4</span></div><div class="line">	u1 := uuid.NewV4()</div><div class="line">	fmt.Printf(<span class="string">"UUIDv4: %s\n"</span>, u1)</div><div class="line"></div><div class="line">	<span class="comment">// Parsing UUID from string input</span></div><div class="line">	u2, err := uuid.FromString(<span class="string">"6ba7b810-9dad-11d1-80b4-00c04fd430c8"</span>)</div><div class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">		fmt.Printf(<span class="string">"Something gone wrong: %s"</span>, err)</div><div class="line">	&#125;</div><div class="line">	fmt.Printf(<span class="string">"Successfully parsed: %s"</span>, u2)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>参考文献：</p>
 <ul>
-<li><a href="https://github.com/Knetic/govaluate" target="_blank" rel="external">https://github.com/Knetic/govaluate</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" target="_blank" rel="external">UUID-Wikipedia</a></li>
+<li><a href="https://github.com/Knetic/govaluate" target="_blank" rel="noopener">https://github.com/Knetic/govaluate</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" target="_blank" rel="noopener">UUID-Wikipedia</a></li>
 </ul>
 ]]></content>
     
@@ -901,7 +942,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/Knetic/govaluate" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/Knetic/govaluate" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
@@ -935,7 +976,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">expression, err := govaluate.NewEvaluableExpression(&quot;(requests_made * requests_succeeded / 100) &gt;= 90&quot;);</div><div class="line"></div><div class="line">parameters := make(map[string]interface&#123;&#125;, 8)</div><div class="line">parameters[&quot;requests_made&quot;] = 100;</div><div class="line">parameters[&quot;requests_succeeded&quot;] = 80;</div><div class="line"></div><div class="line">result, err := expression.Evaluate(parameters);</div><div class="line">// result is now set to &quot;false&quot;, the bool value.</div></pre></td></tr></table></figure>
 <p>上述例子返回的都是布尔值，事实上，它是可以返回数字的。</p>
 <figure class="highlight golang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">expression, err := govaluate.NewEvaluableExpression(<span class="string">"(mem_used / total_mem) * 100"</span>);</div><div class="line"></div><div class="line">parameters := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;, <span class="number">8</span>)</div><div class="line">parameters[<span class="string">"total_mem"</span>] = <span class="number">1024</span>;</div><div class="line">parameters[<span class="string">"mem_used"</span>] = <span class="number">512</span>;</div><div class="line"></div><div class="line">result, err := expression.Evaluate(parameters);</div><div class="line"><span class="comment">// result is now set to "50.0", the float64 value.</span></div></pre></td></tr></table></figure>
-<p>你也可以做一些日期的转化，只要符合RF3339,ISO8061,Unix Date，或者ruby日期格式标准即可。如果你还是不太确定，那么可以看一下支持的<a href="https://github.com/Knetic/govaluate/blob/0580e9b47a69125afa0e4ebd1cf93c49eb5a43ec/parsing.go#L258" target="_blank" rel="external">日期标准</a>。</p>
+<p>你也可以做一些日期的转化，只要符合RF3339,ISO8061,Unix Date，或者ruby日期格式标准即可。如果你还是不太确定，那么可以看一下支持的<a href="https://github.com/Knetic/govaluate/blob/0580e9b47a69125afa0e4ebd1cf93c49eb5a43ec/parsing.go#L258" target="_blank" rel="noopener">日期标准</a>。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">   expression, err := govaluate.NewEvaluableExpression(<span class="string">"'2014-01-02' &gt; '2014-01-01 23:59:59'"</span>);</div><div class="line">result, err := expression.Evaluate(<span class="literal">nil</span>);</div><div class="line"></div><div class="line"><span class="comment">// result is now set to true</span></div></pre></td></tr></table></figure>
 <p>表达式只需要进行一次句法分析，就可以多次复用。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">   expression, err := govaluate.NewEvaluableExpression(<span class="string">"response_time &lt;= 100"</span>);</div><div class="line">parameters := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;, <span class="number">8</span>)</div><div class="line"></div><div class="line"><span class="keyword">for</span> &#123;</div><div class="line">	parameters[<span class="string">"response_time"</span>] = pingSomething();</div><div class="line">	result, err := expression.Evaluate(parameters)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -944,7 +985,7 @@
 <p>支持自定义函数</p>
 <p>支持简单的结构体（访问器）</p>
 <h2 id="运算符支持"><a href="#运算符支持" class="headerlink" title="运算符支持"></a>运算符支持</h2><p>ruleplatform的表达式引擎支持以下运算：<br>二元计算符 : + - / <em> &amp; | ^ *</em> % &gt;&gt; &lt;&lt;<br>二元比较符 : &gt; &gt;= &lt; &lt;= == != =~ !~<br>逻辑操作符 : || &amp;&amp;<br>括号 : ( )<br>数组相关 : , IN (例子1 IN (1, 2, ‘foo’)，返回值true)<br>一元计算符 : ! - ~<br>三元运算符 : ? :<br>空值聚合符: ??</p>
-<p>更多内容请查看<a href="https://github.com/Knetic/govaluate" target="_blank" rel="external">https://github.com/Knetic/govaluate</a></p>
+<p>更多内容请查看<a href="https://github.com/Knetic/govaluate" target="_blank" rel="noopener">https://github.com/Knetic/govaluate</a></p>
 ]]></content>
     
     <summary type="html">
@@ -978,7 +1019,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/s-rah/onionscan" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/s-rah/onionscan" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
@@ -1034,7 +1075,7 @@
 <p>同样地，traceroute总是有助于找出机器之间通信的计算机，路由器和服务器之间的长链反弹的哪里。 苹果把所有这些有用的工具放在一个名为“网络实用工具”的应用程序中。</p>
 <p>旧版本的Mac可以在Applications文件夹的Utilities文件夹中找到网络实用工具，在 OS X Mavericks 和更高版本中，“网络实用工具”位于“/系统/资源库/CoreServices/Applications”中。当然，也可以用spotlight直接搜索“网络实用工具”，更可以丧心病狂地对Siri说“启动网络实用程序”，应用程序立即在您的屏幕上。每个Mac都可以免费使用，并可以很好地解决互联网连接的问题。<br>您可以在网络实用工具中做的一切事情，当然也可以使用unix工具在终端窗口中实际执行此操作。但是，苹果创建了一个很好的应用程序，让我们可以更轻松地使用这些内容。</p>
 <p>当您首次打开网络实用程序时，可以看到顶部有9个选项卡。</p>
-<p>先做对这些功能的简要介绍（官方）<a href="https://support.apple.com/en-us/HT202790" target="_blank" rel="external">ref</a></p>
+<p>先做对这些功能的简要介绍（官方）<a href="https://support.apple.com/en-us/HT202790" target="_blank" rel="noopener">ref</a></p>
 <h2 id="功能列表："><a href="#功能列表：" class="headerlink" title="功能列表："></a>功能列表：</h2><ul>
 <li>Netstat：通过查看使用常用网络协议发送和接收的数据包类型的详细摘要，来检查您电脑的网络路由表。</li>
 <li>Ping：测试您的电脑是否可与位于特定网络地址处的电脑或其他设备进行通信。</li>
@@ -1096,8 +1137,8 @@
 <p>由上面的内容可以推断出大致的虚存结构：<br><img src="http://imglf0.nosdn.127.net/img/MGpGUW9CdGlzcDd1cm1TOXdxeWIwWGpxSHFVb0RIdUd2NnBndGRVMElhTnRmYXVkaG1Ca253PT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="图片"></p>
 <p>参考内容：</p>
 <ul>
-<li><a href="http://blog.csdn.net/high_high/article/details/7204097" target="_blank" rel="external">参考内容1_多线程程序在内存中的分布</a></li>
-<li><a href="http://stackoverflow.com/questions/18149218/the-memory-layout-of-a-multithreaded-process" target="_blank" rel="external">参考内容2_StackOverflow</a></li>
+<li><a href="http://blog.csdn.net/high_high/article/details/7204097" target="_blank" rel="noopener">参考内容1_多线程程序在内存中的分布</a></li>
+<li><a href="http://stackoverflow.com/questions/18149218/the-memory-layout-of-a-multithreaded-process" target="_blank" rel="noopener">参考内容2_StackOverflow</a></li>
 </ul>
 ]]></content>
     
@@ -1155,39 +1196,6 @@
     
       <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>基于移动传感数据的差分隐私</title>
-    <link href="http://zablog.me/2016/10/03/DP/"/>
-    <id>http://zablog.me/2016/10/03/DP/</id>
-    <published>2016-10-03T03:22:52.000Z</published>
-    <updated>2016-10-03T02:51:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>差分隐私（<a href="https://en.wikipedia.org/wiki/Differential_privacy" target="_blank" rel="external">Differential Privacy</a>）的概念已经出现了大概10年了。在密码学中，差分隐私的目的是提供一个机制来最大化统计上查询的准确性，同时最小化识别其个别记录的机会。</p>
-<p>差分隐私概念的产生还是要从十年前Netflix举办的机器学习大赛说起。Netflix放出了用户的数据给参赛者，希望参赛者可以给出一个更好的推荐算法。虽然Netflix已经隐去了用户ID、Name等可以直接辨识用户身份的信息，但是还是有人通过匹配网上的数据，找到了大批数据所对应的个人，这相当于让这些数据所对应的隐私直接泄露。</p>
-<p>因此就出现了差分隐私的方法。推荐一个优秀的网站 <a href="https://beta.dataverse.org/custom/DifferentialPrivacyPrototype/" target="_blank" rel="external">Privacy Tools</a>。</p>
-<p>苹果的WWDC2016用了一个session来讲解差分隐私的概念，并且宣称要开始大规模使用这一技术来统计用户的信息。这也是这项技术产生十年以来第一次大规模地投入业界。</p>
-<p>但是对于移动传感数据来说，并不是所有的数据都能直接使用这个技术。</p>
-<ol>
-<li>传感器数据经常会遵循某一种模式，例如心跳速度是一定位于一个可能区间内的。</li>
-<li>传感器数据通常会相互联系。比如加速度传感器数据很高的时候，螺旋仪检测的速度一般也会上升，而且心率、体温一般都会有所升高。</li>
-</ol>
-<p>因此，简单地使用噪声的增加是不够合理的。当数据进入不太可信的空间的时候，作为黑客可以尽可能地把不合理的数据隐去，力图找到合理的数据，有很大的可能性进行反推。同时，当多个变量相关联的时候，又进一步增大了这种反推的能力。</p>
-<p>因此，如果让移动传感器的数据也使用差分隐私的技术安全地释放出去。必须首先判定用户所处的状态，然后对于这个状态进行差分隐私加噪声，最后再还原出来一个虚拟的raw数据，最终把这个数据释放，才能够达到良好的效果。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      差分隐私的概念已经出现了大概10年了。在密码学中，差分隐私的目的是提供一个机制来最大化统计上查询的准确性，同时最小化识别其个别记录的机会。但是对于移动传感数据来说，并不是所有的数据都能直接使用这个技术。
-    
-    </summary>
-    
-      <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
-    
-    
-      <category term="DP" scheme="http://zablog.me/tags/DP/"/>
     
   </entry>
   

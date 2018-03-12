@@ -10,7 +10,7 @@
 <tbody>
 <tr>
 <td>地址</td>
-<td><a href="https://github.com/satori/go.uuid" target="_blank" rel="external">Github</a></td>
+<td><a href="https://github.com/satori/go.uuid" target="_blank" rel="noopener">Github</a></td>
 </tr>
 <tr>
 <td>作者</td>
@@ -44,7 +44,7 @@
 <h2 id="如何产生UUID"><a href="#如何产生UUID" class="headerlink" title="如何产生UUID"></a>如何产生UUID</h2><p>那么这样一个UUID是如何产生的呢？</p>
 <p>中国是一个超大规模的国家，如果每个人生成自己的身份证，都需要到相互协调，那么全国肯定一团糟，如果每个人都到中央注册机构来确定独特性的话，那么中央注册机构肯定被挤爆。那么身份证的生成办法是分配前几位数为地区，分配中间几位为时间，后面三位用于一个区域内确定唯一性，最后一位校验即可。这样就可以相对方便地产生唯一的身份号码了。</p>
 <p>同样地，MAC地址和蓝牙地址的确定也是类似的策略，前面的位数是厂商号，后面的位数由厂商内部决定，这样就避免了冲突。</p>
-<p>实际上，UUID的国际标准<a href="https://tools.ietf.org/html/rfc4122" target="_blank" rel="external"><strong>RFC 4122</strong></a>定义了5个版本的生成方式。</p>
+<p>实际上，UUID的国际标准<a href="https://tools.ietf.org/html/rfc4122" target="_blank" rel="noopener"><strong>RFC 4122</strong></a>定义了5个版本的生成方式。</p>
 <h4 id="版本1"><a href="#版本1" class="headerlink" title="版本1"></a>版本1</h4><p>根据时间和MAC地址生成。版本1会把48比特的MAC地址和60比特的时间戳串联起来。<br>这个时间戳是从1582年10月15日午夜UTC时间起算起的纳秒数目。<br>按照<code>RFC4122</code>的规定，这个时间可以延续到大概公元3400年。<br>然而，一些软件，譬如libuuid库，把时间戳作为非负数类型使用，在这种方法下可以使用到公元5236年。</p>
 <h4 id="版本2"><a href="#版本2" class="headerlink" title="版本2"></a>版本2</h4><p>根据时间和MAC地址生成，并使用POSIX UID/GID，DCE安全版本。<br>版本2和版本1很类似，除了最重要的八个时钟序列字节被替换为了本地域的数字，最护重要的32个时间戳被替换为与本地域对应的整形数字。在POSIX系统上，它与UID和GID有关。在非POSIX系统上，就靠系统自己定义了。</p>
 <h4 id="版本3"><a href="#版本3" class="headerlink" title="版本3"></a>版本3</h4><p>哈希命名空间和名字，使用MD5作为哈希算法。<br>版本3的生成方法是哈希命名空间的标识符和名字。命名空间标识符本身就是一个UUID，该规格提供UUID来标识URL的命名空间等作用。</p>
@@ -58,8 +58,8 @@
 <figure class="highlight golang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/satori/go.uuid"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Creating UUID Version 4</span></div><div class="line">	u1 := uuid.NewV4()</div><div class="line">	fmt.Printf(<span class="string">"UUIDv4: %s\n"</span>, u1)</div><div class="line"></div><div class="line">	<span class="comment">// Parsing UUID from string input</span></div><div class="line">	u2, err := uuid.FromString(<span class="string">"6ba7b810-9dad-11d1-80b4-00c04fd430c8"</span>)</div><div class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">		fmt.Printf(<span class="string">"Something gone wrong: %s"</span>, err)</div><div class="line">	&#125;</div><div class="line">	fmt.Printf(<span class="string">"Successfully parsed: %s"</span>, u2)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>参考文献：</p>
 <ul>
-<li><a href="https://github.com/Knetic/govaluate" target="_blank" rel="external">https://github.com/Knetic/govaluate</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" target="_blank" rel="external">UUID-Wikipedia</a></li>
+<li><a href="https://github.com/Knetic/govaluate" target="_blank" rel="noopener">https://github.com/Knetic/govaluate</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" target="_blank" rel="noopener">UUID-Wikipedia</a></li>
 </ul>
 </div></article></div></main><footer><div class="paginator"><a href="/2017/08/27/github_hugo/" class="prev">PREV</a><a href="/2017/08/13/github_govaluate/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
 var disqus_identifier = '2017/08/18/github_go.uuid/';
