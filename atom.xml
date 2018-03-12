@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2018-03-12T02:14:10.596Z</updated>
+  <updated>2018-03-12T02:15:53.876Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -20,9 +20,11 @@
     <link href="http://zablog.me/2018/03/09/diskutil/"/>
     <id>http://zablog.me/2018/03/09/diskutil/</id>
     <published>2018-03-09T11:06:39.000Z</published>
-    <updated>2018-03-12T02:14:10.596Z</updated>
+    <updated>2018-03-12T02:15:53.876Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><p>买了一个4TB的移动硬盘，准备进行分区给Time Machine用。<br>硬盘自带是HDFS的，所以连上Mac之后，准备使用自带的<code>磁盘工具.app</code>进行格式化。<br>无论是选择 <code>OS X 扩展（日志式）</code>还是选择<code>Apple文件系统</code>，都会报错</p>
+    <content type="html"><![CDATA[<p>使用Mac对磁盘进行分区，显示“Mediakit报告设备商的空间不足以执行此操作”，该怎么办？</p>
+<a id="more"></a>
+<h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><p>买了一个4TB的移动硬盘，准备进行分区给Time Machine用。<br>硬盘自带是HDFS的，所以连上Mac之后，准备使用自带的<code>磁盘工具.app</code>进行格式化。<br>无论是选择 <code>OS X 扩展（日志式）</code>还是选择<code>Apple文件系统</code>，都会报错</p>
 <blockquote>
 <p>Mediakit 报告设备上空间足以执行此操作</p>
 </blockquote>
@@ -47,7 +49,7 @@
     
     <summary type="html">
     
-      &lt;h1 id=&quot;What&quot;&gt;&lt;a href=&quot;#What&quot; class=&quot;headerlink&quot; title=&quot;What&quot;&gt;&lt;/a&gt;What&lt;/h1&gt;&lt;p&gt;买了一个4TB的移动硬盘，准备进行分区给Time Machine用。&lt;br&gt;硬盘自带是HDFS的，所以连上Mac之后，准备使
+      &lt;p&gt;使用Mac对磁盘进行分区，显示“Mediakit报告设备商的空间不足以执行此操作”，该怎么办？&lt;/p&gt;
     
     </summary>
     
