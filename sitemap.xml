@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://zablog.me/2018/04/06/redis-hole/</loc>
+    
+    <lastmod>2018-04-06T08:04:35.636Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://zablog.me/2018/03/09/diskutil/</loc>
     
     <lastmod>2018-03-12T02:15:53.876Z</lastmod>
