@@ -7,7 +7,7 @@
 <p>上述是明白的写法，返回值类型在左边，函数名在中间，形参列表在右边，很容易理解。<br>如果不想要using进行别名的声明的话，也不是不可以，那样就非常繁琐了，如下：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">bool</span> (*getFunction4(<span class="keyword">double</span>))(<span class="keyword">const</span> <span class="built_in">string</span> &amp;, <span class="keyword">const</span> <span class="built_in">string</span> &amp;);</div></pre></td></tr></table></figure></p>
 <p>这样就非常奇怪了，但是也是可以解释。从里往外看，首先getFunction4有形参double，所以getFunction4是一个函数。它前面是<em>，所以返回的是一个指针，因为</em>也有参数列表，所以是一个函数指针，返回值是bool。</p>
 <p>当然了，还有尾置返回类型的方法。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">auto getFunction5(double) -&gt; bool (*)(const string &amp;, const string &amp;);</div></pre></td></tr></table></figure></p>
-</div></article></div></main><footer><div class="paginator"><a href="/2016/04/15/discrimination/" class="prev">上一篇</a><a href="/2016/01/01/2016/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+</div></article></div></main><footer><div class="paginator"><a href="/2016/04/15/discrimination/" class="prev">PREV</a><a href="/2016/01/01/2016/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
 var disqus_identifier = '2016/03/03/func_ptr/';
 var disqus_title = '如果一个C++函数的返回值是一个函数指针。';
 var disqus_url = 'http://zablog.me/2016/03/03/func_ptr/';

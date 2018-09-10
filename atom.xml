@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2018-04-06T08:04:35.636Z</updated>
+  <updated>2018-09-10T12:29:13.047Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,59 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>AKF扩展立方</title>
+    <link href="http://zablog.me/2018/09/10/scale-cube/"/>
+    <id>http://zablog.me/2018/09/10/scale-cube/</id>
+    <published>2018-09-10T13:00:00.000Z</published>
+    <updated>2018-09-10T12:29:13.047Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://microservices.io/articles/scalecube.html" target="_blank" rel="noopener">Link</a></p>
+<p>《THE ART OF SCALABILITY》中描述了一个非常有用的扩展模型：扩展立方。（也经常被称为AKF扩展立方）</p>
+<p><img src="https://akfpartners.com//uploads/blog/AKF_Scale_Cube.gif" alt=""></p>
+<p>在这个模型中，一个应用通过立方体的形式进行描述，它通过x，y，z三个轴进行扩展。</p>
+<h2 id="X轴扩展"><a href="#X轴扩展" class="headerlink" title="X轴扩展"></a>X轴扩展</h2><p>在负载均衡之后运行应用的多个拷贝。这是最简单最常用的扩展方式。</p>
+<p>缺陷：</p>
+<ul>
+<li>每个拷贝需要访问所有的数据，对缓存机制要求很高，数据库很可能成为瓶颈。</li>
+<li>不会减少日益增长的开发复杂度。</li>
+</ul>
+<h2 id="Y轴扩展"><a href="#Y轴扩展" class="headerlink" title="Y轴扩展"></a>Y轴扩展</h2><p>把整个应用切分为不同的服务，每个服务负责一个或少量几个关系相近的函数。</p>
+<p>有好几种解耦拆分方式。一种是按照动词分割，一种是按照名词分割。</p>
+<p>以购物网站为例：按照动词分割就是按照操作分割，服务1只负责购买流程，服务2只负责售后流程，服务3只负责广告投放流程；<br>按照名词分割就是按照对象类型分割，服务1只负责商品信息；服务2只负责用户信息。</p>
+<p>两种扩展经常是同时使用的！</p>
+<p>微服务化就是Y轴扩展的一个重要方式。</p>
+<h2 id="Z轴扩展"><a href="#Z轴扩展" class="headerlink" title="Z轴扩展"></a>Z轴扩展</h2><p>Z轴扩展和X轴扩展很像，但是在Z轴扩展中，每个服务只跑特定的一部分代码或数据集。</p>
+<p>Z轴扩展一般用来扩展数据库。（数据库分片）<br>在做某些查询的时候，查询指令被送给每一个分片，然后分别查询，最终获得的结果聚合之后返回。<br>做写入的时候，只需要按照分片键，找到对应的实例进行写入即可。</p>
+<p>Z轴扩展的优势：</p>
+<ul>
+<li>每个服务器只处理一部分数据</li>
+<li>优化了缓存的利用率，减少内存使用和I/O</li>
+<li>增强了事务的扩展性</li>
+<li>故障隔离</li>
+</ul>
+<p>劣势：</p>
+<ul>
+<li>增加了整体的复杂度。</li>
+<li>需要实现分片机制。万一有重新分片的需求的话，令人头大。</li>
+<li>增加复杂度的同事，并没有降低开发的复杂度，这个需要Y轴扩展配合解决。</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://microservices.io/articles/scalecube.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Link&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;《THE ART OF SCALABILITY》中描述了一个非
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
   
   <entry>
     <title>Redis漏洞攻击</title>
@@ -198,7 +251,7 @@
     <link href="http://zablog.me/2017/12/04/proxy/"/>
     <id>http://zablog.me/2017/12/04/proxy/</id>
     <published>2017-12-04T13:00:00.000Z</published>
-    <updated>2017-12-05T02:35:11.000Z</updated>
+    <updated>2018-09-10T12:29:07.173Z</updated>
     
     <content type="html"><![CDATA[<p>匿名代理、透传代理和精英代理之间的区别 / differences between transparent, anonymous and elite proxy<br><a id="more"></a></p>
 <p>作为一个代理的普通用户，你也许不知道你在用的代理到底是透明的，匿名的还是精英的。<br>你也许会倾向于使用精英代理，正如它名字指示的那样。那么这几种代理到底有什么区别呢？</p>
@@ -221,7 +274,7 @@
       <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="计数随笔" scheme="http://zablog.me/tags/%E8%AE%A1%E6%95%B0%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
@@ -1163,41 +1216,6 @@
     
     
       <category term="OS X" scheme="http://zablog.me/tags/OS-X/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>多线程的内存排布</title>
-    <link href="http://zablog.me/2016/12/26/multithreading_memory/"/>
-    <id>http://zablog.me/2016/12/26/multithreading_memory/</id>
-    <published>2016-12-26T04:46:23.000Z</published>
-    <updated>2016-12-26T03:09:54.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>写了一小段python代码来测试Linux对于多线程的内存排布。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> threading</div><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">T</span><span class="params">(threading.Thread)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, t_name)</span>:</span></div><div class="line">        threading.Thread.__init__(self, name=t_name)</div><div class="line">        self.name = t_name</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">print</span> <span class="string">"%s Runs"</span> % self.name</div><div class="line">        <span class="comment"># sleep for 1 minutes.</span></div><div class="line">        time.sleep(<span class="number">60</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</div><div class="line">    t1 = T(<span class="string">"t1"</span>)</div><div class="line">    t2 = T(<span class="string">"t2"</span>)</div><div class="line">    t3 = T(<span class="string">"t3"</span>)</div><div class="line">    t1.start()</div><div class="line">    t2.start()</div><div class="line">    t3.start()</div><div class="line">    t1.join()</div><div class="line">    t2.join()</div><div class="line">    t3.join()</div><div class="line">    <span class="keyword">print</span> <span class="string">"T1 &amp; T2 reaped."</span></div></pre></td></tr></table></figure>
-<p>查看一下maps文件，</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$cat</span> /proc/.../maps</div></pre></td></tr></table></figure>
-<p>内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line">zachary@LABCAT:/mnt/c/Projects/test$ cat /proc/309/maps</div><div class="line">00400000-006bc000 r-x- 00000000 00:00 249355                     /usr/bin/python2.7</div><div class="line">008bb000-008bc000 r--- 002bb000 00:00 249355                     /usr/bin/python2.7</div><div class="line">008bc000-00931000 rw-- 002bc000 00:00 249355                     /usr/bin/python2.7</div><div class="line">00931000-00943000 rw-- 00000000 00:00 0</div><div class="line">020cb000-0219c000 rw-- 00000000 00:00 0                          [heap]</div><div class="line">7f0a4c000000-7f0a4c021000 rw-- 00000000 00:00 0</div><div class="line">7f0a4c021000-7f0a50000000 ---- 00000000 00:00 0</div><div class="line">7f0a50000000-7f0a50021000 rw-- 00000000 00:00 0</div><div class="line">7f0a50021000-7f0a54000000 ---- 00000000 00:00 0</div><div class="line">7f0a54000000-7f0a54021000 rw-- 00000000 00:00 0</div><div class="line">7f0a54021000-7f0a58000000 ---- 00000000 00:00 0</div><div class="line">7f0a58910000-7f0a58911000 ---- 00000000 00:00 0</div><div class="line">7f0a58911000-7f0a59111000 rw-- 00000000 00:00 0</div><div class="line">7f0a59120000-7f0a59121000 ---- 00000000 00:00 0</div><div class="line">7f0a59121000-7f0a59921000 rw-- 00000000 00:00 0</div><div class="line">7f0a59930000-7f0a59931000 ---- 00000000 00:00 0</div><div class="line">7f0a59931000-7f0a5a131000 rw-- 00000000 00:00 0</div><div class="line">7f0a5a137000-7f0a5a2c0000 r--- 00000000 00:00 119790             /usr/lib/locale/locale-archive</div><div class="line">7f0a5a2c0000-7f0a5a3c5000 r-x- 00000000 00:00 34505              /lib/x86_64-linux-gnu/libm-2.19.so</div><div class="line">7f0a5a3c5000-7f0a5a3c6000 ---- 00105000 00:00 34505              /lib/x86_64-linux-gnu/libm-2.19.so</div><div class="line">7f0a5a3c6000-7f0a5a5c4000 ---- 00000000 00:00 0</div><div class="line">7f0a5a5c4000-7f0a5a5c5000 r--- 00104000 00:00 34505              /lib/x86_64-linux-gnu/libm-2.19.so</div><div class="line">7f0a5a5c5000-7f0a5a5c6000 rw-- 00105000 00:00 34505              /lib/x86_64-linux-gnu/libm-2.19.so</div><div class="line">7f0a5a5d0000-7f0a5a5e8000 r-x- 00000000 00:00 34714              /lib/x86_64-linux-gnu/libz.so.1.2.8</div><div class="line">7f0a5a5e8000-7f0a5a5e9000 ---- 00018000 00:00 34714              /lib/x86_64-linux-gnu/libz.so.1.2.8</div><div class="line">7f0a5a5e9000-7f0a5a7e7000 ---- 00000000 00:00 0</div><div class="line">7f0a5a7e7000-7f0a5a7e8000 r--- 00017000 00:00 34714              /lib/x86_64-linux-gnu/libz.so.1.2.8</div><div class="line">7f0a5a7e8000-7f0a5a7e9000 rw-- 00018000 00:00 34714              /lib/x86_64-linux-gnu/libz.so.1.2.8</div><div class="line">7f0a5a7f0000-7f0a5a7f2000 r-x- 00000000 00:00 34384              /lib/x86_64-linux-gnu/libutil-2.19.so</div><div class="line">7f0a5a7f2000-7f0a5a7f3000 ---- 00002000 00:00 34384              /lib/x86_64-linux-gnu/libutil-2.19.so</div><div class="line">7f0a5a7f3000-7f0a5a9f1000 ---- 00000000 00:00 0</div><div class="line">7f0a5a9f1000-7f0a5a9f2000 r--- 00001000 00:00 34384              /lib/x86_64-linux-gnu/libutil-2.19.so</div><div class="line">7f0a5a9f2000-7f0a5a9f3000 rw-- 00002000 00:00 34384              /lib/x86_64-linux-gnu/libutil-2.19.so</div><div class="line">7f0a5aa00000-7f0a5aa03000 r-x- 00000000 00:00 34478              /lib/x86_64-linux-gnu/libdl-2.19.so</div><div class="line">7f0a5aa03000-7f0a5aa04000 ---- 00003000 00:00 34478              /lib/x86_64-linux-gnu/libdl-2.19.so</div><div class="line">7f0a5aa04000-7f0a5ac02000 ---- 00000000 00:00 0</div><div class="line">7f0a5ac02000-7f0a5ac03000 r--- 00002000 00:00 34478              /lib/x86_64-linux-gnu/libdl-2.19.so</div><div class="line">7f0a5ac03000-7f0a5ac04000 rw-- 00003000 00:00 34478              /lib/x86_64-linux-gnu/libdl-2.19.so</div><div class="line">7f0a5ac10000-7f0a5adca000 r-x- 00000000 00:00 34759              /lib/x86_64-linux-gnu/libc-2.19.so</div><div class="line">7f0a5adca000-7f0a5add2000 ---- 001ba000 00:00 34759              /lib/x86_64-linux-gnu/libc-2.19.so</div><div class="line">7f0a5add2000-7f0a5afca000 ---- 00000000 00:00 0</div><div class="line">7f0a5afca000-7f0a5afce000 r--- 001ba000 00:00 34759              /lib/x86_64-linux-gnu/libc-2.19.so</div><div class="line">7f0a5afce000-7f0a5afd0000 rw-- 001be000 00:00 34759              /lib/x86_64-linux-gnu/libc-2.19.so</div><div class="line">7f0a5afd0000-7f0a5afd5000 rw-- 00000000 00:00 0</div><div class="line">7f0a5afe0000-7f0a5aff9000 r-x- 00000000 00:00 34736              /lib/x86_64-linux-gnu/libpthread-2.19.so</div><div class="line">7f0a5aff9000-7f0a5b003000 ---- 00019000 00:00 34736              /lib/x86_64-linux-gnu/libpthread-2.19.so</div><div class="line">7f0a5b003000-7f0a5b1f8000 ---- 00000000 00:00 0</div><div class="line">7f0a5b1f8000-7f0a5b1f9000 r--- 00018000 00:00 34736              /lib/x86_64-linux-gnu/libpthread-2.19.so</div><div class="line">7f0a5b1f9000-7f0a5b1fa000 rw-- 00019000 00:00 34736              /lib/x86_64-linux-gnu/libpthread-2.19.so</div><div class="line">7f0a5b1fa000-7f0a5b1fe000 rw-- 00000000 00:00 0</div><div class="line">7f0a5b200000-7f0a5b223000 r-x- 00000000 00:00 34451              /lib/x86_64-linux-gnu/ld-2.19.so</div><div class="line">7f0a5b2e0000-7f0a5b3d1000 rw-- 00000000 00:00 0</div><div class="line">7f0a5b3e0000-7f0a5b421000 rw-- 00000000 00:00 0</div><div class="line">7f0a5b422000-7f0a5b423000 r--- 00022000 00:00 34451              /lib/x86_64-linux-gnu/ld-2.19.so</div><div class="line">7f0a5b423000-7f0a5b424000 rw-- 00023000 00:00 34451              /lib/x86_64-linux-gnu/ld-2.19.so</div><div class="line">7f0a5b424000-7f0a5b425000 rw-- 00000000 00:00 0</div><div class="line">7f0a5b430000-7f0a5b4b2000 rw-- 00000000 00:00 0</div><div class="line">7f0a5b4c0000-7f0a5b4c1000 rw-- 00000000 00:00 0</div><div class="line">7f0a5b4d0000-7f0a5b4d1000 rw-- 00000000 00:00 0</div><div class="line">7f0a5b4e0000-7f0a5b4e1000 rw-- 00000000 00:00 0</div><div class="line">7f0a5b4f0000-7f0a5b4f2000 rw-- 00000000 00:00 0</div><div class="line">7ffff2573000-7ffff2d73000 rw-- 00000000 00:00 0                  [stack]</div><div class="line">7ffff2f6b000-7ffff2f6c000 r-x- 00000000 00:00 0                  [vdso]</div></pre></td></tr></table></figure></p>
-<p>每一个子线程的stack都是放在一起的，而且默认分配好了一块比较大的空间。<br>当然，用python来测试这个内容是不太合理的，最好还是用C来测试。推荐看一下参考内容1。</p>
-<p>由上面的内容可以推断出大致的虚存结构：<br><img src="http://imglf0.nosdn.127.net/img/MGpGUW9CdGlzcDd1cm1TOXdxeWIwWGpxSHFVb0RIdUd2NnBndGRVMElhTnRmYXVkaG1Ca253PT0.png?imageView&amp;thumbnail=1680x0&amp;quality=96&amp;stripmeta=0&amp;type=jpg%7Cwatermark&amp;type=2&amp;text=wqkgWmFjaGFyeSAvIG1hcmNob24ubG9mdGVyLmNvbQ==&amp;font=bXN5aA==&amp;gravity=southwest&amp;dissolve=30&amp;fontsize=340&amp;dx=16&amp;dy=20&amp;stripmeta=0" alt="图片"></p>
-<p>参考内容：</p>
-<ul>
-<li><a href="http://blog.csdn.net/high_high/article/details/7204097" target="_blank" rel="noopener">参考内容1_多线程程序在内存中的分布</a></li>
-<li><a href="http://stackoverflow.com/questions/18149218/the-memory-layout-of-a-multithreaded-process" target="_blank" rel="noopener">参考内容2_StackOverflow</a></li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;写了一小段python代码来测试Linux对于多线程的内存排布。&lt;/p&gt;
-&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div cl
-    
-    </summary>
-    
-      <category term="技术指南" scheme="http://zablog.me/categories/%E6%8A%80%E6%9C%AF%E6%8C%87%E5%8D%97/"/>
-    
-    
-      <category term="Linux" scheme="http://zablog.me/tags/Linux/"/>
     
   </entry>
   

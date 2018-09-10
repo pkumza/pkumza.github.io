@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> AKF扩展立方 · Zablog</title><meta name="description" content="AKF扩展立方 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/about" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">AKF扩展立方</h1><div class="post-info">2018年9月10日</div><div class="post-content"><p><a href="https://microservices.io/articles/scalecube.html" target="_blank" rel="noopener">Link</a></p>
+<p>《THE ART OF SCALABILITY》中描述了一个非常有用的扩展模型：扩展立方。（也经常被称为AKF扩展立方）</p>
+<p><img src="https://akfpartners.com//uploads/blog/AKF_Scale_Cube.gif" alt=""></p>
+<p>在这个模型中，一个应用通过立方体的形式进行描述，它通过x，y，z三个轴进行扩展。</p>
+<h2 id="X轴扩展"><a href="#X轴扩展" class="headerlink" title="X轴扩展"></a>X轴扩展</h2><p>在负载均衡之后运行应用的多个拷贝。这是最简单最常用的扩展方式。</p>
+<p>缺陷：</p>
+<ul>
+<li>每个拷贝需要访问所有的数据，对缓存机制要求很高，数据库很可能成为瓶颈。</li>
+<li>不会减少日益增长的开发复杂度。</li>
+</ul>
+<h2 id="Y轴扩展"><a href="#Y轴扩展" class="headerlink" title="Y轴扩展"></a>Y轴扩展</h2><p>把整个应用切分为不同的服务，每个服务负责一个或少量几个关系相近的函数。</p>
+<p>有好几种解耦拆分方式。一种是按照动词分割，一种是按照名词分割。</p>
+<p>以购物网站为例：按照动词分割就是按照操作分割，服务1只负责购买流程，服务2只负责售后流程，服务3只负责广告投放流程；<br>按照名词分割就是按照对象类型分割，服务1只负责商品信息；服务2只负责用户信息。</p>
+<p>两种扩展经常是同时使用的！</p>
+<p>微服务化就是Y轴扩展的一个重要方式。</p>
+<h2 id="Z轴扩展"><a href="#Z轴扩展" class="headerlink" title="Z轴扩展"></a>Z轴扩展</h2><p>Z轴扩展和X轴扩展很像，但是在Z轴扩展中，每个服务只跑特定的一部分代码或数据集。</p>
+<p>Z轴扩展一般用来扩展数据库。（数据库分片）<br>在做某些查询的时候，查询指令被送给每一个分片，然后分别查询，最终获得的结果聚合之后返回。<br>做写入的时候，只需要按照分片键，找到对应的实例进行写入即可。</p>
+<p>Z轴扩展的优势：</p>
+<ul>
+<li>每个服务器只处理一部分数据</li>
+<li>优化了缓存的利用率，减少内存使用和I/O</li>
+<li>增强了事务的扩展性</li>
+<li>故障隔离</li>
+</ul>
+<p>劣势：</p>
+<ul>
+<li>增加了整体的复杂度。</li>
+<li>需要实现分片机制。万一有重新分片的需求的话，令人头大。</li>
+<li>增加复杂度的同事，并没有降低开发的复杂度，这个需要Y轴扩展配合解决。</li>
+</ul>
+</div></article></div></main><footer><div class="paginator"><a href="/2018/04/06/redis-hole/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2018/09/10/scale-cube/';
+var disqus_title = 'AKF扩展立方';
+var disqus_url = 'http://zablog.me/2018/09/10/scale-cube/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2018 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>
