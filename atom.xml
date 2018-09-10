@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2018-09-10T12:29:13.047Z</updated>
+  <updated>2018-09-10T12:33:53.140Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -20,12 +20,11 @@
     <link href="http://zablog.me/2018/09/10/scale-cube/"/>
     <id>http://zablog.me/2018/09/10/scale-cube/</id>
     <published>2018-09-10T13:00:00.000Z</published>
-    <updated>2018-09-10T12:29:13.047Z</updated>
+    <updated>2018-09-10T12:33:53.140Z</updated>
     
-    <content type="html"><![CDATA[<p><a href="https://microservices.io/articles/scalecube.html" target="_blank" rel="noopener">Link</a></p>
-<p>《THE ART OF SCALABILITY》中描述了一个非常有用的扩展模型：扩展立方。（也经常被称为AKF扩展立方）</p>
+    <content type="html"><![CDATA[<p>《THE ART OF SCALABILITY》中描述了一个非常有用的扩展模型：扩展立方（也叫AKF扩展立方）。<br>这个模型把应用比作立方体，为了支持应用的发展和演进，我们可以通过x，y，z三个方向对它进行扩展。</p>
+<a id="more"></a>
 <p><img src="https://akfpartners.com//uploads/blog/AKF_Scale_Cube.gif" alt=""></p>
-<p>在这个模型中，一个应用通过立方体的形式进行描述，它通过x，y，z三个轴进行扩展。</p>
 <h2 id="X轴扩展"><a href="#X轴扩展" class="headerlink" title="X轴扩展"></a>X轴扩展</h2><p>在负载均衡之后运行应用的多个拷贝。这是最简单最常用的扩展方式。</p>
 <p>缺陷：</p>
 <ul>
@@ -52,12 +51,13 @@
 <li>需要实现分片机制。万一有重新分片的需求的话，令人头大。</li>
 <li>增加复杂度的同事，并没有降低开发的复杂度，这个需要Y轴扩展配合解决。</li>
 </ul>
+<hr>
+<p>参考：<br><a href="https://microservices.io/articles/scalecube.html" target="_blank" rel="noopener">The Scale Cube | Microservice Architecture</a></p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;&lt;a href=&quot;https://microservices.io/articles/scalecube.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Link&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;《THE ART OF SCALABILITY》中描述了一个非
+      &lt;p&gt;《THE ART OF SCALABILITY》中描述了一个非常有用的扩展模型：扩展立方（也叫AKF扩展立方）。&lt;br&gt;这个模型把应用比作立方体，为了支持应用的发展和演进，我们可以通过x，y，z三个方向对它进行扩展。&lt;/p&gt;
     
     </summary>
     
