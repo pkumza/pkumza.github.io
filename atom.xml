@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2018-09-16T13:07:48.070Z</updated>
+  <updated>2018-10-04T05:21:11.378Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,65 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>HTTP 简史复习</title>
+    <link href="http://zablog.me/2018/10/04/http-brief-history/"/>
+    <id>http://zablog.me/2018/10/04/http-brief-history/</id>
+    <published>2018-10-04T13:00:00.000Z</published>
+    <updated>2018-10-04T05:21:11.378Z</updated>
+    
+    <content type="html"><![CDATA[<p>简要复习一下HTTP的发展历史。</p>
+<a id="more"></a>
+<h2 id="HTTP-0-9"><a href="#HTTP-0-9" class="headerlink" title="HTTP/0.9"></a>HTTP/0.9</h2><p>初代不成熟协议，只支持<code>GET</code>命令，仅接受HTML格式的子串，一次请求结束之后TCP连接随即关闭。</p>
+<h2 id="HTTP-1-0"><a href="#HTTP-1-0" class="headerlink" title="HTTP/1.0"></a>HTTP/1.0</h2><p>不仅支持HTML，还支持图片、视频、二进制文件等。<br>增加了 POST HEAD，<br>每次Req和Resp都必须含有头部。整个头部只能使用ASCII编码<br>新增了状态码、权限、缓存、内容编码(content encoding)等功能。<br>新增Content-Type字段。</p>
+<p>缺点：<br>但是每次只能发送一个请求，三次握手比较慢，另外需要慢启动。</p>
+<p>连接复用采用 <code>Connection: keep-alive</code> 字段，该字段非标准。</p>
+<h2 id="HTTP-1-1"><a href="#HTTP-1-1" class="headerlink" title="HTTP/1.1"></a>HTTP/1.1</h2><p>RFC 2616<br>第一个有正式标准的版本。</p>
+<p>举个 🌰</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line">$&gt; telnet website.org 80</div><div class="line">Connected to xxx.xxx.xxx.xxx</div><div class="line"></div><div class="line">GET /index.html HTTP/1.1 ①</div><div class="line">Host: website.org</div><div class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4)... (snip)</div><div class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</div><div class="line">Accept-Encoding: gzip,deflate,sdch</div><div class="line">Accept-Language: en-US,en;q=0.8</div><div class="line">Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3</div><div class="line">Cookie: __qca=P0-800083390... (snip)</div><div class="line"></div><div class="line">HTTP/1.1 200 OK ②</div><div class="line">Server: nginx/1.0.11</div><div class="line">Connection: keep-alive</div><div class="line">Content-Type: text/html; charset=utf-8</div><div class="line">Via: HTTP/1.1 GWA</div><div class="line">Date: Wed, 25 Jul 2012 20:23:35 GMT</div><div class="line">Expires: Wed, 25 Jul 2012 20:23:35 GMT</div><div class="line">Cache-Control: max-age=0, no-cache</div><div class="line">Transfer-Encoding: chunked</div><div class="line"></div><div class="line">100  ③</div><div class="line">&lt;!doctype html&gt;</div><div class="line">(snip)</div><div class="line"></div><div class="line">100</div><div class="line">(snip)</div><div class="line"></div><div class="line">0 ④</div><div class="line"></div><div class="line">GET /favicon.ico HTTP/1.1 ⑤</div><div class="line">Host: www.website.org</div><div class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4)... (snip)</div><div class="line">Accept: */*</div><div class="line">Referer: http://website.org/</div><div class="line">Connection: close ⑥</div><div class="line">Accept-Encoding: gzip,deflate,sdch</div><div class="line">Accept-Language: en-US,en;q=0.8</div><div class="line">Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3</div><div class="line">Cookie: __qca=P0-800083390... (snip)</div><div class="line"></div><div class="line">HTTP/1.1 200 OK ⑦</div><div class="line">Server: nginx/1.0.11</div><div class="line">Content-Type: image/x-icon</div><div class="line">Content-Length: 3638</div><div class="line">Connection: close</div><div class="line">Last-Modified: Thu, 19 Jul 2012 17:51:44 GMT</div><div class="line">Cache-Control: max-age=315360000</div><div class="line">Accept-Ranges: bytes</div><div class="line">Via: HTTP/1.1 GWA</div><div class="line">Date: Sat, 21 Jul 2012 21:35:22 GMT</div><div class="line">Expires: Thu, 31 Dec 2037 23:55:55 GMT</div><div class="line">Etag: W/PSA-GAu26oXbDi</div><div class="line"></div><div class="line">(icon data)</div><div class="line">(connection closed)</div></pre></td></tr></table></figure>
+<p>①：附带了encoding，charset和cookie元信息请求HTML文件<br>②：分块传输结果<br>③：分块的大小，以ASCII 十六进制表示。 100代表256字节。<br>④：用0，代表整个Response分块结束。<br>⑤：使用同一条TCP连接请求图标文件<br>⑥：提醒服务器，这个连接将不再被复用，可以关闭连接。<br>⑦：返回图标文件的信息，并在结尾处关闭连接。</p>
+<p>以上样例重点贯彻了<code>HTTP/1.1</code>的连接复用、分块以及显式关闭等特征。</p>
+<p>特征：</p>
+<ol>
+<li>默认TCP连接不关闭，可以被多个请求复用。不像HTTP/1.0还必须明确指明 Connection: Keep-Alive。</li>
+<li>管道机制：同一个TCP连接，客户端可以发送多个请求。为了切分每个请求，必须在头部注明Content-Length</li>
+<li>分块传输 chunk。</li>
+</ol>
+<p>其他功能</p>
+<p>增加了 content, encoding, character set 等字段。<br>Host 字段<br>PUT PATCH HEAD OPTIONS DELETE</p>
+<p>缺点</p>
+<p>队头堵塞 Head-of-line blocking</p>
+<h2 id="SPDY"><a href="#SPDY" class="headerlink" title="SPDY"></a>SPDY</h2><p>谷歌自研 2009年 ，HTTP/2的基础</p>
+<h2 id="HTTP-2"><a href="#HTTP-2" class="headerlink" title="HTTP/2"></a>HTTP/2</h2><p>注意，不叫<code>HTTP/2.0</code>，下一个版本将是<code>HTTP/3</code>。</p>
+<p>二进制协议</p>
+<p>HTTP/1.1 的header肯定是ASCII，数据体可以是文本或二进制。<br>HTTP/2 是一个彻底的二进制协议，header和body都是二进制，并且统称为<code>帧</code>：头信息帧和数据帧。</p>
+<p>多工 Multiplexing</p>
+<p>HTTP/2 复用了TCP连接，在一个连接里，客户端和浏览器都可以同时发送多个请求或回应，而不是按照顺序。这避免了<code>队头堵塞</code>。</p>
+<p>数据流</p>
+<p>因为HTTP/2的数据包不按顺序发送，所以要指出每个数据包属于哪个回应。</p>
+<p>每个请求或回应的所有数据包，称为一个数据流。每个数据流有个独一无二的ID。<br>客户端来的数据包的ID是奇数，服务端发送的数据包ID是偶数。</p>
+<p>头信息压缩</p>
+<p>一方面头可以压缩；另一方面，客户端和服务端维护了一张索引表，不用发送相同的字段。</p>
+<p>服务器推送</p>
+<p>未经过客户端的主动秦秋，服务器可以主动向客户端发送资源。</p>
+<hr>
+<p>参考：</p>
+<p><a href="http://www.ruanyifeng.com/blog/2016/08/http.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2016/08/http.html</a><br><a href="https://github.com/abbshr/rfc7540-translation-zh_cn" target="_blank" rel="noopener">https://github.com/abbshr/rfc7540-translation-zh_cn</a><br><a href="https://tools.ietf.org/html/rfc7540" target="_blank" rel="noopener">https://tools.ietf.org/html/rfc7540</a> / <a href="https://httpwg.org/specs/rfc7540.html" target="_blank" rel="noopener">https://httpwg.org/specs/rfc7540.html</a><br><a href="https://developers.google.com/web/fundamentals/performance/http2/?hl=zh-cn" target="_blank" rel="noopener">https://developers.google.com/web/fundamentals/performance/http2/?hl=zh-cn</a><br><a href="https://hpbn.co/brief-history-of-http/" target="_blank" rel="noopener">https://hpbn.co/brief-history-of-http/</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;简要复习一下HTTP的发展历史。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
   
   <entry>
     <title>Mac OS X屏幕快照完全指南</title>
@@ -1160,68 +1219,6 @@
     <summary type="html">
     
       &lt;p&gt;golang环境下任意表达式的求值 // Arbitrary expression evaluation for golang&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>每周一个Github项目【第一期】onionscan</title>
-    <link href="http://zablog.me/2017/08/04/github_onion_scan/"/>
-    <id>http://zablog.me/2017/08/04/github_onion_scan/</id>
-    <published>2017-08-04T12:30:00.000Z</published>
-    <updated>2017-08-15T03:05:44.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>一个用于探查深网的免费开源工具 // A free and open source tool for investigating the Dark Web<br><a id="more"></a></p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>OnionScan</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>地址</td>
-<td><a href="https://github.com/s-rah/onionscan" target="_blank" rel="noopener">Github</a></td>
-</tr>
-<tr>
-<td>作者</td>
-<td>s-rah等</td>
-</tr>
-<tr>
-<td>Brief Intro</td>
-<td>OnionScan is a free and open source tool for investigating the Dark Web.</td>
-</tr>
-<tr>
-<td>LICENSE</td>
-<td>MIT</td>
-</tr>
-<tr>
-<td>starts</td>
-<td>912</td>
-</tr>
-</tbody>
-</table>
-<p>所以这个东西叫做扫描洋葱呗。</p>
-<blockquote>
-<p>OnionScan是一个用于探查深网（Dark Web）的免费开源工具。对于匿名和隐私空间的所有惊人的技术创新，总是有一个不断的威胁，没有有效的技术补丁，那就是人为错误。</p>
-<p>无论是操作安全漏洞还是软件配置错误 - 最常见的是匿名攻击不是来自于破坏底层系统，而是来自于我们自己。</p>
-<p>OnionScan有两个主要目标：</p>
-<p>希望帮助隐藏服务的运营者找到并修复其服务的操作安全问题。希望帮助他们检测配置错误，希望启发新一代匿名工程项目，保护人们的隐私。</p>
-<p>其次，OnionScan希望帮助研究人员和调查人员监控和跟踪黑网站。当然OnionScan并不一定同意调查者的动机，但通过使调查变得容易，希望为新的匿名技术创造一个强大的激励（见目标1）</p>
-</blockquote>
-<p>OnionScan这个工具的探测能力很强，但是作为一个爬虫类的应用，首先需要一个proxy。该工程使用的是tor proxy，这个我在测试的时候还没有搞定，所以具体实际测试也就没进行。具体作用、效果待研究。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;一个用于探查深网的免费开源工具 // A free and open source tool for investigating the Dark Web&lt;br&gt;
     
     </summary>
     
