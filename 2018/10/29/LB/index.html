@@ -17,7 +17,12 @@
 <p>负载均衡一般是根据集群中主机的健康情况灵活变动的。当某台主机跪了，LB算法将会把它从候选列表中踢出去，这也是很合理的。</p>
 <p>但是我们假设这么一种情况，某一时间，所有服务主机的负载情况是最大负载的80%，（负载800；最大处理能力1000）<br>因为某种原因，导致20.0%的机器彻底崩溃。（负载800；最大处理能力800）<br>LB策略忽略20%的机器，导致剩下的80%的机器都在最大处理负载上运行；<br>又来了一个网络波动，造成所有的服务器一个接一个崩溃，整个集群雪崩。<br>每拉起一台新的机器，LB策略立刻把所有的流量打到这么一台机器上，导致它再次崩溃。</p>
 <p>如果有一个恐慌阈值，譬如50%，那么LB会在50%机器崩溃的时候，禁用淘汰策略，把所有机器都当做健康的，在整体集群上执行普通的Round-Robin策略。<br>多数机器恢复，整个集群的处理能力恢复80%的正确率。这使得整个集群能够在遇到极特殊情况的时候能够从困境中恢复。</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2018/10/04/http-brief-history/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+<p># </p>
+<p>通用运营后台</p>
+<p>火山和抖音都有搜索彩蛋的需求 就是搜索某个特定词的时候 出一些彩蛋，配合广告售卖或者活动<br>大家接到需求的想法就是 写个运营后台，数据存入mysql，然后再起个脚本，定时把数据按照格式dump到redis，在线服务读redis判断<br>或者说 单独抽象一个服务，运营后台负责写入，在线业务负责读取</p>
+<p>搜索结果过滤条件</p>
+<p>客户端配置，广告、图片链接配置，客户端Toast提示文本内容。<br>你可以设置用户满足什么地域、UID在哪个灰度的情况下，更换某一项内容。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2018/11/29/Monotonic/" class="prev">PREV</a><a href="/2018/10/04/http-brief-history/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
 var disqus_identifier = '2018/10/29/LB/';
 var disqus_title = 'Envoy中的 LB 算法';
 var disqus_url = 'http://zablog.me/2018/10/29/LB/';

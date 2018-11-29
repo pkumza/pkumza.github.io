@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2018-10-29T12:48:50.998Z</updated>
+  <updated>2018-11-29T06:14:39.322Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -16,11 +16,41 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Monotonic time</title>
+    <link href="http://zablog.me/2018/11/29/Monotonic/"/>
+    <id>http://zablog.me/2018/11/29/Monotonic/</id>
+    <published>2018-11-29T13:00:00.000Z</published>
+    <updated>2018-11-29T06:14:39.322Z</updated>
+    
+    <content type="html"><![CDATA[<p>go 1.9 之后，给Time增加了 Monotonic 部分。</p>
+<a id="more"></a>
+<p>系统提供了wall time 和 monotonic 时间。<br>其中wall time会根据时间校准而改变，而monotonic不会。</p>
+<p>举个例子。<br>你写了一个日志收集程序，每10秒把收到的日志汇报给流式收集系统。<br>但是你的机器事件比真实时间快了1分钟。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">now := time.Now()</div><div class="line">&lt;-now.After(time.Second*<span class="number">10</span>):</div><div class="line"><span class="comment">// do sth</span></div></pre></td></tr></table></figure>
+<p>假如得到now的时间以后，机器与外部时间进行了一步同步，把本机实际时间调慢1分钟，那么程序将会在第二行卡上70秒。<br>这会导致本地日志队列可能会爆仓。</p>
+<p>与Duration相关的时间操作，譬如time.Since(start), time.Until(deadline), and time.Now().Before(deadline)等，对于时间重置非常敏感，所以它们需要参考 Monotonic 时间。</p>
+<p>而如果时间是为了打印，或者start time/deadline time是外界传入的，那么 monotonic 时间将会是一个干扰。 此时应该使用  t = t.Round(0) 排除 monotonic。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;go 1.9 之后，给Time增加了 Monotonic 部分。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Envoy中的 LB 算法</title>
     <link href="http://zablog.me/2018/10/29/LB/"/>
     <id>http://zablog.me/2018/10/29/LB/</id>
     <published>2018-10-29T13:00:00.000Z</published>
-    <updated>2018-10-29T12:48:50.998Z</updated>
+    <updated>2018-10-30T02:18:36.825Z</updated>
     
     <content type="html"><![CDATA[<p>LB是现代高并发应用必然的需求，下面介绍一下Envoy中使用的LB算法。</p>
 <a id="more"></a>
@@ -41,6 +71,11 @@
 <p>负载均衡一般是根据集群中主机的健康情况灵活变动的。当某台主机跪了，LB算法将会把它从候选列表中踢出去，这也是很合理的。</p>
 <p>但是我们假设这么一种情况，某一时间，所有服务主机的负载情况是最大负载的80%，（负载800；最大处理能力1000）<br>因为某种原因，导致20.0%的机器彻底崩溃。（负载800；最大处理能力800）<br>LB策略忽略20%的机器，导致剩下的80%的机器都在最大处理负载上运行；<br>又来了一个网络波动，造成所有的服务器一个接一个崩溃，整个集群雪崩。<br>每拉起一台新的机器，LB策略立刻把所有的流量打到这么一台机器上，导致它再次崩溃。</p>
 <p>如果有一个恐慌阈值，譬如50%，那么LB会在50%机器崩溃的时候，禁用淘汰策略，把所有机器都当做健康的，在整体集群上执行普通的Round-Robin策略。<br>多数机器恢复，整个集群的处理能力恢复80%的正确率。这使得整个集群能够在遇到极特殊情况的时候能够从困境中恢复。</p>
+<p># </p>
+<p>通用运营后台</p>
+<p>火山和抖音都有搜索彩蛋的需求 就是搜索某个特定词的时候 出一些彩蛋，配合广告售卖或者活动<br>大家接到需求的想法就是 写个运营后台，数据存入mysql，然后再起个脚本，定时把数据按照格式dump到redis，在线服务读redis判断<br>或者说 单独抽象一个服务，运营后台负责写入，在线业务负责读取</p>
+<p>搜索结果过滤条件</p>
+<p>客户端配置，广告、图片链接配置，客户端Toast提示文本内容。<br>你可以设置用户满足什么地域、UID在哪个灰度的情况下，更换某一项内容。</p>
 ]]></content>
     
     <summary type="html">
@@ -1097,91 +1132,6 @@
     <summary type="html">
     
       &lt;p&gt;一个用Go实现的快速灵活的静态页面生成工具 // A Fast and Flexible Static Site Generator built with love in GoLang.&lt;br&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>每周一个Github项目【第三期】go.uuid</title>
-    <link href="http://zablog.me/2017/08/18/github_go.uuid/"/>
-    <id>http://zablog.me/2017/08/18/github_go.uuid/</id>
-    <published>2017-08-18T12:30:00.000Z</published>
-    <updated>2017-08-18T14:02:06.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>go语言UUID包 // UUID package for Go</p>
-<a id="more"></a>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>go.uuid</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>地址</td>
-<td><a href="https://github.com/satori/go.uuid" target="_blank" rel="noopener">Github</a></td>
-</tr>
-<tr>
-<td>作者</td>
-<td>satori等</td>
-</tr>
-<tr>
-<td>brief intro</td>
-<td>UUID package for Go</td>
-</tr>
-<tr>
-<td>简要介绍</td>
-<td>go语言UUID包</td>
-</tr>
-<tr>
-<td>LICENSE</td>
-<td>MIT</td>
-</tr>
-<tr>
-<td>Stars</td>
-<td>1304</td>
-</tr>
-</tbody>
-</table>
-<h2 id="什么是UUID"><a href="#什么是UUID" class="headerlink" title="什么是UUID"></a>什么是UUID</h2><p>UUID的全称是universally unique identifier，全局唯一认证，它是一个128比特的数字，用来辨认计算机系统中的信息。术语GUID也是这个意思。</p>
-<p>UUID的终极目的是“独特性”,它不希望依赖中央注册机构或协调双方之间产生这种独特性,与大多数其他编号计划。虽然UUID将重复的概率不为零，但是它接近于零，因此可以忽略不计。</p>
-<p>在命令行，有简单的产生UUID的方法，在Unix/Linux系统中，只要简单的执行uuidgen就可以获得一个新的UUID字符串。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ uuidgen</div><div class="line">7d976a86-8414-11e7-8ac3-6c92bf136d47</div></pre></td></tr></table></figure>
-<p>UUID是128比特的数字，如果用16进制表示的话，可以表示为一个32位的十六进制数。一般在格式化的时候，格式化为<code>8-4-4-4-12</code>的形式，如</p>
-<p><code>123e4567-e89b-12d3-a456-426655440000</code><br><code>xxxxxxxx-xxxx-Mxxx-Nxxx-xxxxxxxxxxxx</code></p>
-<h2 id="为什么要有UUID"><a href="#为什么要有UUID" class="headerlink" title="为什么要有UUID"></a>为什么要有UUID</h2><p>在分布式系统中，因为通信、同步、保持一致性具有很高的成本，所以一些场景下希望不依靠通信就可以生成唯一的身份验证符号。</p>
-<h2 id="如何产生UUID"><a href="#如何产生UUID" class="headerlink" title="如何产生UUID"></a>如何产生UUID</h2><p>那么这样一个UUID是如何产生的呢？</p>
-<p>中国是一个超大规模的国家，如果每个人生成自己的身份证，都需要到相互协调，那么全国肯定一团糟，如果每个人都到中央注册机构来确定独特性的话，那么中央注册机构肯定被挤爆。那么身份证的生成办法是分配前几位数为地区，分配中间几位为时间，后面三位用于一个区域内确定唯一性，最后一位校验即可。这样就可以相对方便地产生唯一的身份号码了。</p>
-<p>同样地，MAC地址和蓝牙地址的确定也是类似的策略，前面的位数是厂商号，后面的位数由厂商内部决定，这样就避免了冲突。</p>
-<p>实际上，UUID的国际标准<a href="https://tools.ietf.org/html/rfc4122" target="_blank" rel="noopener"><strong>RFC 4122</strong></a>定义了5个版本的生成方式。</p>
-<h4 id="版本1"><a href="#版本1" class="headerlink" title="版本1"></a>版本1</h4><p>根据时间和MAC地址生成。版本1会把48比特的MAC地址和60比特的时间戳串联起来。<br>这个时间戳是从1582年10月15日午夜UTC时间起算起的纳秒数目。<br>按照<code>RFC4122</code>的规定，这个时间可以延续到大概公元3400年。<br>然而，一些软件，譬如libuuid库，把时间戳作为非负数类型使用，在这种方法下可以使用到公元5236年。</p>
-<h4 id="版本2"><a href="#版本2" class="headerlink" title="版本2"></a>版本2</h4><p>根据时间和MAC地址生成，并使用POSIX UID/GID，DCE安全版本。<br>版本2和版本1很类似，除了最重要的八个时钟序列字节被替换为了本地域的数字，最护重要的32个时间戳被替换为与本地域对应的整形数字。在POSIX系统上，它与UID和GID有关。在非POSIX系统上，就靠系统自己定义了。</p>
-<h4 id="版本3"><a href="#版本3" class="headerlink" title="版本3"></a>版本3</h4><p>哈希命名空间和名字，使用MD5作为哈希算法。<br>版本3的生成方法是哈希命名空间的标识符和名字。命名空间标识符本身就是一个UUID，该规格提供UUID来标识URL的命名空间等作用。</p>
-<h4 id="版本4"><a href="#版本4" class="headerlink" title="版本4"></a>版本4</h4><p>随机生成。<br>忘了说，上述所有版本生成的UUID都有字段来规定自己的版本。所以并非128比特都是可以任意使用的。<br>对于随机生成的版本4UUID，理论上有2<sup>122</sup>, 或者说5.3x10<sup>36</sup>种可能性。</p>
-<h4 id="版本5"><a href="#版本5" class="headerlink" title="版本5"></a>版本5</h4><p>哈希命名空间和名字，使用SHA1作为哈希算法。和版本3特别类似。因为SHA1算法产生的字串是160bit，比MD5长，所以强行缩短为128位再插入。</p>
-<h2 id="冲突"><a href="#冲突" class="headerlink" title="冲突"></a>冲突</h2><p>在版本1或者2中，因为是和独一无二的MAC地址相关的，所以只要MAC地址不冲突，则UUID不可能冲突。当然MAC地址是可以伪造的，那个时候冲突就不在我们的讨论范围了。</p>
-<p>但是其他版本的是有可能产生冲突的。譬如版本4，完全依靠随机性来产生，两个UUID一模一样是存在理论可能的。<br>然而，因为位数较多，所以这个可能性极低。<br>经过计算，产生的2.71x10<sup>18</sup>个UUID，有50%的概率会拥有至少一个冲突。</p>
-<p><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/d5e4534ec6aac67d0d084e7aa8e431d2baed988e" alt="UUID冲突公式"></p>
-<p>这概率可以说实在是太低了，一般应用场景不会有这种问题。</p>
-<h2 id="go-uuid"><a href="#go-uuid" class="headerlink" title="go.uuid"></a>go.uuid</h2><p>最后来讲解一下这个库的用法。这个库相对比较优势的地方就是它实现了<code>RFC4122</code>规定的所有版本，虽然并没有很难哈哈。<br>使用样例很简单，这里是版本4，也是最简单的用法：</p>
-<figure class="highlight golang"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/satori/go.uuid"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// Creating UUID Version 4</span></div><div class="line">	u1 := uuid.NewV4()</div><div class="line">	fmt.Printf(<span class="string">"UUIDv4: %s\n"</span>, u1)</div><div class="line"></div><div class="line">	<span class="comment">// Parsing UUID from string input</span></div><div class="line">	u2, err := uuid.FromString(<span class="string">"6ba7b810-9dad-11d1-80b4-00c04fd430c8"</span>)</div><div class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">		fmt.Printf(<span class="string">"Something gone wrong: %s"</span>, err)</div><div class="line">	&#125;</div><div class="line">	fmt.Printf(<span class="string">"Successfully parsed: %s"</span>, u2)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>参考文献：</p>
-<ul>
-<li><a href="https://github.com/Knetic/govaluate" target="_blank" rel="noopener">https://github.com/Knetic/govaluate</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" target="_blank" rel="noopener">UUID-Wikipedia</a></li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;go语言UUID包 // UUID package for Go&lt;/p&gt;
     
     </summary>
     
