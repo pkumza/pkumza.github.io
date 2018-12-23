@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2018-12-23T06:09:23.398Z</updated>
+  <updated>2018-12-23T06:19:21.373Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -20,9 +20,11 @@
     <link href="http://zablog.me/2018/12/23/CloudNative/"/>
     <id>http://zablog.me/2018/12/23/CloudNative/</id>
     <published>2018-12-23T13:00:00.000Z</published>
-    <updated>2018-12-23T06:09:23.398Z</updated>
+    <updated>2018-12-23T06:19:21.373Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="Pivotal"><a href="#Pivotal" class="headerlink" title="Pivotal"></a>Pivotal</h1><p>Pivotal 最早给出了相关的定义。</p>
+    <content type="html"><![CDATA[<p>云原生是一个比较新的概念。<br>Pivotal 是相关领域的先行者。<br><a href="https://www.cncf.io/" target="_blank" rel="noopener">CNCF</a>是一个2015年成立的基金会。<br>他们都对云原生有着自己的定义</p>
+<a id="more"></a>
+<h1 id="Pivotal"><a href="#Pivotal" class="headerlink" title="Pivotal"></a>Pivotal</h1><p>Pivotal 最早给出了相关的定义。</p>
 <blockquote>
 <p>Cloud-native is an approach to building and running applications that exploits the advantages of the cloud computing delivery model. Cloud-native is about how applications are created and deployed, not where.<br>While today public cloud impacts the thinking about infrastructure investment for virtually every industry, a cloud-like delivery model isn’t exclusive to public environments. It’s appropriate for both public and private clouds. Most important is the ability to offer nearly limitless computing power, on-demand, along with modern data and application services for developers. When companies build and operate applications in a cloud-native fashion, they bring new ideas to market faster and respond sooner to customer demands.</p>
 <p>Organizations require a platform for building and operating cloud-native applications and services that automates and integrates the concepts of DevOps, continuous delivery, microservices, and containers:</p>
@@ -47,9 +49,7 @@
     
     <summary type="html">
     
-      &lt;h1 id=&quot;Pivotal&quot;&gt;&lt;a href=&quot;#Pivotal&quot; class=&quot;headerlink&quot; title=&quot;Pivotal&quot;&gt;&lt;/a&gt;Pivotal&lt;/h1&gt;&lt;p&gt;Pivotal 最早给出了相关的定义。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Cloud-nati
+      &lt;p&gt;云原生是一个比较新的概念。&lt;br&gt;Pivotal 是相关领域的先行者。&lt;br&gt;&lt;a href=&quot;https://www.cncf.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;CNCF&lt;/a&gt;是一个2015年成立的基金会。&lt;br&gt;他们都对云原生有着自己的定义&lt;/p&gt;
     
     </summary>
     
@@ -534,7 +534,7 @@
     <link href="http://zablog.me/2017/11/12/crawler/"/>
     <id>http://zablog.me/2017/11/12/crawler/</id>
     <published>2017-11-12T13:00:00.000Z</published>
-    <updated>2017-11-12T13:29:09.000Z</updated>
+    <updated>2018-12-23T06:11:50.986Z</updated>
     
     <content type="html"><![CDATA[<p>最近比较繁忙，所以博客也没有什么新文章。<br>说一下爬虫吧。<br>自从互联网时代开始，爬虫就没停止活跃…恐怕今后很长一段时间爬虫都会长期存在。当人们谈到XSS、DDos、SQL injection、SSL attacks的时候，多数你在谈论计算机安全，当你谈到爬虫的时候，你更多的在关心内容安全。爬虫有时候会涉及内容安全，有些内容是别人的立站根本，譬如PGC、UGC的文章；有的内容是别人的商业机密，譬如酒店、商品的价格。</p>
 <p>对于爬虫来说，有没有规范定义它不允许爬取的内容呢。有一个文件叫做robots.txt，它是是一种存放于网站根目录下的ASCII编码的文本文件，通常用来告诉搜索引擎的爬取器哪些内容是不应该被获取的。</p>
@@ -542,6 +542,7 @@
 <p>而更杀手级的功能是，它提供历史价格的功能。譬如对于京东来说，它可以看到京东里面某件商品的价格历史。当前虽然在搞促销，但是也许并非历史最低价格，消费者可能就继续观望了。</p>
 <p>这对京东这种商家的损害很大，一淘这样就侵犯京东的商业机密了。京东不希望别人知道一件商品的价格历史。所以，京东的robots.txt设置为了这样：<a href="https://www.jd.com/robots.txt" target="_blank" rel="noopener">robots.txt</a><br>其中有一条写作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">User-agent: EtaoSpider </div><div class="line">Disallow: /</div></pre></td></tr></table></figure></p>
 <p>也就是说，对于Etao的爬虫来说，我不允许你爬取京东的任何内容。</p>
+<p>一淘是阿里旗下的，所以这个竞争对手是不希望被允许的了。这个市场看起来被一个不太知名的网站“慢慢买”占了。</p>
 ]]></content>
     
     <summary type="html">
