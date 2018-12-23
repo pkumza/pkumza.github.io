@@ -46,6 +46,48 @@
   </entry>
   
   <entry>
+    <title>云原生的定义</title>
+    <link href="http://zablog.me/2018/11/29/CloudNative/"/>
+    <id>http://zablog.me/2018/11/29/CloudNative/</id>
+    <published>2018-11-29T13:00:00.000Z</published>
+    <updated>2018-12-23T06:07:33.494Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Pivotal"><a href="#Pivotal" class="headerlink" title="Pivotal"></a>Pivotal</h1><p>Pivotal 最早给出了相关的定义。</p>
+<blockquote>
+<p>Cloud-native is an approach to building and running applications that exploits the advantages of the cloud computing delivery model. Cloud-native is about how applications are created and deployed, not where.<br>While today public cloud impacts the thinking about infrastructure investment for virtually every industry, a cloud-like delivery model isn’t exclusive to public environments. It’s appropriate for both public and private clouds. Most important is the ability to offer nearly limitless computing power, on-demand, along with modern data and application services for developers. When companies build and operate applications in a cloud-native fashion, they bring new ideas to market faster and respond sooner to customer demands.</p>
+<p>Organizations require a platform for building and operating cloud-native applications and services that automates and integrates the concepts of DevOps, continuous delivery, microservices, and containers:</p>
+</blockquote>
+<p>云原生是一种利用云计算交付模型的优势，来构建和运行应用程序的方法。<br>云原生的关注点在于应用程序如何创建和部署，而不关注在哪里部署。<br>虽然今天的公共云影响了几乎每个行业的基础设施投资思想，但类似云的交付模式并不仅限于公共环境。<br>它适用于公共云和私有云。<br>云原生应当始终是架构团队的追求目标。<br>当我们能够为业务团队按需提供充沛的计算能力，现代化的数据库和应用程序服务，那么业务团队也就能够更快地把新想法推向市场，并更快地响应客户请求。</p>
+<p>组织需要一个平台来构建和运行云原生应用程序和服务，以自动化和集成DevOps，持续交付，微服务和容器的概念：</p>
+<h1 id="CNCF"><a href="#CNCF" class="headerlink" title="CNCF"></a>CNCF</h1><p>云原生计算基金会（Cloud Native Computing Foundation）给出了另一个定义。</p>
+<blockquote>
+<p>Cloud native technologies empower organizations to build and run scalable applications in modern, dynamic environments such as public, private, and hybrid clouds. Containers, service meshes, microservices, immutable infrastructure, and declarative APIs exemplify this approach.</p>
+<p>These techniques enable loosely coupled systems that are resilient, manageable, and observable. Combined with robust automation, they allow engineers to make high-impact changes frequently and predictably with minimal toil.</p>
+<p>The Cloud Native Computing Foundation seeks to drive adoption of this paradigm by fostering and sustaining an ecosystem of open source, vendor-neutral projects. We democratize state-of-the-art patterns to make these innovations accessible for everyone.</p>
+<p>云原生技术有利于各组织在公有云、私有云和混合云等新型动态环境中，构建和运行可弹性扩展的应用。<br>云原生的代表技术包括容器、服务网格、微服务、不可变基础设施和声明式API。<br>这些技术能够构建容错性好、易于管理和便于观察的松耦合系统。结合可靠的自动化手段，云原生技术使工程师能够轻松地对系统作出频繁和可预测的重大变更。</p>
+</blockquote>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul>
+<li><a href="https://github.com/cncf/toc/blob/master/DEFINITION.md" target="_blank" rel="noopener">https://github.com/cncf/toc/blob/master/DEFINITION.md</a></li>
+<li><a href="https://pivotal.io/cloud-native" target="_blank" rel="noopener">https://pivotal.io/cloud-native</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Pivotal&quot;&gt;&lt;a href=&quot;#Pivotal&quot; class=&quot;headerlink&quot; title=&quot;Pivotal&quot;&gt;&lt;/a&gt;Pivotal&lt;/h1&gt;&lt;p&gt;Pivotal 最早给出了相关的定义。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Cloud-nati
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Envoy中的 LB 算法</title>
     <link href="http://zablog.me/2018/10/29/LB/"/>
     <id>http://zablog.me/2018/10/29/LB/</id>
@@ -207,9 +249,9 @@
       <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="OS X" scheme="http://zablog.me/tags/OS-X/"/>
-    
       <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+      <category term="OS X" scheme="http://zablog.me/tags/OS-X/"/>
     
   </entry>
   
@@ -1066,72 +1108,6 @@
     <summary type="html">
     
       &lt;p&gt;📚 免费的编程书 // 📚 Freely available programming books&lt;br&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>每周一个Github项目【第四期】hugo</title>
-    <link href="http://zablog.me/2017/08/27/github_hugo/"/>
-    <id>http://zablog.me/2017/08/27/github_hugo/</id>
-    <published>2017-08-27T09:30:00.000Z</published>
-    <updated>2017-08-27T09:32:27.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>一个用Go实现的快速灵活的静态页面生成工具 // A Fast and Flexible Static Site Generator built with love in GoLang.<br><a id="more"></a></p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>hugo</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>地址</td>
-<td><a href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener">Github</a></td>
-</tr>
-<tr>
-<td>作者</td>
-<td>spf13等</td>
-</tr>
-<tr>
-<td>Brief Intro</td>
-<td>A Fast and Flexible Static Site Generator built with love in GoLang.</td>
-</tr>
-<tr>
-<td>LICENSE</td>
-<td>Apache 2.0</td>
-</tr>
-<tr>
-<td>starts</td>
-<td>19,204</td>
-</tr>
-</tbody>
-</table>
-<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p><img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/static/img/hugo-logo.png" alt="HUGO"></p>
-<p>Hugo 是一个快速灵活的静态页面生成工具。它在速度、易用性和可配置性上进行了优化。Hugo可以把一个包含内容、模板的文件夹渲染为一个完整的HTML网站。</p>
-<p>Hugo基于Markdown文件。</p>
-<p>Hugo可以在瞬间渲染出一个中等大小的网站。从经验来看，每一片内容的渲染只需要大概1微秒。</p>
-<p>Hugo设计之初就是为了服务于博客、tumbles和文档。</p>
-<p><a href="http://gohugo.io/" target="_blank" rel="noopener">官网gohugo.io</a></p>
-<h1 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h1><p>hugo和hexo可以说是功能类似。</p>
-<p>hexo是离线生成博客网页的工具，由js实现，基于node和npm这一套提醒。可以方便地生成整个博客，渲染markdown，使用theme。</p>
-<p>然而，hexo也存在很多问题，第一是生成速度慢。生成速度和theme有很大关系，但是确实比较慢。最艰难的时候，我曾经每次写一篇新的博客，都需要大概10秒钟以上的时间来生成所有的静态页面。后来换了一个theme，更新了hexo，100个页面，加载时间长达1000ms，生成时间大概是231ms。</p>
-<p>但是hugo在时间上有很大的优势，每次只需要90ms就解决所有的问题，快了十几倍。</p>
-<p>另外，hexo的theme与主hexo的兼容性还有待商榷。有一些主题的兼容性很差，尤其是hexo更新以后，也许就不怎么支持了。</p>
-<p>最后也是最重要的，npm的网络实在不敢恭维，很多时候爆出WARN、Error或者直接下载失败，也就真的卡在npm这里了。对于go来说，本身go的包管理，我认为会比npm好用。</p>
-<p>当然，hexo我已经用了较长时间了，总体也比较熟练。如果没有使用过hexo，但是想要做一个静态博客的话，我建议使用hugo。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;一个用Go实现的快速灵活的静态页面生成工具 // A Fast and Flexible Static Site Generator built with love in GoLang.&lt;br&gt;
     
     </summary>
     
