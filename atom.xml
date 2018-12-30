@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2018-12-23T06:19:21.373Z</updated>
+  <updated>2018-12-30T13:39:38.066Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,93 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>计算21点在摸五张的情况下不爆牌的概率</title>
+    <link href="http://zablog.me/2018/12/30/q01/"/>
+    <id>http://zablog.me/2018/12/30/q01/</id>
+    <published>2018-12-30T13:00:00.000Z</published>
+    <updated>2018-12-30T13:39:38.066Z</updated>
+    
+    <content type="html"><![CDATA[<p>21点游戏，在摸五张牌的情况下，不爆牌的概率。/ Calculating the probability of no burst while fetching 5 cards in blackjack.</p>
+<a id="more"></a>
+<h2 id="详细-Details"><a href="#详细-Details" class="headerlink" title="详细 / Details"></a>详细 / Details</h2><p>21点游戏，英文：Blackjack，是使用扑克牌玩的赌博游戏。</p>
+<p>A可作1点或11点，2-10作该牌之点数，J、Q、K作10点。</p>
+<p>玩家初始手上有2张牌。</p>
+<p>如果玩家要牌后，其手上拥有的牌的总点数超过21点，便要揭开手上所拥有的牌，称为爆牌。</p>
+<p>反之若其手上拥有的牌的总点数不超过21点，该玩家可决定是否继续要牌。</p>
+<p>假设一个玩家为了完成某项挑战，一定会选择要牌三次，那么对于一局游戏来说，他要牌三次仍未爆牌的概率是多少？</p>
+<h2 id="背景-Background"><a href="#背景-Background" class="headerlink" title="背景 / Background"></a>背景 / Background</h2><p>最近在玩R星开发的《荒野大镖客2》游戏，遇到了一个“赌徒系列挑战”之8：</p>
+<p><img src="https://github.com/pkumza/coding/blob/master/q01/images/q01_01.jpeg?raw=true" alt="赌徒8"></p>
+<p>当时耗费了2个小时不停地玩21点，终于完成了这个挑战。</p>
+<p>这个挑战在网上被吐槽不少，只要在搜索引擎搜索“赌徒8”，全都是喷这个挑战的。大家都认为这个挑战的运气成分太大，而且完成这个挑战非常困难。</p>
+<p>我突发奇想，想计算一下要牌3次还不爆牌的概率。（要牌3次就是有5张手牌）发现这是一个很好的概率题。</p>
+<p>当然，对于真正的赌徒8挑战来说，想要算出完成赌徒8需要的期望局数，并不是3/不爆牌的概率。题目对于真正的游戏有一些简化。（尝试抽出最挑战大脑的部分，忽略其他细节，细节写在下面了。）</p>
+<blockquote>
+<p>首先，不爆牌并不意味着能赢过庄家，庄家仍有可能比你的5张牌更接近21点；<br>其次，这个游戏没有办法在已经达到21点的时候继续要牌。譬如你起手牌为 <code>A</code>和<code>K</code>，那么游戏会自动让你停牌，虽然这个时候你仍有可能摸5张牌而不爆，但是游戏机制决定你在这种情况下没办法继续摸牌了。 </p>
+</blockquote>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>一共有52张牌。A,2,3,4,5,6,7,8,9,10,J,Q,K各四张。<br>因为题目要求是不爆牌，所以A看做11点是没有意义的，直接把A当做1点即可。</p>
+<p>52张牌中任意选5张，一共有C(52,5)种可能，即2598960种。<br>剩下的只需要枚举出所有的不爆牌的情形即可。</p>
+<h2 id="Solution01"><a href="#Solution01" class="headerlink" title="Solution01"></a>Solution01</h2><p>使用模拟的方法，模拟1000000次情形，并统计不爆牌的次数，得出一个近似概率。</p>
+<p>不是特别准确，但是也可以当做一个近似值。但是要真正较真的话，这是一个错误的解法。</p>
+<p>实测：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ go run ./s01/main.go</div><div class="line">Result is 0.053647</div><div class="line">Time consumed 505.888256ms</div></pre></td></tr></table></figure></p>
+<h2 id="Solution02"><a href="#Solution02" class="headerlink" title="Solution02"></a>Solution02</h2><p>暴力枚举</p>
+<p>通过迭代的方式，枚举出每一种方法，并计算出总的不爆牌的方法数目，最终除以总方法数，得到概率值。<br>该方法的核心点在于模拟。</p>
+<p><strong>算法复杂度</strong></p>
+<p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p>
+<p><strong>时间复杂度</strong></p>
+<p><code>O(M^N)</code> 指数级别，复杂度与阈值无关。</p>
+<p><strong>空间复杂度</strong></p>
+<p>很少，使用函数迭代，还有一个记录扑克的数组，勉强算是消耗 <code>O(M+N)</code> 的空间而已，</p>
+<p><strong>实测</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">go run ./s02/main.go</div><div class="line">Result is 0.053856927386339154</div><div class="line">Time consumed 7.98652ms</div></pre></td></tr></table></figure></p>
+<h2 id="Solution03"><a href="#Solution03" class="headerlink" title="Solution03"></a>Solution03</h2><p>状态保留</p>
+<p>我们调用<code>numOfPossibleCases</code>函数的时候发现，很多参数一模一样的被调用了很多次。<br>我们建立一个HashMap保存一下状态，当遇到已经吊用过的函数时候，直接返回即可，不需要再次计算。<br>达到免除重复计算的剪枝效果。</p>
+<p><strong>算法复杂度</strong></p>
+<p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p>
+<p><strong>时间复杂度</strong></p>
+<p><code>O(N*T*M^2)</code> 将指数级别的复杂度降到了多项式级别。</p>
+<p><strong>空间复杂度</strong></p>
+<p>需要用一个 <code>HashMap</code> 来暂存状态</p>
+<p>复杂度为<code>O(N*T*M)</code></p>
+<p>实测：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">go run ./s03/main.go</div><div class="line">Result is 0.053856927386339154</div><div class="line">Time consumed 1.408398ms</div></pre></td></tr></table></figure></p>
+<h2 id="Solution04"><a href="#Solution04" class="headerlink" title="Solution04"></a>Solution04</h2><p>动态规划</p>
+<p>var dp [maxCardsToPick + 1][maxThreshold + 1][maxStart + 1]int</p>
+<p>dp[i][j][k]的含义为：摸i张牌，最大不超过j，从第k张开始到最后一张牌是可选的范围，那么有几种摸牌的可能性。</p>
+<p>状态转移方程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">dp[i][j][k] = ∑ (l from k to totalNum) dp[i-1][j-pokers[l]][l+1]</div></pre></td></tr></table></figure>
+<p><strong>算法复杂度</strong></p>
+<p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p>
+<p><strong>时间复杂度</strong></p>
+<p><code>O(N*T*M^2)</code> 将指数级别的复杂度降到了多项式级别。</p>
+<p><strong>空间复杂度</strong></p>
+<p>建立了一个三维数组 var dp [maxCardsToPick + 1][maxThreshold + 1][maxStart + 1]int<br>复杂度为<code>O(N*T*M)</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">go run ./s04/main.go</div><div class="line">Result is 0.053856927386339154</div><div class="line">Time consumed 474.663µs</div></pre></td></tr></table></figure>
+<h2 id="Solution05"><a href="#Solution05" class="headerlink" title="Solution05"></a>Solution05</h2><p>优化空间复杂度的动态规划</p>
+<p>因为三维数组的每一层只和前面一层有关系，因此可以通过翻转的方式，减少内存消耗。</p>
+<p><strong>算法复杂度</strong></p>
+<p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p>
+<p><strong>时间复杂度</strong></p>
+<p>和 Solution04 一致</p>
+<p><strong>空间复杂度</strong></p>
+<p>建立了一个三维数组 var dp [2][maxThreshold + 1][maxStart + 1]int<br>复杂度为<code>O(T*M)</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">go run ./s05/main.go</div><div class="line">Result is 0.053856927386339154</div><div class="line">Time consumed 402.794µs</div></pre></td></tr></table></figure>
+<hr>
+<p>代码库位置 <a href="https://github.com/pkumza/coding/tree/master/q01" target="_blank" rel="noopener">https://github.com/pkumza/coding/tree/master/q01</a></p>
+<p>附：测试环境<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">MacBook Pro</div><div class="line">macOS Mojave 10.14.2</div><div class="line">2.4 GHz Intel Core i7</div><div class="line">16 GB 1867 MHz LPDDR3</div></pre></td></tr></table></figure></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;21点游戏，在摸五张牌的情况下，不爆牌的概率。/ Calculating the probability of no burst while fetching 5 cards in blackjack.&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
   
   <entry>
     <title>云原生的定义</title>
@@ -1062,63 +1149,6 @@
     
     
       <category term="go" scheme="http://zablog.me/tags/go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>每周一个Github项目【第五期】免费编程书</title>
-    <link href="http://zablog.me/2017/09/01/github_free-programming-books/"/>
-    <id>http://zablog.me/2017/09/01/github_free-programming-books/</id>
-    <published>2017-09-01T10:00:00.000Z</published>
-    <updated>2017-10-09T12:49:11.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>📚 免费的编程书 // 📚 Freely available programming books<br><a id="more"></a></p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>Freely available programming books</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>地址</td>
-<td><a href="https://github.com/EbookFoundation/free-programming-books" target="_blank" rel="noopener">Github</a></td>
-</tr>
-<tr>
-<td>组织</td>
-<td>EbookFoundation</td>
-</tr>
-<tr>
-<td>Brief Intro</td>
-<td>📚 Freely available programming books</td>
-</tr>
-<tr>
-<td>LICENSE</td>
-<td>Creative Commons Attribution 4.0 International License</td>
-</tr>
-<tr>
-<td>starts</td>
-<td>92,214</td>
-</tr>
-</tbody>
-</table>
-<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>这周比较忙，所以就不介绍一些需要深入了解的Repo了，写一个比较水的，但是点赞数特别多的。</p>
-<p>这一个Repo在Github上的Star数目为92.2k，为世界第三，但是对应的编程语言却是空。如果非要说一种语言的话，那么这个repo是用markdown来组成的。</p>
-<p>里面免费的书籍实在是太多了，汇集各种语言、各类领域的计算机类免费书籍，支持的语言也有26种之多，大家可以重点关注一下<a href="https://github.com/EbookFoundation/free-programming-books/blob/master/free-programming-books-zh.md" target="_blank" rel="noopener">中文书籍</a>和<a href="https://github.com/EbookFoundation/free-programming-books/blob/master/free-programming-books.md" target="_blank" rel="noopener">英文书籍</a></p>
-<p>顺便一提下，想搜搜看Github上最最最最最火的Repo，点<a href="https://github.com/search?o=desc&amp;q=stars%3A%3E1000&amp;s=stars&amp;type=Repositories&amp;utf8=%E2%9C%93" target="_blank" rel="noopener">这个链接</a>就可以了。越火的repo，相关介绍也就越多，中文版的也有，所以接下来一般不会选择太火的介绍。如果又介绍了个，只能说明近期较忙啦。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;📚 免费的编程书 // 📚 Freely available programming books&lt;br&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
     
   </entry>
   
