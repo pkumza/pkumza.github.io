@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2018-12-30T13:39:38.066Z</updated>
+  <updated>2019-05-16T06:57:16.660Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -14,6 +14,35 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>coding练习：键盘侠</title>
+    <link href="http://zablog.me/2019/03/30/q02/"/>
+    <id>http://zablog.me/2019/03/30/q02/</id>
+    <published>2019-03-30T13:00:00.000Z</published>
+    <updated>2019-05-16T06:57:16.660Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="题目-Question"><a href="#题目-Question" class="headerlink" title="题目 / Question"></a>题目 / Question</h2><p>网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用<br>C：拷贝，可以把输入框的所有内容拷贝下来<br>P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容<br>请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？</p>
+<a id="more"></a>
+<h2 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h2><p>如果不可能，则返回{-1, “”}。<br>我们保证 N &gt;= 0</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">N = 0</div><div class="line">做不到，返回 -1, &quot;&quot;</div><div class="line"></div><div class="line">N = 1</div><div class="line">0次：</div><div class="line"></div><div class="line">N = 2</div><div class="line">2次：CP</div><div class="line"></div><div class="line">N = 12</div><div class="line">7次：CPCPCPP</div></pre></td></tr></table></figure>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>有的同学可能会误以为这是一个动态规划的题目，<br>可能是因为有一道题叫做“矩阵乘法”，这个题目相比来说很类似。</p>
+<p>实际上因为它可以完全用贪心法，所以没有必要动态规划。</p>
+<p>直接采用因式分解，然后把因子加起来就可以了。</p>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">// KeyPress accepts target number of repeat times on the screen,</span></div><div class="line"><span class="comment">// 	returns times of key pressing &amp; key pressing sequence</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">KeyPress</span><span class="params">(N <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">int</span>, <span class="keyword">string</span>)</span></span> &#123;</div><div class="line">	<span class="keyword">var</span> seq <span class="keyword">string</span></div><div class="line">	<span class="keyword">if</span> N &lt;= <span class="number">0</span> &#123;</div><div class="line">		<span class="keyword">return</span> <span class="number">-1</span>, seq</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">var</span> result = <span class="number">0</span></div><div class="line">	<span class="keyword">for</span> i := <span class="number">2</span>; i &lt;= N; &#123;</div><div class="line">		<span class="keyword">if</span> N%i == <span class="number">0</span> &#123;</div><div class="line">			N = N / i</div><div class="line">			result += i</div><div class="line">			seq = seq + <span class="string">"C"</span></div><div class="line">			<span class="keyword">for</span> j := <span class="number">1</span>; j &lt; i; j++ &#123;</div><div class="line">				seq = seq + <span class="string">"P"</span></div><div class="line">			&#125;</div><div class="line">		&#125; <span class="keyword">else</span> &#123;</div><div class="line">			i++</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> result, seq</div><div class="line">&#125;</div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;题目-Question&quot;&gt;&lt;a href=&quot;#题目-Question&quot; class=&quot;headerlink&quot; title=&quot;题目 / Question&quot;&gt;&lt;/a&gt;题目 / Question&lt;/h2&gt;&lt;p&gt;网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用&lt;br&gt;C：拷贝，可以把输入框的所有内容拷贝下来&lt;br&gt;P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容&lt;br&gt;请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
   
   <entry>
     <title>计算21点在摸五张的情况下不爆牌的概率</title>
@@ -1057,91 +1086,6 @@
     <summary type="html">
     
       &lt;p&gt;本篇主要讲述Go语言的命名规范。&lt;br&gt;优秀的代码必须具备良好的可读性，而可读性的关键即在于命名风格。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="go" scheme="http://zablog.me/tags/go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Go语言小技巧--一 技巧杂烩</title>
-    <link href="http://zablog.me/2017/09/04/go_tricks_and_tips/"/>
-    <id>http://zablog.me/2017/09/04/go_tricks_and_tips/</id>
-    <published>2017-09-04T13:00:00.000Z</published>
-    <updated>2017-10-09T12:37:35.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>七个Go语言小技巧，后续持续更新。<br>无论是Go语言小白，还是有经验的开发者，都可能从中获取灵感。</p>
-<a id="more"></a>
-<h2 id="一句话技巧"><a href="#一句话技巧" class="headerlink" title="一句话技巧"></a>一句话技巧</h2><ul>
-<li>把你面向对象的大脑扔到家里吧，去拥抱接口。<a href="https://twitter.com/mikegehard" target="_blank" rel="noopener">@mikegehard</a></li>
-<li>学习如何使用Go的方式做事，不要把别的的编程风格强行用在Go里面。<a href="https://twitter.com/drnic" target="_blank" rel="noopener">@DrNic</a></li>
-<li>多用接口总比少用好。<a href="https://twitter.com/evanphx" target="_blank" rel="noopener">@evanphx</a></li>
-<li>拥抱这种简洁、并行、工整的语言。<a href="">@francesc</a></li>
-<li>阅读官网<a href="http://golang.org/" target="_blank" rel="noopener">golang.org</a>上所有的文档，真是棒呆了。<a href="https://twitter.com/vbatts" target="_blank" rel="noopener">@vbatts</a></li>
-<li>别忘了用<code>gofmt</code>。<a href="https://twitter.com/darkhelmetlive" target="_blank" rel="noopener">@darkhelmetlive</a></li>
-<li>多读源代码。<a href="https://twitter.com/drnic" target="_blank" rel="noopener">@DrNic</a></li>
-<li>学习工具和组件，然后创造你自己的！码代码和学代码一样对成功必不可少。<a href="https://twitter.com/coreyprak" target="_blank" rel="noopener">@coreyprak</a></li>
-<li>学而不思则罔，思而不学则殆。<a href="https://www.zhihu.com/question/21111579" target="_blank" rel="noopener">《论语》</a></li>
-</ul>
-<h2 id="引入package的多种方式"><a href="#引入package的多种方式" class="headerlink" title="引入package的多种方式"></a>引入package的多种方式</h2><p>有几种非常规方式来引入包（package）。接下来我会使用<code>fmt</code>来作为例子：</p>
-<ul>
-<li><code>import format &quot;fmt&quot;</code> - 为<code>fmt</code>创造一个别名。把代码中所有使用到<code>fmt</code>的内容用<code>format.</code>代替<code>fmt.</code></li>
-<li><code>import . &quot;fmt&quot;</code> - 允许包内的内容不加<code>fmt</code>前缀而被被直接引用</li>
-<li><code>import _ &quot;fmt&quot;</code> - 阻止编译器为引入<code>fmt</code>却不使用里面的内容做引发的警告，执行package中的初始化函数。提醒一句，在这种情况下<code>fmt</code>是不可调用的</li>
-</ul>
-<p>看这篇<a href="http://learngowith.me/alternate-ways-of-importing-packages/" target="_blank" rel="noopener">博客</a>来了解更多细节。</p>
-<h2 id="Goimports"><a href="#Goimports" class="headerlink" title="Goimports"></a>Goimports</h2><p>命令<code>goimports</code>可以更新您的Go导入行，添加缺少的行，并删除未引用的引导行。</p>
-<p>它拥有和<code>gofmt</code>(插入式替换)相同的能力，但是<code>goimports</code>额外增加了修复imports的功能。</p>
-<h2 id="组织"><a href="#组织" class="headerlink" title="组织"></a>组织</h2><p>Go是一种相对来说易学习的编程语言，但对于开发者来说，起初接触这门语言最困难的事情就是如何组织代码。<code>scaffolding</code>是人们喜欢<code>Rails</code>的原因之一，它可以给新晋的开发者清晰的方向，让他们明白在哪里插入代码，应该遵循怎样的编程风格。</p>
-<p>作为扩展，Go使用<code>go fmt</code>这样的工具来提供开发者相同的功能。同样地，Go的编译器非常严格，它不会去编译没有使用的变量，或者没有使用的import声明。</p>
-<h2 id="自定义构造函数"><a href="#自定义构造函数" class="headerlink" title="自定义构造函数"></a>自定义构造函数</h2><p>我经常听到别人问，“我什么时候应该使用像<code>NewJob</code>这样的自定义构造函数？”，我的回答是“大多数情形下你没必要这么做”。然而，当你需要在初始化的时候就设置值，且你有一些默认值的时候，这就最好使用一个构造函数。在这个例子中，构造函数就比较有意义了，因此我们用如下的代码可以构建一个默认的logger：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"log"</span></div><div class="line">	<span class="string">"os"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">type</span> Job <span class="keyword">struct</span> &#123;</div><div class="line">	Command <span class="keyword">string</span></div><div class="line">	*log.Logger</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewJob</span><span class="params">(command <span class="keyword">string</span>)</span> *<span class="title">Job</span></span> &#123;</div><div class="line">	<span class="keyword">return</span> &amp;Job&#123;command, log.New(os.Stderr, <span class="string">"Job: "</span>, log.Ldate)&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	NewJob(<span class="string">"demo"</span>).Print(<span class="string">"starting now..."</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h2 id="把代码分解到不同的package中"><a href="#把代码分解到不同的package中" class="headerlink" title="把代码分解到不同的package中"></a>把代码分解到不同的package中</h2><p>参考这篇博客<a href="http://matt.aimonetti.net/posts/2014/04/28/refactoring-go-code/" target="_blank" rel="noopener">重构Go代码</a>，第一部分就讲了package的组织。</p>
-<p>以工程<code>Gobot</code>为例，它可以被分割为一个核心package和一些其他package。gobot的开发者们准备每个部分放在自己的package里。经过讨论，他们选择把所有的官方库放在同一个repository下，让import路径变得干净而富有逻辑。</p>
-<p>所以，他们不打算把路径设置为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">github.com/hybridgroup/gobot</div><div class="line">github.com/hybridgroup/gobot-sphero</div><div class="line">github.com/hybridgroup/gobot-...</div></pre></td></tr></table></figure>
-<p>而是设置为</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">github.com/hybridgroup/gobot</div><div class="line">github.com/hybridgroup/gobot/sphero</div><div class="line">github.com/hybridgroup/gobot/...</div></pre></td></tr></table></figure>
-<p>现在package的名字不再是冗长的gobot-sphero，而变成了简要的sphero。</p>
-<h2 id="集合（Sets）"><a href="#集合（Sets）" class="headerlink" title="集合（Sets）"></a>集合（Sets）</h2><p>在其他的程序语言中，经常会有一种数据结构叫做sets，它允许把元素存入，但是不允许重复。Go并不直接支持这种结构，但是这个结构在Go里面的实现并不困难。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// UniqStr returns a copy if the passed slice with only unique string results.</span></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">UniqStr</span><span class="params">(col []<span class="keyword">string</span>)</span> []<span class="title">string</span></span> &#123;</div><div class="line">	m := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">struct</span>&#123;&#125;&#123;&#125;</div><div class="line">	<span class="keyword">for</span> _, v := <span class="keyword">range</span> col &#123;</div><div class="line">		<span class="keyword">if</span> _, ok := m[v]; !ok &#123;</div><div class="line">			m[v] = <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	list := <span class="built_in">make</span>([]<span class="keyword">string</span>, <span class="built_in">len</span>(m))</div><div class="line"></div><div class="line">	i := <span class="number">0</span></div><div class="line">	<span class="keyword">for</span> v := <span class="keyword">range</span> m &#123;</div><div class="line">		list[i] = v</div><div class="line">		i++</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> list</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><a href="http://play.golang.org/p/AtG9pTe8yt" target="_blank" rel="noopener">Playground链接</a></p>
-<p>在这里，我会使用一些非常有意思的花招。首先，对空结构的映射：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">m := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">struct</span>&#123;&#125;&#123;&#125;</div></pre></td></tr></table></figure>
-<p>我们创建了一个<code>map</code>，这可以确保<code>key</code>是独一无二的，而相关联的<code>value</code>其实是我们不关心的。<br>我们当然可以使用：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">m := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">bool</span>&#123;&#125;</div></pre></td></tr></table></figure>
-<p>但是，使用空结构体可以达到同样的效率，同时不会占用额外的内存。</p>
-<p>第二个花招的意味更为深远：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> _, ok := m[v]; !ok &#123;</div><div class="line">  m[v] = <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这里做的事情就是确认map <code>m</code>中的某个值是否存在，而不关心<code>value</code>本身。如果发现没有对应的值，就去加一个。当然，不去验证直接加好像也没有什么区别。</p>
-<p>一旦我们拥有了一个充满独一无二key的map以后，就可以把他们放到一个切片里，返回结果了。</p>
-<p>这里有一段测试代码，正如你所见，这里使用了一个符合Go语言单元测试风格的表格测试：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestUniqStr</span><span class="params">(t *testing.T)</span></span> &#123;</div><div class="line"></div><div class="line">	data := []<span class="keyword">struct</span>&#123; in, out []<span class="keyword">string</span> &#125;&#123;</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;&#125;, []<span class="keyword">string</span>&#123;&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">""</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"a"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"b"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>&#125;&#125;,</div><div class="line">		&#123;[]<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>, <span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>&#125;, []<span class="keyword">string</span>&#123;<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>&#125;&#125;,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">for</span> _, exp := <span class="keyword">range</span> data &#123;</div><div class="line">		res := UniqStr(exp.in)</div><div class="line">		<span class="keyword">if</span> !reflect.DeepEqual(res, exp.out) &#123;</div><div class="line">			t.Fatalf(<span class="string">"%q didn't match %q\n"</span>, res, exp.out)</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>经过测试发现，并非每次都能够成功，而是有概率的。因为map是使用hashmap实现的，使用range进行遍历的时候，其遍历顺序和字符串的内容没有必然联系，因此此test有可能失败。在进行DeapEqual比对的时候，可能会爆出类似于<code>[&quot;b&quot; &quot;c&quot; &quot;a&quot;] didn&#39;t match [&quot;a&quot; &quot;b&quot; &quot;c&quot;]</code>的错误。当然，在<a href="https://play.golang.org/p/elRIpSKGjD" target="_blank" rel="noopener">Playground</a>中，每次执行的上下文环境一模一样，因此这里的test是总能通过的。</p>
-<h2 id="依赖包管理"><a href="#依赖包管理" class="headerlink" title="依赖包管理"></a>依赖包管理</h2><p>很遗憾，Go语言官方并不提供依赖包管理系统。这很可能是因为go语言植根于C语言的文化，因此它没有办法引入特定版本的包。</p>
-<p>这会带来一些严重的问题：</p>
-<ol>
-<li>当多个开发者共同维护一个项目时，不同开发者的依赖版本可能不同。</li>
-<li>依赖也会有他们自身的依赖，所以很难确保所有的依赖都使用同一个版本。</li>
-<li>你的多个项目基于了同一个依赖的不同版本。</li>
-</ol>
-<p>对于最后一种情形，可以通过搭建一个_持续集成环境(Continuous<em>integration)</em>来解决，但是前两者就相对困难。</p>
-<p><hr></p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="http://www.golangbootcamp.com/book/tricks_and_tips" target="_blank" rel="noopener"><em>GO BOOTCAMP - Everything you need to know to get started with Go : Tips and Tricks</em></a></li>
-<li><a href="https://www.zhihu.com/question/21111579" target="_blank" rel="noopener">论语</a></li>
-<li><a href="http://matt.aimonetti.net/posts/2014/04/28/refactoring-go-code/" target="_blank" rel="noopener">refactoring Go code</a></li>
-<li><a href="http://learngowith.me/alternate-ways-of-importing-packages/" target="_blank" rel="noopener">Alternate Ways of Importing Packages</a></li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;七个Go语言小技巧，后续持续更新。&lt;br&gt;无论是Go语言小白，还是有经验的开发者，都可能从中获取灵感。&lt;/p&gt;
     
     </summary>
     
