@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2019-05-16T06:57:16.660Z</updated>
+  <updated>2019-05-16T10:50:22.304Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -16,13 +16,68 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>谷歌云网络深度解析：流量指挥官如何为服务网格提供全局负载均衡</title>
+    <link href="http://zablog.me/2019/05/16/2019-05-16/"/>
+    <id>http://zablog.me/2019/05/16/2019-05-16/</id>
+    <published>2019-05-16T10:20:00.000Z</published>
+    <updated>2019-05-16T10:50:22.304Z</updated>
+    
+    <content type="html"><![CDATA[<p>原文：<a href="https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh" target="_blank" rel="noopener">https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh</a><br>作者：Anna Berenberg &amp; Arunkumar Jayaraman April 18, 2019</p>
+<p>服务网格为不同队伍用不同语言开发的独立微服务提供了基础。服务网格将开发和运维进行解耦，开发者再也不用在应用代码中维护一套网络路由规则了。所有的流量路由规则都被<a href="http://envoyproxy.io/" target="_blank" rel="noopener">Envoy</a>等服务代理所接管，由服务网格<strong>控制面</strong>提供动态的流量管控。</p>
+<a id="more"></a>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Traffic_Director_for_service_mesh.max-1200x1200.png" alt=""></p>
+<blockquote>
+<p>流量指挥官让服务网格和Envoy更容易在生产环境中使用。 —— Matt Klein, Envoy的创始人</p>
+</blockquote>
+<p>流量指挥官是谷歌云全方位管控的服务网格流量控制面。流量指挥官对于虚拟机和容器都有效，它使用开源的<code>xDS</code>接口来与数据面的服务代理进行交互。</p>
+<h2 id="流量指挥官的能力"><a href="#流量指挥官的能力" class="headerlink" title="流量指挥官的能力"></a>流量指挥官的能力</h2><ol>
+<li>全局负载均衡</li>
+<li>中心化健康检查</li>
+<li>基于Load的自动扩缩容</li>
+<li>内嵌的弹性（高可用）</li>
+<li>强大的流量控制能力</li>
+</ol>
+<h3 id="全局负载均衡"><a href="#全局负载均衡" class="headerlink" title="全局负载均衡"></a>全局负载均衡</h3><p>你们很多人肯定都使用过谷歌面向互联网服务的全局负载均衡。流量指挥官把全局负载均衡带到了服务网格的微服务场景下。通过全局负载均衡，我们可以为你在GCP上全球部署的服务实例赋能。流量指挥官提供了一套智能的通信方案，是的客户端自动把流量发往容量有空余的最近服务节点。<br>这可以大大优化服务上下游之间的流量分布，为请求提供最短的<a href="https://en.wikipedia.org/wiki/Round-trip_delay_time" target="_blank" rel="noopener">RTT</a>时间。</p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Global_load_balancing.max-1400x1400.png" alt="全局负载均衡"></p>
+<p>如果距离客户端最近的服务节点挂掉了，那么流量指挥官会智能无缝地把流量切换到最近的健康节点。</p>
+<p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Traffic_Director_intelligence.max-1400x1400.png" alt="切换到最近的健康节点"></p>
+<h3 id="中心化健康监测"><a href="#中心化健康监测" class="headerlink" title="中心化健康监测"></a>中心化健康监测</h3><p>大规模部署的服务网格会产生大量的健康检查的流量，因为每一个代理都要去检查下游的所有服务的健康状态。当服务网格的体量增长的时候，健康检查就称为了一个 n<sup>2</sup> 的问题（假设 client 的数量和 server 的数量级都是n）。这会成为服务伸缩的一个重大障碍。</p>
+<p>流量指挥官通过中心化的服务健康检查解决了这个问题。它使用一个全局分布式的弹性系统监控器去监控所有的服务实例。接下来，流量指挥官使用<code>EDS API</code>，把健康检查的结果分发到全球所有的代理。</p>
+<h3 id="基于Load的自动扩缩容"><a href="#基于Load的自动扩缩容" class="headerlink" title="基于Load的自动扩缩容"></a>基于Load的自动扩缩容</h3><p>流量指挥官可以基于Load，支持自动扩容和缩容。Load信号是由proxy上报给它的。流量指挥官通知计算引擎扩/缩容到具体的大小。</p>
+<p>当计算引擎扩容成功之前，流量指挥官会临时把流量打到其他可用的实例上，如果需要的话甚至会把流量临时打到其他的区域。一旦自动扩容成功，流量指挥官会把流量重新定位到最近的区域上。</p>
+<h3 id="内嵌弹性（高可用）"><a href="#内嵌弹性（高可用）" class="headerlink" title="内嵌弹性（高可用）"></a>内嵌弹性（高可用）</h3><p>流量指挥官是全面部署在GCP上的，你不用担心它的启动时间、生命周期管理、扩缩容、可用性等任何问题。流量指挥官的架构是全球分部署弹性部署的，它与Google自身的2C业务使用同样的系统。<br>流量指挥官可以提供 99.99% GA（Generally Available） 的 SLA（Service Level Aggreement）。</p>
+<h3 id="流量控制能力"><a href="#流量控制能力" class="headerlink" title="流量控制能力"></a>流量控制能力</h3><p>流量指挥官让你可以在不修改应用代码的情况下控制流量<br>你可以创建一个自定义的流量控制规则或者策略</p>
+<ul>
+<li>HTTP匹配：指定参数，包括host，path以及header</li>
+<li>HTTP行为：在匹配成功之后，指定需要进行的行为，包括重定向、重写、header变换、镜像、故障注入等等</li>
+<li>每个服务的流量策略：可以设置负载均衡算法、熔断参数等其他服务级别的配置</li>
+<li>配置过滤：把配置推送到客户端的部分子集的能力</li>
+</ul>
+<p>使用上述路由规则和流量策略，你可以轻松地使得流量控制能力足够强大。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;原文：&lt;a href=&quot;https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh&lt;/a&gt;&lt;br&gt;作者：Anna Berenberg &amp;amp; Arunkumar Jayaraman April 18, 2019&lt;/p&gt;
+&lt;p&gt;服务网格为不同队伍用不同语言开发的独立微服务提供了基础。服务网格将开发和运维进行解耦，开发者再也不用在应用代码中维护一套网络路由规则了。所有的流量路由规则都被&lt;a href=&quot;http://envoyproxy.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Envoy&lt;/a&gt;等服务代理所接管，由服务网格&lt;strong&gt;控制面&lt;/strong&gt;提供动态的流量管控。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
     <title>coding练习：键盘侠</title>
     <link href="http://zablog.me/2019/03/30/q02/"/>
     <id>http://zablog.me/2019/03/30/q02/</id>
     <published>2019-03-30T13:00:00.000Z</published>
-    <updated>2019-05-16T06:57:16.660Z</updated>
+    <updated>2019-05-16T10:22:58.261Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="题目-Question"><a href="#题目-Question" class="headerlink" title="题目 / Question"></a>题目 / Question</h2><p>网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用<br>C：拷贝，可以把输入框的所有内容拷贝下来<br>P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容<br>请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？</p>
+    <content type="html"><![CDATA[<p>网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用<br>C：拷贝，可以把输入框的所有内容拷贝下来<br>P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容<br>请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？</p>
 <a id="more"></a>
 <h2 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h2><p>如果不可能，则返回{-1, “”}。<br>我们保证 N &gt;= 0</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">N = 0</div><div class="line">做不到，返回 -1, &quot;&quot;</div><div class="line"></div><div class="line">N = 1</div><div class="line">0次：</div><div class="line"></div><div class="line">N = 2</div><div class="line">2次：CP</div><div class="line"></div><div class="line">N = 12</div><div class="line">7次：CPCPCPP</div></pre></td></tr></table></figure>
@@ -33,7 +88,7 @@
     
     <summary type="html">
     
-      &lt;h2 id=&quot;题目-Question&quot;&gt;&lt;a href=&quot;#题目-Question&quot; class=&quot;headerlink&quot; title=&quot;题目 / Question&quot;&gt;&lt;/a&gt;题目 / Question&lt;/h2&gt;&lt;p&gt;网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用&lt;br&gt;C：拷贝，可以把输入框的所有内容拷贝下来&lt;br&gt;P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容&lt;br&gt;请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？&lt;/p&gt;
+      &lt;p&gt;网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用&lt;br&gt;C：拷贝，可以把输入框的所有内容拷贝下来&lt;br&gt;P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容&lt;br&gt;请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？&lt;/p&gt;
     
     </summary>
     
@@ -1027,72 +1082,6 @@
     
     
       <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Go语言小技巧--二 命名规范</title>
-    <link href="http://zablog.me/2017/09/08/go_tricks_and_tips_2/"/>
-    <id>http://zablog.me/2017/09/08/go_tricks_and_tips_2/</id>
-    <published>2017-09-08T03:00:00.000Z</published>
-    <updated>2017-10-09T12:37:37.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本篇主要讲述Go语言的命名规范。<br>优秀的代码必须具备良好的可读性，而可读性的关键即在于命名风格。</p>
-<a id="more"></a>
-<p><a href="http://zablog.me/2017/09/08/go_tricks_and_tips_2/">原文链接: http://zablog.me/2017/09/08/go_tricks_and_tips_2/</a></p>
-<h2 id="优秀的命名"><a href="#优秀的命名" class="headerlink" title="优秀的命名"></a>优秀的命名</h2><p>优秀的命名应当是一贯的、短小的、精确的。<br>所谓一贯，就是说同一个意义在不同的环境下的命名应当一致，譬如依赖关系，不要在一个方法中命名为depend，另一个方法中命名为rely。<br>所谓短小，不必多言，当命名过长的时候，读者可能更关注命名本身，而忽视真正的逻辑内容。<br>所谓精确，就是命名达意、易于理解</p>
-<h2 id="首条经验"><a href="#首条经验" class="headerlink" title="首条经验"></a>首条经验</h2><p>声明位置与使用位置越远，则命名应当越长。</p>
-<h2 id="骆驼命名法"><a href="#骆驼命名法" class="headerlink" title="骆驼命名法"></a>骆驼命名法</h2><p>Go语言应该使用 MixedCase<br>(不要使用 names_with_underscores)<br>首字母缩写词都应该用大写,譬如<code>ServeHTTP</code>、<code>sceneID</code>、<code>CIDRProcessor</code>。</p>
-<h2 id="局部变量"><a href="#局部变量" class="headerlink" title="局部变量"></a>局部变量</h2><p>局部变量应当尽可能短小，譬如使用<code>buf</code>指代<code>buffer</code>，使用<code>i</code>指代<code>index</code><br>在很长的函数中可能会有很多的变量，这个时候可以适当使用一些长名字。<br>但是写出这么长的函数，通常意味着代码需要重构了！🙅🏻‍</p>
-<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><p>函数的参数和局部变量类似，但是它们默认还具有文档的功能<br>当参数类型具有描述性的时候，参数名就应该尽可能短小：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">AfterFunc</span><span class="params">(d Duration, f <span class="keyword">func</span>()</span>) *<span class="title">Timer</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="title">Escape</span><span class="params">(w io.Writer, s []<span class="keyword">byte</span>)</span></span></div></pre></td></tr></table></figure>
-<p>当参数类型比较模糊的时候，参数名就应当具有文档的功能：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Unix</span><span class="params">(sec, nsec <span class="keyword">int64</span>)</span> <span class="title">Time</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="title">HasPrefix</span><span class="params">(s, prefix []<span class="keyword">byte</span>)</span> <span class="title">bool</span></span></div></pre></td></tr></table></figure>
-<h2 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h2><p>在Go语言中，返回值可以定义名称的，它可以当做一种特殊的参数。<br>尤其重要的是，在外部可见的函数中，返回值的名称应当可以作为文档参考。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Copy</span><span class="params">(dst Writer, src Reader)</span> <span class="params">(written <span class="keyword">int64</span>, err error)</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="title">ScanBytes</span><span class="params">(data []<span class="keyword">byte</span>, atEOF <span class="keyword">bool</span>)</span> <span class="params">(advance <span class="keyword">int</span>, token []<span class="keyword">byte</span>,</span></span></div><div class="line"><span class="function"><span class="params"> err error)</span></span></div></pre></td></tr></table></figure>
-<h2 id="方法接收者（Receiver）"><a href="#方法接收者（Receiver）" class="headerlink" title="方法接收者（Receiver）"></a>方法接收者（Receiver）</h2><p>方法接收者也是一种特殊的参数。Go语言中没有明显的面向对象的概念，可以对方法定义方法接收者来实现类似于对象的方法的概念。</p>
-<p>按照惯例，由于方法接收者在函数内部经常出现，因此它经常采用一两个字母来标识方法接收者的类型。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Buffer)</span> <span class="title">Read</span><span class="params">(p []<span class="keyword">byte</span>)</span> <span class="params">(n <span class="keyword">int</span>, err error)</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="params">(sh serverHandler)</span> <span class="title">ServeHTTP</span><span class="params">(rw ResponseWriter, req *Request)</span></span></div><div class="line"><span class="function"></span></div><div class="line"><span class="function"><span class="title">func</span> <span class="params">(r Rectangle)</span> <span class="title">Size</span><span class="params">()</span> <span class="title">Point</span></span></div></pre></td></tr></table></figure>
-<p>需要注意的是，方法接收者的名字在同一类型的不同方法中应该保持统一，这也是前文所述的一贯性的需求。</p>
-<h2 id="导出包级别命名"><a href="#导出包级别命名" class="headerlink" title="导出包级别命名"></a>导出包级别命名</h2><p>导出名被使用的时候通常是放在包名后<br>所以，在导出变量、常数、函数和类型的时候，<br>不要把包名的意义再写一遍</p>
-<p>比较好的名字<br><code>bytes.Buffer</code> <code>strings.Reader</code></p>
-<p>比较蠢的名字<br><code>bytes.ByteBuffer</code> <code>strings.StringReader</code></p>
-<h2 id="接口类型"><a href="#接口类型" class="headerlink" title="接口类型"></a>接口类型</h2><p>只含有一个方法的接口类型通常以函数名加上<code>er</code>后缀作为名字</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">type</span> Reader <span class="keyword">interface</span> &#123;</div><div class="line">    Read(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>有时候可能导致蹩脚的英文，但别管他，能看懂就好</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> Execer <span class="keyword">interface</span> &#123;</div><div class="line">    Exec(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>有时候可以适当调整一下英文单词的顺序，增加可读性：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> ByteReader <span class="keyword">interface</span> &#123;</div><div class="line">    ReadByte(p []<span class="keyword">byte</span>) (n <span class="keyword">int</span>, err error)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>当接口含有多个方法的时候，还是要选取一个能够精准描述接口目的的名字，譬如<code>net.Conn</code>、<code>http/ResponseWriter</code></p>
-<h2 id="Error的命名"><a href="#Error的命名" class="headerlink" title="Error的命名"></a>Error的命名</h2><p>Error类型应该写成FooError的形式</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> ExitError <span class="keyword">struct</span> &#123;</div><div class="line">	....</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>Error变量协程ErrFoo的形式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">var ErrFormat = errors.New(&quot;unknown format&quot;)</div></pre></td></tr></table></figure>
-<h2 id="包的命名"><a href="#包的命名" class="headerlink" title="包的命名"></a>包的命名</h2><p>应当与它导出代码的内容相关，避免<code>util</code>、<code>common</code>这种宽泛的命名</p>
-<h2 id="引入路径"><a href="#引入路径" class="headerlink" title="引入路径"></a>引入路径</h2><p>包路径的最后一个单词应该和包名一致</p>
-<p>包路径应该尽可能简洁</p>
-<p>记得把库的主要代码直接放在代码库的根目录</p>
-<p>避免在包路径中使用任何大写字母（并非所有文件系统都区分大小写）</p>
-<h2 id="标准库"><a href="#标准库" class="headerlink" title="标准库"></a>标准库</h2><p>上述很多例子都是从标准库中来的</p>
-<p>标准库的很多内容都可以作为参考<br>多看看标准库来寻求灵感吧</p>
-<p>但是要记住：</p>
-<p>当作者写标准库的时候，他们自己也在学习过程中。<br>多数情况下作者是对的，但是偶尔还是会犯一些错误</p>
-<p><hr></p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://talks.golang.org/2014/names.slide" target="_blank" rel="noopener">What’s in a name? - Andrew Gerrand</a></li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本篇主要讲述Go语言的命名规范。&lt;br&gt;优秀的代码必须具备良好的可读性，而可读性的关键即在于命名风格。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="go" scheme="http://zablog.me/tags/go/"/>
     
   </entry>
   
