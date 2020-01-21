@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> EDF负载均衡调度算法 · Zablog</title><meta name="description" content="EDF负载均衡调度算法 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://zablog.me/atom.xml" title="Zablog"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/about" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">EDF负载均衡调度算法</h1><div class="post-info">2019年8月2日</div><div class="post-content"><p>最早截止时间优先调度法 Earliest Deadline First (EDF) scheduler<br><a href="https://en.wikipedia.org/wiki/Earliest_deadline_first_scheduling" target="_blank" rel="noopener">EDF in Wikipedia</a></p>
+<p>EDF调度算法，是加权轮转调度算法（WRR，Weighted Round-Robin）的一种实现方式。<br>其核心思想是为每个条目截止时间赋值为当前时间加权重的倒数，然后采用最早截止时间优先的方式进行调度。<br>上述定义比较晦涩，我们可以透过后面例子，来说明为什么需要调度算法、如何实现调度算法、EDF调度算法的优势和劣势。</p>
+<a id="more"></a>
+<p>调度算法最主要的应用是操作系统调度进程，重要的调度理论基本上都是在此时涌现的。而后续反向代理对下游条目进行负载均衡，也可以参考一样的调度理论，只是进程的运行和切换转变为请求的接受与投递。</p>
+<p>微服务架构下，请求方会获得一个服务节点列表，对服务节点的访问也可以利用同样一套负载均衡算法。它们大部分内容是可互通的，而访问负载均衡又会额外衍生出如一致性哈希等新的调度方式。</p>
+<h3 id="简例"><a href="#简例" class="headerlink" title="简例"></a>简例</h3><p>假设有三个条目可供调度，分别是A、B、C，他们的权重分别是3：2：1。<br>设置权重的目标是相关条目被调度到的频次应该是与权重成正比。<br>对于这个权重来说，假设有6000次调度，那么我们希望A被调度3000次左右，B是2000次左右，C是1000次左右。</p>
+<p>为了实现这种调度方式，我绘制了一个图，来解释这种方法：</p>
+<p class="img-tip" data-str="edf.png"><img src="https://sf3-ttcdn-tos.pstatp.com/img/tos-cn-v-0000/7a07dce6501e4a849db3d033d47ddd0c~noop.png" height="209" width="694"></p>
+
+
+<p>图上有一个数轴，从0开始，到达3，以至无穷。<br>A条目的权重是3，我们以1/3为分隔不断重绘A，使得数轴的1/3，2/3，1，4/3等位置印上A；<br>B条目的权重是2，我们以1/2为分隔不断重绘B，使得数轴的1/2，1，3/2，2等位置印上B；<br>C条目的权重是1，我们以1为分隔不断重绘C，使得数轴的1，2，3等位置印上C；<br>最后，我们使用一个游标从左向右扫，扫描到的顺序就是调度的顺序，因此我们调度的顺序为A-B-A-C-B-A-A-B-A…<br>显而易见，调用的顺序含有一个循环节A-B-A-C-B-A，所以当调度足够多次数后，A、B、C的调度比值将会趋近于3：2：1</p>
+<p>从数学上也很好证明。<br>假设有N个条目，其权重分别是a1,a2,a3…aN。<br>使用权重不停重绘，那么在一个周期内，第一个条目被重绘a1次，第二个条目被重绘a2次，第N个条目被重绘aN次。<br>因此，每个周期的调度都是按照目标比例的。</p>
+<p>由于采用倒数进行重复，相当于对条目进行了穿插，这样可以减少了连续调度，降低了饥饿和过载的概率。<br>A-B-A-C-B-A-A-B-A-C-B-A的调度效果一般要比A-A-A-B-B-C-A-A-A-B-B-C更好。</p>
+<h2 id="WRR实现1"><a href="#WRR实现1" class="headerlink" title="WRR实现1"></a>WRR实现1</h2><p>最简单的实现，是使用上述办法模拟一个周期，然后把周期存到数组中，用游标扫描即可。<br>以上述情形为例，首先我们定制一个数组 A-B-A-C-B-A，然后不断回环扫描这个数组，就可以完成加权轮转调度。<br>这种方法的每次调度的时间复杂度为O(1)，空间复杂度为O(M*N)，其中M是条目的平均权重，N是条目的数量。</p>
+<p>分析一下这个实现的优劣：<br>优势：</p>
+<ul>
+<li>实现简单，容易理解</li>
+<li>单次调度的很快</li>
+<li>多线程共享游标index即可，协作方便<br>劣势：</li>
+<li>空间复杂度高</li>
+<li>对条目修改很不友好</li>
+</ul>
+<p>对于条目平均权重和条目总数比较小的情形下，这种实现其实已经比较优秀了。但是当平均权重和条目总量非常多的情形下，这种方式未免太耗内存。<br>在我的实际经验中，N可能超过5k，而M经常也在50左右，那么为了实现加权轮转，相当于我们需要耗费250K*Sizeof(Entry)的空间来做调度。即使Entry使用指针，64位系统下每个指针占据4字节，1M的内存就这么用出去了。<br>一个系统同时使用多个调度器，且条目数、条目权重还可能随着系统的运行而不断修改。<br>假设每隔十秒钟修改其中一个条目的权重，那么整个表需要重新构建，这对内存和CPU都是一个很大的考验。</p>
+<h2 id="WRR实现2"><a href="#WRR实现2" class="headerlink" title="WRR实现2"></a>WRR实现2</h2><p>所有的条目信息必须要存储下来，因此对于存储空间来说，O(N)的内存消耗几乎不可避免，所以要想办法减少M带来的消耗。<br>由于 Weight &gt; 0 且不可能等于 +♾，所以数轴上不会有单点出现多个同样的条目，所以从这个角度来看条目是可以复用的。<br>从这个思路出发，我们定义以下结构体。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">// Entry is an item for load balance</div><div class="line">type Entry struct &#123;</div><div class="line">    deadline float64</div><div class="line">    index    int64</div><div class="line">    Value    string</div><div class="line">    Weight   float64</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>初始时 entry.deadline = 1.0/entry.Weight<br>调度的时候，从中选择 deadline 最小的使用，并重新把这个条目放入优先队列中，并把 deadline 设置为 deadline + 1.0/entry.Weight，重新排布优先队列，如此往复。<br>复杂度分析：</p>
+<ul>
+<li>空间复杂度降低为 O(N)</li>
+<li>初始化的时间复杂度为 O(N)，也就是堆排序的复杂度</li>
+<li>每次Pick的时间复杂度为 O(logN)<br>具体实现可参考： </li>
+<li><a href="https://github.com/pkumza/edf" target="_blank" rel="noopener">简单Go实现</a></li>
+<li><a href="https://github.com/envoyproxy/envoy/blob/90a7a3eb8f477350a7175cc0d98487bbed1c4188/source/common/upstream/edf_scheduler.h" target="_blank" rel="noopener">Envoy的C++实现</a></li>
+</ul>
+<p>效果参考：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">=== add entry A(3), B(2), C(1) </div><div class="line">A  C  B  A  A  B</div><div class="line">=== add entry D(2) </div><div class="line">A  C  B  D  A  A  B  D</div><div class="line">=== del entry B </div><div class="line">A  C  D  A  A  D</div></pre></td></tr></table></figure></p>
+<h2 id="其他思考"><a href="#其他思考" class="headerlink" title="其他思考"></a>其他思考</h2><h3 id="index-的作用"><a href="#index-的作用" class="headerlink" title="index 的作用"></a>index 的作用</h3><p>当 deadline 一样的时候，index的作用才能显现出来。先加入的条目应该先出现，这样可以保证一定的稳定性。<br>否则，对于100个条目权重一模一样的调度来说，如果没有index的存在，那机会就变成随机调度了。<br>当weight不相同的时候，index也并非总是有效。<br>譬如 A 的 weight 为 3，C的 weight 为2 的时候，在第八轮，A有可能因deadline为精度问题比C早调度到。</p>
+<h3 id="存储优化"><a href="#存储优化" class="headerlink" title="存储优化"></a>存储优化</h3><p>O(N)的内存消耗并非完全不可避免。<br>在 Service Mesh 场景下， control plane 对交给 proxy 的服务发现列表进行分片，可以使得每个 proxy 获得的条目数量减少。这种方式可以减少存储和Pick的时间消耗，同时还会有优化连接池等其他额外的优势。<br>关于服务发现分片的问题，未来会出一篇专门的文章详细解释。</p>
+<h3 id="起始随机Pick"><a href="#起始随机Pick" class="headerlink" title="起始随机Pick"></a>起始随机Pick</h3><p>在 <a href="https://github.com/pkumza/edf/blob/ba4968d6180f289e8b091135e43cd3f2bce7e3ec/edf.go#L106" target="_blank" rel="noopener">edf.go#L106</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">// avoid instance flood pressure for the first entry</div><div class="line">// start from a random one via pick random times</div><div class="line">randomPick := rand.Intn(len(entries))</div><div class="line">for i := 0; i &lt; randomPick; i++ &#123;</div><div class="line">    edf.Pick()</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>新建一个EDF的时候，开始进行了一定的随机，为什么要这么做呢？<br>假设有一个条目的权重较大，那么不进行随机，第一次调度选举一定会调度到这个条目。<br>想象这样一个场景，分布式环境下所有的调度器由于某种问题同时重启，那么第一瞬间，所有的调度器都会调度到第一个条目，这很有可能造成第一个条目被瞬间的压力打挂。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2020/01/10/2020-01-10/" class="prev">PREV</a><a href="/2019/07/01/2019-07-01/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2019/08/02/2019-08-02/';
+var disqus_title = 'EDF负载均衡调度算法';
+var disqus_url = 'http://zablog.me/2019/08/02/2019-08-02/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2020 <a href="http://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

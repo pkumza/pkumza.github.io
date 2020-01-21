@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2019-05-16T10:50:22.304Z</updated>
+  <updated>2020-01-21T07:30:53.226Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -16,11 +16,191 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>从荷兰改名想到的</title>
+    <link href="http://zablog.me/2020/01/10/2020-01-10/"/>
+    <id>http://zablog.me/2020/01/10/2020-01-10/</id>
+    <published>2020-01-10T10:20:00.000Z</published>
+    <updated>2020-01-21T07:30:53.226Z</updated>
+    
+    <content type="html"><![CDATA[<p>荷兰最近有一个新闻，希望把国名修改为尼德兰。<br>因为狭义上的荷兰只代表整个国家内部的两个省而已。<br>虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。</p>
+<p>对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。</p>
+<a id="more"></a>
+<p>譬如服务发现，如果一个人说他是做服务发现的话，他基本上也会去做服务注册。服务发现广义上是包含服务注册的。<br>同样的，流量染色在广义上，应该包括无色流量的浸染过程，以及染色后的流量的处理过程。</p>
+<p>继Service Mesh之后，又逐渐迸发了很多诸如 DB Mesh、MQ Mesh、General-Purpose Mesh 等新的Mesh，那么实际上广义上的 Service Mesh 也可以涵盖后续一些新的名词。</p>
+<p>在国家演进的过程中，很可能出现荷兰这种名称不匹配的问题；<br>英国尚且可以通过“大不列颠”来代替英格兰，作为整个帝国的名称，但是绝大多数情况下是没有办法的。<br>技术演进的过程中，也会有一个相对片面的名词来代指整个事情的状况。这种情况其实是很难改变的，只要选择接受就好。<br>更多时候，不纠结反而有利于技术的交流和宣传，不要拘泥于绝对的严谨。</p>
+<p>改名实在是一件非常困难的事情。如果想定一个名字，尽量刚开始就想清楚吧。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;荷兰最近有一个新闻，希望把国名修改为尼德兰。&lt;br&gt;因为狭义上的荷兰只代表整个国家内部的两个省而已。&lt;br&gt;虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。&lt;/p&gt;
+&lt;p&gt;对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>EDF负载均衡调度算法</title>
+    <link href="http://zablog.me/2019/08/02/2019-08-02/"/>
+    <id>http://zablog.me/2019/08/02/2019-08-02/</id>
+    <published>2019-08-02T10:20:00.000Z</published>
+    <updated>2019-08-02T12:38:56.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>最早截止时间优先调度法 Earliest Deadline First (EDF) scheduler<br><a href="https://en.wikipedia.org/wiki/Earliest_deadline_first_scheduling" target="_blank" rel="noopener">EDF in Wikipedia</a></p>
+<p>EDF调度算法，是加权轮转调度算法（WRR，Weighted Round-Robin）的一种实现方式。<br>其核心思想是为每个条目截止时间赋值为当前时间加权重的倒数，然后采用最早截止时间优先的方式进行调度。<br>上述定义比较晦涩，我们可以透过后面例子，来说明为什么需要调度算法、如何实现调度算法、EDF调度算法的优势和劣势。</p>
+<a id="more"></a>
+<p>调度算法最主要的应用是操作系统调度进程，重要的调度理论基本上都是在此时涌现的。而后续反向代理对下游条目进行负载均衡，也可以参考一样的调度理论，只是进程的运行和切换转变为请求的接受与投递。</p>
+<p>微服务架构下，请求方会获得一个服务节点列表，对服务节点的访问也可以利用同样一套负载均衡算法。它们大部分内容是可互通的，而访问负载均衡又会额外衍生出如一致性哈希等新的调度方式。</p>
+<h3 id="简例"><a href="#简例" class="headerlink" title="简例"></a>简例</h3><p>假设有三个条目可供调度，分别是A、B、C，他们的权重分别是3：2：1。<br>设置权重的目标是相关条目被调度到的频次应该是与权重成正比。<br>对于这个权重来说，假设有6000次调度，那么我们希望A被调度3000次左右，B是2000次左右，C是1000次左右。</p>
+<p>为了实现这种调度方式，我绘制了一个图，来解释这种方法：</p>
+<p class="img-tip" data-str="edf.png"><img src="https://sf3-ttcdn-tos.pstatp.com/img/tos-cn-v-0000/7a07dce6501e4a849db3d033d47ddd0c~noop.png" height="209" width="694"></p>
+
+
+<p>图上有一个数轴，从0开始，到达3，以至无穷。<br>A条目的权重是3，我们以1/3为分隔不断重绘A，使得数轴的1/3，2/3，1，4/3等位置印上A；<br>B条目的权重是2，我们以1/2为分隔不断重绘B，使得数轴的1/2，1，3/2，2等位置印上B；<br>C条目的权重是1，我们以1为分隔不断重绘C，使得数轴的1，2，3等位置印上C；<br>最后，我们使用一个游标从左向右扫，扫描到的顺序就是调度的顺序，因此我们调度的顺序为A-B-A-C-B-A-A-B-A…<br>显而易见，调用的顺序含有一个循环节A-B-A-C-B-A，所以当调度足够多次数后，A、B、C的调度比值将会趋近于3：2：1</p>
+<p>从数学上也很好证明。<br>假设有N个条目，其权重分别是a1,a2,a3…aN。<br>使用权重不停重绘，那么在一个周期内，第一个条目被重绘a1次，第二个条目被重绘a2次，第N个条目被重绘aN次。<br>因此，每个周期的调度都是按照目标比例的。</p>
+<p>由于采用倒数进行重复，相当于对条目进行了穿插，这样可以减少了连续调度，降低了饥饿和过载的概率。<br>A-B-A-C-B-A-A-B-A-C-B-A的调度效果一般要比A-A-A-B-B-C-A-A-A-B-B-C更好。</p>
+<h2 id="WRR实现1"><a href="#WRR实现1" class="headerlink" title="WRR实现1"></a>WRR实现1</h2><p>最简单的实现，是使用上述办法模拟一个周期，然后把周期存到数组中，用游标扫描即可。<br>以上述情形为例，首先我们定制一个数组 A-B-A-C-B-A，然后不断回环扫描这个数组，就可以完成加权轮转调度。<br>这种方法的每次调度的时间复杂度为O(1)，空间复杂度为O(M*N)，其中M是条目的平均权重，N是条目的数量。</p>
+<p>分析一下这个实现的优劣：<br>优势：</p>
+<ul>
+<li>实现简单，容易理解</li>
+<li>单次调度的很快</li>
+<li>多线程共享游标index即可，协作方便<br>劣势：</li>
+<li>空间复杂度高</li>
+<li>对条目修改很不友好</li>
+</ul>
+<p>对于条目平均权重和条目总数比较小的情形下，这种实现其实已经比较优秀了。但是当平均权重和条目总量非常多的情形下，这种方式未免太耗内存。<br>在我的实际经验中，N可能超过5k，而M经常也在50左右，那么为了实现加权轮转，相当于我们需要耗费250K*Sizeof(Entry)的空间来做调度。即使Entry使用指针，64位系统下每个指针占据4字节，1M的内存就这么用出去了。<br>一个系统同时使用多个调度器，且条目数、条目权重还可能随着系统的运行而不断修改。<br>假设每隔十秒钟修改其中一个条目的权重，那么整个表需要重新构建，这对内存和CPU都是一个很大的考验。</p>
+<h2 id="WRR实现2"><a href="#WRR实现2" class="headerlink" title="WRR实现2"></a>WRR实现2</h2><p>所有的条目信息必须要存储下来，因此对于存储空间来说，O(N)的内存消耗几乎不可避免，所以要想办法减少M带来的消耗。<br>由于 Weight &gt; 0 且不可能等于 +♾，所以数轴上不会有单点出现多个同样的条目，所以从这个角度来看条目是可以复用的。<br>从这个思路出发，我们定义以下结构体。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">// Entry is an item for load balance</div><div class="line">type Entry struct &#123;</div><div class="line">    deadline float64</div><div class="line">    index    int64</div><div class="line">    Value    string</div><div class="line">    Weight   float64</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>初始时 entry.deadline = 1.0/entry.Weight<br>调度的时候，从中选择 deadline 最小的使用，并重新把这个条目放入优先队列中，并把 deadline 设置为 deadline + 1.0/entry.Weight，重新排布优先队列，如此往复。<br>复杂度分析：</p>
+<ul>
+<li>空间复杂度降低为 O(N)</li>
+<li>初始化的时间复杂度为 O(N)，也就是堆排序的复杂度</li>
+<li>每次Pick的时间复杂度为 O(logN)<br>具体实现可参考： </li>
+<li><a href="https://github.com/pkumza/edf" target="_blank" rel="noopener">简单Go实现</a></li>
+<li><a href="https://github.com/envoyproxy/envoy/blob/90a7a3eb8f477350a7175cc0d98487bbed1c4188/source/common/upstream/edf_scheduler.h" target="_blank" rel="noopener">Envoy的C++实现</a></li>
+</ul>
+<p>效果参考：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">=== add entry A(3), B(2), C(1) </div><div class="line">A  C  B  A  A  B</div><div class="line">=== add entry D(2) </div><div class="line">A  C  B  D  A  A  B  D</div><div class="line">=== del entry B </div><div class="line">A  C  D  A  A  D</div></pre></td></tr></table></figure></p>
+<h2 id="其他思考"><a href="#其他思考" class="headerlink" title="其他思考"></a>其他思考</h2><h3 id="index-的作用"><a href="#index-的作用" class="headerlink" title="index 的作用"></a>index 的作用</h3><p>当 deadline 一样的时候，index的作用才能显现出来。先加入的条目应该先出现，这样可以保证一定的稳定性。<br>否则，对于100个条目权重一模一样的调度来说，如果没有index的存在，那机会就变成随机调度了。<br>当weight不相同的时候，index也并非总是有效。<br>譬如 A 的 weight 为 3，C的 weight 为2 的时候，在第八轮，A有可能因deadline为精度问题比C早调度到。</p>
+<h3 id="存储优化"><a href="#存储优化" class="headerlink" title="存储优化"></a>存储优化</h3><p>O(N)的内存消耗并非完全不可避免。<br>在 Service Mesh 场景下， control plane 对交给 proxy 的服务发现列表进行分片，可以使得每个 proxy 获得的条目数量减少。这种方式可以减少存储和Pick的时间消耗，同时还会有优化连接池等其他额外的优势。<br>关于服务发现分片的问题，未来会出一篇专门的文章详细解释。</p>
+<h3 id="起始随机Pick"><a href="#起始随机Pick" class="headerlink" title="起始随机Pick"></a>起始随机Pick</h3><p>在 <a href="https://github.com/pkumza/edf/blob/ba4968d6180f289e8b091135e43cd3f2bce7e3ec/edf.go#L106" target="_blank" rel="noopener">edf.go#L106</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">// avoid instance flood pressure for the first entry</div><div class="line">// start from a random one via pick random times</div><div class="line">randomPick := rand.Intn(len(entries))</div><div class="line">for i := 0; i &lt; randomPick; i++ &#123;</div><div class="line">    edf.Pick()</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>新建一个EDF的时候，开始进行了一定的随机，为什么要这么做呢？<br>假设有一个条目的权重较大，那么不进行随机，第一次调度选举一定会调度到这个条目。<br>想象这样一个场景，分布式环境下所有的调度器由于某种问题同时重启，那么第一瞬间，所有的调度器都会调度到第一个条目，这很有可能造成第一个条目被瞬间的压力打挂。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最早截止时间优先调度法 Earliest Deadline First (EDF) scheduler&lt;br&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Earliest_deadline_first_scheduling&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;EDF in Wikipedia&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;EDF调度算法，是加权轮转调度算法（WRR，Weighted Round-Robin）的一种实现方式。&lt;br&gt;其核心思想是为每个条目截止时间赋值为当前时间加权重的倒数，然后采用最早截止时间优先的方式进行调度。&lt;br&gt;上述定义比较晦涩，我们可以透过后面例子，来说明为什么需要调度算法、如何实现调度算法、EDF调度算法的优势和劣势。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Traffic Director 使用体验</title>
+    <link href="http://zablog.me/2019/07/01/2019-07-01/"/>
+    <id>http://zablog.me/2019/07/01/2019-07-01/</id>
+    <published>2019-07-01T10:20:00.000Z</published>
+    <updated>2019-07-01T11:35:57.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Traffic Director是由谷歌云平台（Google Cloud Platform）推出的服务网格（Service Mesh）流量控制面（Control Plane）。</p>
+<p>Traffic Director可以应用于虚拟机（Virtual Machine），也可以应用于基于Kubernetes管理的容器，它使用Envoy开源的xDS v2 API接口来与数据面的服务代理进行交互。</p>
+<a id="more"></a>
+<p>​<img src="https://cloud.google.com/images/traffic-director/hero-traffic-director.png" alt=""></p>
+<p>Traffic Director 官网图例</p>
+<p>下面，我会从发布现状、主体结构、主要功能、支持场景和使用体验五个方面讲解Traffic Director。</p>
+<h2 id="Traffic-Director-的发布现状"><a href="#Traffic-Director-的发布现状" class="headerlink" title="Traffic Director 的发布现状"></a>Traffic Director 的发布现状</h2><p>从发布来看，现状相对来说令人悲观。</p>
+<p>在2018年7月推出Alpha版本</p>
+<p>在2019年4月推出Beta版本</p>
+<p>截止目前（2019-07-01），该功能仍未GA，而且Beta版本涵盖的功能非常有限。</p>
+<p><img src="/images/traffic_director/arch.png" alt=""></p>
+<p>Traffic Director的主体结构</p>
+<p><img src="/images/traffic_director/service_mesh.png" alt=""></p>
+<p>Service Mesh基本结构</p>
+<p>这个图是比较基本的Service Mesh架构图。Traffic Director的位置，是充当 Service Mesh Control Plane。</p>
+<p>对于数据面，Traffic Director建议使用Lyft公司开源的envoy。当然，一切支持 xDSv2 APIs 的数据面都是可以使用的。</p>
+<p>微服务环境下，作为控制面的Traffic Director</p>
+<h2 id="Traffic-Director-的主要功能"><a href="#Traffic-Director-的主要功能" class="headerlink" title="Traffic Director 的主要功能"></a>Traffic Director 的主要功能</h2><ul>
+<li><p>全局负载均衡</p>
+</li>
+<li><p>中心化健康检查</p>
+</li>
+<li><p>基于Load的自动扩缩容</p>
+</li>
+<li><p>内嵌的弹性（高可用）</p>
+</li>
+<li><p>强大的流量控制能力</p>
+</li>
+</ul>
+<p>从功能上，我的一篇翻译来的博客 <a href="http://zablog.me/2019/05/16/2019-05-16/">GCP网络深度解析：Traffic Director 如何提供全局负载均衡</a> 已经讲述地比较清楚了；</p>
+<p>原理和意义上，敖老师的<a href="https://skyao.io/post/201905-google-traffic-director-detail/" target="_blank" rel="noopener">《Google Traffic Director 详细介绍》</a> 讲的也非常清晰，因此这里不会讲得特别详细，只会针对一些功能与使用的重点。</p>
+<h2 id="Traffic-Director-的支持场景"><a href="#Traffic-Director-的支持场景" class="headerlink" title="Traffic Director 的支持场景"></a>Traffic Director 的支持场景</h2><p>从支持来看，Traffic Director目前支持 VM + Pod，这还是令人欣慰的。</p>
+<p>你可以在 GCE（Google Compute Engine）和 GKE（Google Kubernetes Engine）上使用。不过从官方的指南来看，Traffic Director只支持自家产品，这是源于Traffic Director在生效的时候会操纵一些Google的API，因而不能直接支持其他的公有云或者私有云。</p>
+<p>无论如何，VM+Pod的模式也是顺应了混合云的趋势，控制面不应该和云原生进行太强的绑定，还是要考虑到很多的服务仍有可能部署在虚拟机之中，这也是所有想要把Service Mesh落地的人需要重点考虑的问题。</p>
+<h2 id="Traffic-Director-的实际体验"><a href="#Traffic-Director-的实际体验" class="headerlink" title="Traffic Director 的实际体验"></a>Traffic Director 的实际体验</h2><p>部署</p>
+<p>首先建立一个GKE集群。云原生的集群，使用Traffic Director 应该比VM要更方便一点。</p>
+<p>启动样例service，这个时候需要注意的是Traffic Director 只支持手动注入。也就是需要手动修改 kubectl -f 后面的 yaml 文件，让 container 把 Envoy 的容器也加载进同一个Pod内部。未来有可能会支持自动注入。</p>
+<p>和其他的教程一样，这些指导性的操作都可以使用 Console 和 Gcloud 分别配置。即同时支持控制台图形界面操作和命令行操作的能力。（其实背后的API是一致的）</p>
+<p>部署的体验总体还算容易，不过对于用户来说，需要比较多的GCP操控经验。否则面对很多GCP的概念还是一头雾水。</p>
+<p>服务配置</p>
+<p>Beta版本的配置能力非常地弱。</p>
+<p>事实上，在Beta版本的Traffic Director配置页面中，只有两个Tab，分别是“服务”和“规则”。</p>
+<p>什么是服务，理论上 VM/Pod + xDS API = 服务</p>
+<p>只要你的VM或者Pod注入了Proxy，拥有了xDS API的能力，就算是一个服务了。当然配置服务的时候可以选择一些额外的配置，譬如端口号、平衡模式、健康检查等等。</p>
+<p><img src="/images/traffic_director/svc.png" alt=""></p>
+<p>服务配置<br>平衡模式的涵义就是流量速率控制，可以选择RPS（Request Per Second）的阈值，也可以选择CPU的比例。当RPC达到阈值，或者CPU达到比例之后，Traffic Director就不会把流量打过来，而是选择最为临近的可用的其他节点。</p>
+<p>因为Traffic Director只能用来导引HTTP的服务，因此健康检查也相对容易一些。一般地，只需要每隔5秒检查一下端口可用性即可。连续两次发现端口不可用，即认为服务不健康。</p>
+<p>规则配置</p>
+<p>绝大对数流量配置能力还在Alpha阶段，需要单独申请才能试用。</p>
+<p>Beta版本下只有一些基础功能，配置界面如下：</p>
+<p>路由规则配置<br>首先，你需要制定一个转发规则，决定目标；</p>
+<p>然后你再确定一下主机和路径规则。可以使用主机（Host）、路径（Path）、服务（Service）进行匹配，匹配能力和转发能力都非常差。</p>
+<p><img src="/images/traffic_director/rule.png" alt=""></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Traffic Director 目前还处于测试状态，功能也不全，距离落地仍然很远。对于一个线上应用来说，进行Traffic Director的迁移肯定是得不偿失的。</p>
+<p>在官网文档中，作者描述了很多局限性，包括：不支持Istio API、只支持HTTP流量、流量控制还在Alpha测试阶段、暂时与GCP强绑定等等。几乎每个局限性都是生产环境落地的死门。</p>
+<p>但无论如何，使用数据面的开放接口并提供一个高可用的托管控制面的思路是非常明确的。在未来的计划中，Traffic Director将会对Istio的功能有更好的支持，提供更强大的流量控制与可观测能力，带来更强的稳定性和灵活性，所以Traffic Director的未来依然值得期待。</p>
+<p>相关参考：</p>
+<ul>
+<li><p>《Traffic Director官网文档》<a href="https://cloud.google.com/traffic-director/docs/traffic-director-concepts" target="_blank" rel="noopener">https://cloud.google.com/traffic-director/docs/traffic-director-concepts</a></p>
+</li>
+<li><p>《GCP网络深度解析：Traffic Director 如何提供全局负载均衡》 <a href="http://zablog.me/2019/05/16/2019-05-16/">http://zablog.me/2019/05/16/2019-05-16/</a> </p>
+</li>
+<li><p>《Google Traffic Director 详细介绍》 <a href="https://skyao.io/post/201905-google-traffic-director-detail/" target="_blank" rel="noopener">https://skyao.io/post/201905-google-traffic-director-detail/</a></p>
+</li>
+<li><p>《Google Cloud networking in depth: How Traffic Director provides global load balancing for open service mesh》<a href="https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh" target="_blank" rel="noopener">https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh</a></p>
+</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Traffic Director是由谷歌云平台（Google Cloud Platform）推出的服务网格（Service Mesh）流量控制面（Control Plane）。&lt;/p&gt;
+&lt;p&gt;Traffic Director可以应用于虚拟机（Virtual Machine），也可以应用于基于Kubernetes管理的容器，它使用Envoy开源的xDS v2 API接口来与数据面的服务代理进行交互。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
     <title>谷歌云网络深度解析：流量指挥官如何为服务网格提供全局负载均衡</title>
     <link href="http://zablog.me/2019/05/16/2019-05-16/"/>
     <id>http://zablog.me/2019/05/16/2019-05-16/</id>
     <published>2019-05-16T10:20:00.000Z</published>
-    <updated>2019-05-16T10:50:22.304Z</updated>
+    <updated>2019-05-16T10:50:22.000Z</updated>
     
     <content type="html"><![CDATA[<p>原文：<a href="https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh" target="_blank" rel="noopener">https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh</a><br>作者：Anna Berenberg &amp; Arunkumar Jayaraman April 18, 2019</p>
 <p>服务网格为不同队伍用不同语言开发的独立微服务提供了基础。服务网格将开发和运维进行解耦，开发者再也不用在应用代码中维护一套网络路由规则了。所有的流量路由规则都被<a href="http://envoyproxy.io/" target="_blank" rel="noopener">Envoy</a>等服务代理所接管，由服务网格<strong>控制面</strong>提供动态的流量管控。</p>
@@ -75,7 +255,7 @@
     <link href="http://zablog.me/2019/03/30/q02/"/>
     <id>http://zablog.me/2019/03/30/q02/</id>
     <published>2019-03-30T13:00:00.000Z</published>
-    <updated>2019-05-16T10:22:58.261Z</updated>
+    <updated>2019-05-16T10:22:58.000Z</updated>
     
     <content type="html"><![CDATA[<p>网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用<br>C：拷贝，可以把输入框的所有内容拷贝下来<br>P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容<br>请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？</p>
 <a id="more"></a>
@@ -104,7 +284,7 @@
     <link href="http://zablog.me/2018/12/30/q01/"/>
     <id>http://zablog.me/2018/12/30/q01/</id>
     <published>2018-12-30T13:00:00.000Z</published>
-    <updated>2018-12-30T13:39:38.066Z</updated>
+    <updated>2018-12-30T13:39:38.000Z</updated>
     
     <content type="html"><![CDATA[<p>21点游戏，在摸五张牌的情况下，不爆牌的概率。/ Calculating the probability of no burst while fetching 5 cards in blackjack.</p>
 <a id="more"></a>
@@ -191,7 +371,7 @@
     <link href="http://zablog.me/2018/12/23/CloudNative/"/>
     <id>http://zablog.me/2018/12/23/CloudNative/</id>
     <published>2018-12-23T13:00:00.000Z</published>
-    <updated>2018-12-23T06:19:21.373Z</updated>
+    <updated>2018-12-23T06:19:21.000Z</updated>
     
     <content type="html"><![CDATA[<p>云原生是一个比较新的概念。<br>Pivotal 是相关领域的先行者。<br><a href="https://www.cncf.io/" target="_blank" rel="noopener">CNCF</a>是一个2015年成立的基金会。<br>他们都对云原生有着自己的定义</p>
 <a id="more"></a>
@@ -236,7 +416,7 @@
     <link href="http://zablog.me/2018/11/29/Monotonic/"/>
     <id>http://zablog.me/2018/11/29/Monotonic/</id>
     <published>2018-11-29T13:00:00.000Z</published>
-    <updated>2018-11-29T06:14:39.322Z</updated>
+    <updated>2018-11-29T06:14:39.000Z</updated>
     
     <content type="html"><![CDATA[<p>go 1.9 之后，给Time增加了 Monotonic 部分。</p>
 <a id="more"></a>
@@ -266,7 +446,7 @@
     <link href="http://zablog.me/2018/10/29/LB/"/>
     <id>http://zablog.me/2018/10/29/LB/</id>
     <published>2018-10-29T13:00:00.000Z</published>
-    <updated>2018-10-30T02:18:36.825Z</updated>
+    <updated>2018-10-30T02:18:36.000Z</updated>
     
     <content type="html"><![CDATA[<p>LB是现代高并发应用必然的需求，下面介绍一下Envoy中使用的LB算法。</p>
 <a id="more"></a>
@@ -312,7 +492,7 @@
     <link href="http://zablog.me/2018/10/04/http-brief-history/"/>
     <id>http://zablog.me/2018/10/04/http-brief-history/</id>
     <published>2018-10-04T13:00:00.000Z</published>
-    <updated>2018-10-29T12:47:48.191Z</updated>
+    <updated>2018-10-29T12:47:48.000Z</updated>
     
     <content type="html"><![CDATA[<p>简要复习一下HTTP的发展历史。</p>
 <a id="more"></a>
@@ -371,7 +551,7 @@
     <link href="http://zablog.me/2018/09/16/snapshot/"/>
     <id>http://zablog.me/2018/09/16/snapshot/</id>
     <published>2018-09-16T13:00:00.000Z</published>
-    <updated>2018-09-16T13:07:48.070Z</updated>
+    <updated>2018-09-16T13:07:48.000Z</updated>
     
     <content type="html"><![CDATA[<p>Mac OS X提供了丰富的内嵌屏幕快照（截图）工具，但是默认的格式、截图位置等并不一定可以契合每一个用户的需求。好在我们使用命令行（Terminal.app 或者iTerm2等别的命令行工具）可以方便地定制屏幕快照。</p>
 <a id="more"></a>
@@ -434,7 +614,7 @@
     <link href="http://zablog.me/2018/09/10/scale-cube/"/>
     <id>http://zablog.me/2018/09/10/scale-cube/</id>
     <published>2018-09-10T13:00:00.000Z</published>
-    <updated>2018-09-10T12:57:44.413Z</updated>
+    <updated>2018-09-10T12:57:44.000Z</updated>
     
     <content type="html"><![CDATA[<p>《THE ART OF SCALABILITY》中描述了一个非常有用的扩展模型：扩展立方（也叫AKF扩展立方）。<br>这个模型把应用比作立方体，为了支持应用的发展和演进，我们可以通过x，y，z三个方向对它进行扩展。</p>
 <a id="more"></a>
@@ -495,7 +675,7 @@
     <link href="http://zablog.me/2018/04/06/redis-hole/"/>
     <id>http://zablog.me/2018/04/06/redis-hole/</id>
     <published>2018-04-06T07:34:46.000Z</published>
-    <updated>2018-04-06T08:04:35.636Z</updated>
+    <updated>2018-04-06T08:04:35.000Z</updated>
     
     <content type="html"><![CDATA[<p>在公网暴露端口的无防护Redis实例，很容易成为攻击者直接攻破的跳板，下面讲述一下攻击过程。<br><a id="more"></a><br>在阿里云上分别申请两台服务器，分别是<br>肉鸡： <code>172.17.171.122</code><br>攻击者：<code>172.17.171.123</code></p>
 <h2 id="配置无防护的肉鸡"><a href="#配置无防护的肉鸡" class="headerlink" title="配置无防护的肉鸡"></a>配置无防护的肉鸡</h2><p>登陆<code>172.17.171.122</code></p>
@@ -538,7 +718,7 @@
     <link href="http://zablog.me/2018/03/09/diskutil/"/>
     <id>http://zablog.me/2018/03/09/diskutil/</id>
     <published>2018-03-09T11:06:39.000Z</published>
-    <updated>2018-03-12T02:15:53.876Z</updated>
+    <updated>2018-03-12T02:15:53.000Z</updated>
     
     <content type="html"><![CDATA[<p>使用Mac对磁盘进行分区，显示“Mediakit报告设备商的空间不足以执行此操作”，该怎么办？</p>
 <a id="more"></a>
@@ -673,7 +853,7 @@
     <link href="http://zablog.me/2017/12/04/proxy/"/>
     <id>http://zablog.me/2017/12/04/proxy/</id>
     <published>2017-12-04T13:00:00.000Z</published>
-    <updated>2018-09-10T12:29:07.173Z</updated>
+    <updated>2018-09-10T12:29:07.000Z</updated>
     
     <content type="html"><![CDATA[<p>匿名代理、透传代理和精英代理之间的区别 / differences between transparent, anonymous and elite proxy<br><a id="more"></a></p>
 <p>作为一个代理的普通用户，你也许不知道你在用的代理到底是透明的，匿名的还是精英的。<br>你也许会倾向于使用精英代理，正如它名字指示的那样。那么这几种代理到底有什么区别呢？</p>
@@ -705,7 +885,7 @@
     <link href="http://zablog.me/2017/11/12/crawler/"/>
     <id>http://zablog.me/2017/11/12/crawler/</id>
     <published>2017-11-12T13:00:00.000Z</published>
-    <updated>2018-12-23T06:11:50.986Z</updated>
+    <updated>2018-12-23T06:11:50.000Z</updated>
     
     <content type="html"><![CDATA[<p>最近比较繁忙，所以博客也没有什么新文章。<br>说一下爬虫吧。<br>自从互联网时代开始，爬虫就没停止活跃…恐怕今后很长一段时间爬虫都会长期存在。当人们谈到XSS、DDos、SQL injection、SSL attacks的时候，多数你在谈论计算机安全，当你谈到爬虫的时候，你更多的在关心内容安全。爬虫有时候会涉及内容安全，有些内容是别人的立站根本，譬如PGC、UGC的文章；有的内容是别人的商业机密，譬如酒店、商品的价格。</p>
 <p>对于爬虫来说，有没有规范定义它不允许爬取的内容呢。有一个文件叫做robots.txt，它是是一种存放于网站根目录下的ASCII编码的文本文件，通常用来告诉搜索引擎的爬取器哪些内容是不应该被获取的。</p>
@@ -881,207 +1061,6 @@
     
     
       <category term="go" scheme="http://zablog.me/tags/go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>每周一个Github项目【第七期】FiraCode</title>
-    <link href="http://zablog.me/2017/09/24/github_firacode/"/>
-    <id>http://zablog.me/2017/09/24/github_firacode/</id>
-    <published>2017-09-24T03:30:00.000Z</published>
-    <updated>2017-09-25T03:55:35.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>具备编程连字功能的等宽字体 // monospaced font with programming ligatures<br><a id="more"></a></p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>FiraCode</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>地址</td>
-<td><a href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener">Github</a></td>
-</tr>
-<tr>
-<td>作者</td>
-<td>tonsky等</td>
-</tr>
-<tr>
-<td>Brief Intro</td>
-<td>monospaced font with programming ligatures</td>
-</tr>
-<tr>
-<td>LICENSE</td>
-<td>SIL Open Font License 1.1</td>
-</tr>
-<tr>
-<td>starts</td>
-<td>17,400</td>
-</tr>
-</tbody>
-</table>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>程序员在编程的时候会使用很多符号。在某些编程语言中，一个逻辑令牌可能由2至3个字符构成，譬如<code>-&gt;</code>，<code>&lt;=</code>或<code>==</code>。<br>理想情况下，所有的编程语言都应该为操作员设计出完整的Unicode符号，但现在还没有。</p>
-<p>Fira代码是Fira Mono字体的扩展，包含一组通用编程多字符组合的连字。这只是一个字体渲染功能：底层代码保持ASCII兼容，这有助于更快地阅读和理解代码。<br>另外，对于某些频繁的序列，如..或//，连字可以让我们纠正间距。</p>
-<p>所有特殊字体：<br><img src="https://github.com/tonsky/FiraCode/raw/master/showcases/all_ligatures.png" alt="all_ligatures"></p>
-<h2 id="编程样例"><a href="#编程样例" class="headerlink" title="编程样例"></a>编程样例</h2><p>Ruby：<br><img src="https://github.com/tonsky/FiraCode/raw/master/showcases/ruby.png" alt="Ruby"></p>
-<p>Elixir:<br><img src="https://github.com/tonsky/FiraCode/raw/master/showcases/elixir.png" alt="elixir"></p>
-<p>Go:<br><img src="https://github.com/tonsky/FiraCode/raw/master/showcases/go.png" alt="Go"></p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>对于Mac系统来说，安装FiraCode还是比较容易的，只需要运行两条命令即可</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">brew tap caskroom/fonts</div><div class="line">brew cask install font-fira-code</div></pre></td></tr></table></figure>
-<p>在系统中安装之后，还需要在对应的代码编辑器中进行适配，以VS Code为例，点击<code>⌘</code>+<code>,</code>，然后把以下代码粘贴进去即可：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">"editor.fontFamily": "Fira Code",</div><div class="line">"editor.fontLigatures": true</div></pre></td></tr></table></figure>
-<p>届时安装完毕。这时<code>-&gt;</code>的显示就变成了<code>→</code>咯。当然作为等款字体，它和<code>→</code>还不太一样，还是会占据两个字符宽度的。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;具备编程连字功能的等宽字体 // monospaced font with programming ligatures&lt;br&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Emoji与Unicode</title>
-    <link href="http://zablog.me/2017/09/18/emoji/"/>
-    <id>http://zablog.me/2017/09/18/emoji/</id>
-    <published>2017-09-18T03:00:00.000Z</published>
-    <updated>2017-09-18T06:21:22.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Unicode的资源是非常宝贵的，而emoji的表情真的是越来越多，那么emoji是如何编码的呢？<br><a id="more"></a><br>在普通的聊天软件中，譬如QQ，一些基本表情是采用普通字符的转义表示。譬如在字符串中检测到<code>[微笑]</code>，就自动替换为表情。<br>但是Emoji是一种特殊的字符，它是真正被编码入Unicode的字符。它在字符集里占据了U+1F300到U+1F9EF中的部分范围。</p>
-<p>但是为了实现丰富的Emoji，这种表情不一定只占据一个字符，尤其是为了实现<a href="https://emojipedia.org/neutral/" target="_blank" rel="noopener">emoji中立</a>的时候，就需要1-2个字符来完成一个表情，最多需要7个字符。</p>
-<p>现在用一段代码来举例 ：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></div><div class="line"><span class="keyword">import</span> <span class="string">"unicode/utf8"</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	strs := []<span class="keyword">string</span>&#123;<span class="string">`Golang够浪`</span>, <span class="string">`a`</span>, <span class="string">`©`</span>, <span class="string">``</span>, <span class="string">`🐵`</span>, <span class="string">`👲🏻`</span>, <span class="string">`👲🏿`</span>, <span class="string">`💇🏽‍♂️`</span>, <span class="string">`👨‍👨‍👦‍👦`</span>&#125;</div><div class="line">	<span class="keyword">for</span> _, str := <span class="keyword">range</span> strs &#123;</div><div class="line">		fmt.Printf(<span class="string">"%s, rune count:%d, len:%d\n"</span>, str, utf8.RuneCountInString(str), <span class="built_in">len</span>(str))</div><div class="line">		<span class="keyword">for</span> _, theRune := <span class="keyword">range</span> str &#123;</div><div class="line">			fmt.Printf(<span class="string">"%s : 0x%x | "</span>, <span class="keyword">string</span>(theRune), theRune)</div><div class="line">		&#125;</div><div class="line">		fmt.Print(<span class="string">"\n------\n"</span>)</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><a href="https://play.golang.org/p/tnSsUw0nvf" target="_blank" rel="noopener"><em>到 Playground中运行一下，查看结果</em></a></p>
-<p>我们来逐段分析每一个内容。</p>
-<p>字串<code>Golang够浪</code>一共有8个字符，其中<code>Golang</code>这六个字符，每个字符在utf8里占据1个字节的空间，而词语<code>够浪</code>中的每个汉字占据3个字节的空间。</p>
-<p><code>a</code>这种最基本的内容，在utf8里只占据1个字节，因为它们太常见了，依霍夫曼编码的思路，也必然应当使用短小的编码方式。</p>
-<p><code>©</code>是一个相对比较常见的符号，但是又不在0~127这128个最基本的字符中，在utf8中占据2个字节。</p>
-<p><code></code>这个字符是苹果公司的logo，别的操作系统不一定能够正确显示，相对来说非常不常见，在utf8中占据3个字节。在Mac系统中，只需要同时按下<code>⇧</code>（shift）+ <code>⌥</code>（option）+ <code>K</code> 即可。</p>
-<p><code>🐵</code>是一个猴子emoji表情，在utf8中占据4个字节。多数emoji表情都占据4个字节。</p>
-<p><code>👲🏻</code>是一个戴着中国帽的中国男人，它需要由<code>👲</code>戴着中国帽的男人，与<code>🏻</code>黄种肤色放在一起，两个字符拼凑而成，共需要8个字节。</p>
-<p>同样地，<code>👲🏿</code>是一个戴着中国帽的黑人男人，它需要由<code>👲</code>戴着中国帽的男人，与<code>🏿</code>黑人肤色放在一起，两个字符拼凑而成，共需要8个字节。</p>
-<p><code>💇🏽‍♂️</code>剪头发的棕色人种男人由<code>💇‍</code>剪头发的普通女人加上<code>🏽‍</code>棕色肤色，加上200d连接符，再加上‍♂男性符号，最后加上U+fe0f符号构成，一共耗费17个字节。这一版本的Mac和iOS系统可能还显示不出来，新版本iOS推出以后估计就能显示出来了。</p>
-<p>最长的，也是最能够体现中立性质的一个emoji表情是<code>👨‍👨‍👦‍👦</code>，它代表着<code>两个爸爸和两个儿子一家</code>。它由7个字符组成，分别是👨 : U+1f468 普通男人 | ‍ : U+200d 连接符 | 👨 : U+1f468 普通男人 | ‍ : U+200d 连接符 | 👦 : U+1f466  普通男孩 | ‍ : U+200d  连接符 | 👦 : U+1f466 普通男孩 | 组成。</p>
-<p>相信这对你理解utf8和unicode概念上的区别也有帮助😆 ~ Enjoy the Emoji!🙂</p>
-<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p>Emoji在不同的平台上的显示是不同的，参考<a href="https://apps.timwhitlock.info/emoji/tables/unicode#block-1-emoticons" target="_blank" rel="noopener">Emoji Unicode Tables</a>，总体来说Apple的Emoji实现最尊重原版。</p>
-<p>Emoji随着时间的推移在不断地丰富，按照年份，版本也在不断整张，参考<a href="http://unicode.org/emoji/charts/emoji-versions.html" target="_blank" rel="noopener">emoji-versions</a></p>
-<p>Unicode 10.0在22个块中使用1,182个字符的表情符号标识，其中1,085个是单个表情符号，26个是区分指示符符号、成对组合形成标志表情符号，12个（＃，*和0-9）是键帽的基本字符emoji序列。</p>
-<p>杂项符号和象形图块中768个代码点中的637个被认为是表情符号。补充符号和象形图块中148个代码点中的134个被认为是表情符号。表情符号块中的所有80个代码点都被认为是表情符号。运输和地图符号块中的107个代码点中的94个被认为是表情符号。杂项符号块中的256个代码点中的80个被认为是表情符号。Dingbats块中192个代码点中的33个被认为是表情符号。</p>
-<p>所谓<a href="https://emojipedia.org/neutral/" target="_blank" rel="noopener">emoji中立</a>就是防止歧视。表情应该是无种族的，应该是无性别特异性的，同样一个表情应该拥有各种肤色，有男有女。</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://en.wikipedia.org/wiki/Emoji" target="_blank" rel="noopener">Emoji - Wikipedia</a></li>
-<li><a href="https://gist.github.com/x7hub/ecacd20401042d61f68f" target="_blank" rel="noopener">Emoji表情传输和保存：对非BMP范围的Unicode字符的处理</a></li>
-<li><a href="https://apps.timwhitlock.info/emoji/tables/unicode#block-1-emoticons" target="_blank" rel="noopener">Emoji Unicode Tables</a></li>
-<li><a href="http://www.unicode.org/Public/emoji/5.0/emoji-data.txt" target="_blank" rel="noopener">Emoji 5.0 data</a></li>
-<li><a href="https://emojipedia.org/neutral/" target="_blank" rel="noopener">Emoji中立</a></li>
-<li><a href="http://newping.cn/447" target="_blank" rel="noopener">Mac——如何输入⌘、⌥、⇧、⌃、⎋等特殊字符（链接1）</a>、 <a href="http://blog.sina.com.cn/s/blog_5656bf3e0102w3ic.html" target="_blank" rel="noopener">（链接2）</a></li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Unicode的资源是非常宝贵的，而emoji的表情真的是越来越多，那么emoji是如何编码的呢？&lt;br&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="go" scheme="http://zablog.me/tags/go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>每周一个Github项目【第六期】nes</title>
-    <link href="http://zablog.me/2017/09/12/github_nes/"/>
-    <id>http://zablog.me/2017/09/12/github_nes/</id>
-    <published>2017-09-12T09:30:00.000Z</published>
-    <updated>2017-09-12T13:12:42.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>一个用Go实现的NES模拟器 // NES emulator written in Go.<br><a id="more"></a></p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>nes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>地址</td>
-<td><a href="https://github.com/fogleman/nes" target="_blank" rel="noopener">Github</a></td>
-</tr>
-<tr>
-<td>作者</td>
-<td>fogleman</td>
-</tr>
-<tr>
-<td>Brief Intro</td>
-<td>NES emulator written in Go.</td>
-</tr>
-<tr>
-<td>LICENSE</td>
-<td>MIT</td>
-</tr>
-<tr>
-<td>starts</td>
-<td>2,816</td>
-</tr>
-</tbody>
-</table>
-<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>这是一个使用Go实现的NES模拟器。</p>
-<p><img src="https://camo.githubusercontent.com/528b888320bf91dc045537bd738303937f780e72/687474703a2f2f692e696d6775722e636f6d2f764433465856682e706e67" alt="NES"></p>
-<h2 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">github.com/go-gl/gl/v2.1/gl</div><div class="line">github.com/go-gl/glfw/v3.1/glfw</div><div class="line">github.com/gordonklaus/portaudio</div></pre></td></tr></table></figure>
-<p>portaudio-go依赖需要在系统中安装PortAudio</p>
-<p>在ubuntu上，需要执行<code>apt-get install portaudio19-0dev</code>即可，在Mac系统，需要执行<code>brew install portaudio</code></p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>使用go get指令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/fogleman/nes</div></pre></td></tr></table></figure>
-<h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nes [rom_file|rom_directory]</div></pre></td></tr></table></figure>
-<h2 id="评价"><a href="#评价" class="headerlink" title="评价"></a>评价</h2><p>NES是童年时很多人的挚爱，它的全称是Nintendo Entertainment System，也就是俗称的红白机。当年国内的小霸王就是对NES的盗版。<br>NES上有众多让人印象深刻的游戏，譬如马里奥系列、魂斗罗、松鼠大战、双截龙、泡泡龙等等。那是一个经典游戏的辉煌与井喷的年代。</p>
-<h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><p>本nes工程，是对NES白皮书的一种go的实现。<br>代码中涉及了很多相对底层和硬件的内容，乍一看可能灰色难懂。这里可以循一条线来带你看懂nes的代码。</p>
-<p>首先关注主目录下的文件结构。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">├── LICENSE.md</div><div class="line">├── README.md</div><div class="line">├── main.go</div><div class="line">├── nes</div><div class="line">│   ├── apu.go</div><div class="line">│   ├── cartridge.go</div><div class="line">│   ├── console.go</div><div class="line">│   ├── controller.go</div><div class="line">│   ├── cpu.go</div><div class="line">│   ├── filter.go</div><div class="line">│   ├── ines.go</div><div class="line">│   ├── mapper.go</div><div class="line">│   ├── mapper1.go</div><div class="line">│   ├── mapper2.go</div><div class="line">│   ├── mapper3.go</div><div class="line">│   ├── mapper4.go</div><div class="line">│   ├── mapper7.go</div><div class="line">│   ├── memory.go</div><div class="line">│   ├── palette.go</div><div class="line">│   └── ppu.go</div><div class="line">├── ui</div><div class="line">│   ├── audio.go</div><div class="line">│   ├── director.go</div><div class="line">│   ├── font.go</div><div class="line">│   ├── gameview.go</div><div class="line">│   ├── menuview.go</div><div class="line">│   ├── run.go</div><div class="line">│   ├── texture.go</div><div class="line">│   └── util.go</div><div class="line">└── util</div><div class="line">    └── roms.go</div></pre></td></tr></table></figure>
-<p>直接放在root下的代码文件只有main.go，直接决定了nes这个可执行文件运行之后运行的代码。main.go在整个工程里是最易懂的代码了，简单来说就是判断一下参数，然后调用<code>ui.Run(nes文件路径)</code>。这条线索待会继续跟踪…</p>
-<p>再来看主目录下面的文件夹们。nes文件夹主要负责nes文件的格式解析支持，ui负责界面与交互，util主要用来测试rom。（个人认为把util放在这里，并且起这个名字，从项目结构上不妥）</p>
-<p>下面从nes/ui/run.go入手， 毕竟main函数调用了ui的Run函数，而Run函数可以看做是ui这个包的入口。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// run.go</span></div><div class="line"><span class="keyword">package</span> ui</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"log"</span></div><div class="line">	<span class="string">"runtime"</span></div><div class="line"></div><div class="line">	<span class="string">"github.com/go-gl/gl/v2.1/gl"</span></div><div class="line">	<span class="string">"github.com/go-gl/glfw/v3.1/glfw"</span></div><div class="line">	<span class="string">"github.com/gordonklaus/portaudio"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">const</span> (</div><div class="line">	width  = <span class="number">256</span></div><div class="line">	height = <span class="number">240</span></div><div class="line">	scale  = <span class="number">3</span></div><div class="line">	title  = <span class="string">"NES"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// we need a parallel OS thread to avoid audio stuttering</span></div><div class="line">	runtime.GOMAXPROCS(<span class="number">2</span>)</div><div class="line"></div><div class="line">	<span class="comment">// we need to keep OpenGL calls on a single thread</span></div><div class="line">	runtime.LockOSThread()</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">Run</span><span class="params">(paths []<span class="keyword">string</span>)</span></span> &#123;</div><div class="line">	<span class="comment">// initialize audio</span></div><div class="line">	portaudio.Initialize()</div><div class="line">	<span class="keyword">defer</span> portaudio.Terminate()</div><div class="line"></div><div class="line">	audio := NewAudio()</div><div class="line">	<span class="keyword">if</span> err := audio.Start(); err != <span class="literal">nil</span> &#123;</div><div class="line">		log.Fatalln(err)</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">defer</span> audio.Stop()</div><div class="line"></div><div class="line">	<span class="comment">// initialize glfw</span></div><div class="line">	<span class="keyword">if</span> err := glfw.Init(); err != <span class="literal">nil</span> &#123;</div><div class="line">		log.Fatalln(err)</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">defer</span> glfw.Terminate()</div><div class="line"></div><div class="line">	<span class="comment">// create window</span></div><div class="line">	glfw.WindowHint(glfw.ContextVersionMajor, <span class="number">2</span>)</div><div class="line">	glfw.WindowHint(glfw.ContextVersionMinor, <span class="number">1</span>)</div><div class="line">	window, err := glfw.CreateWindow(width*scale, height*scale, title, <span class="literal">nil</span>, <span class="literal">nil</span>)</div><div class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</div><div class="line">		log.Fatalln(err)</div><div class="line">	&#125;</div><div class="line">	window.MakeContextCurrent()</div><div class="line"></div><div class="line">	<span class="comment">// initialize gl</span></div><div class="line">	<span class="keyword">if</span> err := gl.Init(); err != <span class="literal">nil</span> &#123;</div><div class="line">		log.Fatalln(err)</div><div class="line">	&#125;</div><div class="line">	gl.Enable(gl.TEXTURE_2D)</div><div class="line"></div><div class="line">	<span class="comment">// run director</span></div><div class="line">	director := NewDirector(window, audio)</div><div class="line">	director.Start(paths)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>它所依赖的包就不多说了，与上文所述的依赖一致。</p>
-<p>第一个函数是init()函数。看起来这个函数在整个工程中并没有被调用，其实不然。Go里面有两个保留函数，分别是init函数和main函数，其中init函数能够应用于所有的package，而main函数只能应用于main package。当某一个包被引入的时候，首先会引入自身的其他依赖，然后初始化常量，初始化全局变量，接下来就会自动调用这个package的init()函数。</p>
-<p>可以在一个package下的多个文件中都定义init()函数，然而这样不是很便于管理，建议每个package最多写一个init()函数。<br>nes的作者就写了很多个init()函数。</p>
-<p>init的内容是把runtime.GOMAXPROCS设置为2。runtime.GOMAXPROCS可以认为是Go语言最多使用的核心数目，在不设置的时候默认是1。<br>较大的GOMAXPROCS适合于CPU密集型，且并发度较高的情形。如果是IO密集型，CPU之间的切换反而会带来较大的性能损失。<br>nes中的GOMAXPROCS设置，是为了在执行任务的时候，音效不要卡顿。<br>接下来作者调用了runtime.LockOSThread(),这保证了调用OpenGL的时候，go只有一个线程去访问OpenGL的接口。</p>
-<p>在执行Run的时候，NES首先初始化音频部件，然后初始化glfw，接下来使用glfw创建一个窗口，</p>
-<p>glfw是一个C的OpenGL库，而<a href="https://github.com/go-gl/glfw/" target="_blank" rel="noopener">go glfw</a>则是一个典型的C与GO混合开发的一个库。</p>
-<p>下面，NES初始化了gl，使用TEXTURE_2D模式。</p>
-<p>最终，新建了一个Director，并执行这个Director，至此Run函数结束。</p>
-<h2 id="Director"><a href="#Director" class="headerlink" title="Director"></a>Director</h2><p>Director导演的作用主要是对操作进行一个分发。如果当前有游戏的话，那么就加载游戏的GameView；如果是一个大列表，就把列表展示出来，让用户可以选择一个nes游戏执行。</p>
-<h2 id="按键"><a href="#按键" class="headerlink" title="按键"></a>按键</h2><p>令人伤感的是，作者把按键适配写死在代码里，而且如果只有键盘的话，只能单人玩，简直是不能忍呀。具体的按键写死的代码在util.go中，有兴趣的小朋友可以给他改了。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">readKeys</span><span class="params">(window *glfw.Window, turbo <span class="keyword">bool</span>)</span> [8]<span class="title">bool</span></span> &#123;</div><div class="line">	<span class="keyword">var</span> result [<span class="number">8</span>]<span class="keyword">bool</span></div><div class="line">	result[nes.ButtonA] = readKey(window, glfw.KeyZ) || (turbo &amp;&amp; readKey(window, glfw.KeyA))</div><div class="line">	result[nes.ButtonB] = readKey(window, glfw.KeyX) || (turbo &amp;&amp; readKey(window, glfw.KeyS))</div><div class="line">	result[nes.ButtonSelect] = readKey(window, glfw.KeyRightShift)</div><div class="line">	result[nes.ButtonStart] = readKey(window, glfw.KeyEnter)</div><div class="line">	result[nes.ButtonUp] = readKey(window, glfw.KeyUp)</div><div class="line">	result[nes.ButtonDown] = readKey(window, glfw.KeyDown)</div><div class="line">	result[nes.ButtonLeft] = readKey(window, glfw.KeyLeft)</div><div class="line">	result[nes.ButtonRight] = readKey(window, glfw.KeyRight)</div><div class="line">	<span class="keyword">return</span> result</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>上述代码规定Z和X对应红白机的A和B键。</p>
-<p>虽然按键不尽如人意，但是fogleman的令人拍案称奇的作品确实还是太多了，估计没时间做nes的按键适配了吧。况且毕竟glfw并不特别方便进行窗口编程。</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://stackoverflow.com/questions/25361831/benefits-of-runtime-lockosthread-in-golang" target="_blank" rel="noopener">Benefits of runtime.LockOSThread in Golang - Stackoverflow</a></li>
-<li><a href="https://github.com/golang/go/wiki/LockOSThread" target="_blank" rel="noopener">LockOSThread</a></li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;一个用Go实现的NES模拟器 // NES emulator written in Go.&lt;br&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
     
   </entry>
   
