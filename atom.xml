@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2020-01-21T07:30:53.226Z</updated>
+  <updated>2020-02-15T07:25:56.397Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -16,11 +16,93 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>ASM使用体验</title>
+    <link href="http://zablog.me/2020/02/15/2020-02-15/"/>
+    <id>http://zablog.me/2020/02/15/2020-02-15/</id>
+    <published>2020-02-15T10:20:00.000Z</published>
+    <updated>2020-02-15T07:25:56.397Z</updated>
+    
+    <content type="html"><![CDATA[<p>篇名叫做使用体验，其实并不准确，目前来看纯粹是吐槽。</p>
+<p>并不打算写一个 ASM 使用流程指南，毕竟 <a href="https://help.aliyun.com/document_detail/149552.html" target="_blank" rel="noopener">https://help.aliyun.com/document_detail/149552.html</a> 才是更为专业的文档。</p>
+<a id="more"></a>
+<p>点击了 服务网格 ASM 的链接之后，映入眼帘的是错误提示</p>
+<p>Aliyun API Error: RequestId: 08147C2C-9EE9-XXXXXX Status Code: 404 Code: EntityNotExist. Role Message: The role not exists: acs:ram::931204812349238:role/aliyuncsdefaultrole.</p>
+<p>重试了一下，终于进来了，但是整个页面什么都没有：</p>
+<p>最后发现服务公测中，还需要独立申请才可以使用，所以没有办法，还是先看一下文档吧。</p>
+<h1 id="产品简介"><a href="#产品简介" class="headerlink" title="产品简介"></a>产品简介</h1><p>所谓的功能特性，应当和其它的服务网格产品差不多。</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/b14cbd753fe94f7d9454155f47322e0c" alt=""></p>
+<p>都是把服务网格划分为控制平面和数据平面。</p>
+<p>ASM的优势在于兼容Istio，估计是在 Istio 的基础上，增加了支持 aliyun PaaS基础架构的内容。</p>
+<p>从部署上看，依然是支持了混合云的环境，可以支持 Kubernetes集群、ServerLess集群和ECS虚拟机的混合部署。Proxy 与具体的服务进程在一起分享资源，并代理 Service 的出入流量。</p>
+<p>共性的内容就不提了，既然作为公有云的一个主打产品，它的主要贡献应当在与组件的托管，可以通过简单的配置，就可以搭建起一整套服务网格，而不需要用户担心环境和配置的问题。</p>
+<h1 id="产品优势"><a href="#产品优势" class="headerlink" title="产品优势"></a>产品优势</h1><p>目前来看ASM除了托管之外，其实没有什么额外的优势。相应的功能，包括流量路由、安全、监控都是社区版本已经提供的内容。高稳定性和高可用性，由于该产品本身就是公测版，所以暂且无法证实。</p>
+<p>对于中小型厂商来说，没有足够的精力去维持一个团队，专门做一些细节的事情，譬如分5个人的团队来做混沌工程，7个人做可观测性、链路追踪，或者8个人的团队专门做RBAC的维护、mTLS的推进，因此ASM确实还是有一定的吸引力的。</p>
+<p>应用场景就是把优势又冗长地说了一遍。</p>
+<h1 id="使用限制"><a href="#使用限制" class="headerlink" title="使用限制"></a>使用限制</h1><p>有些内容务必在网格实例刚刚创立的时候，就配置好。譬如</p>
+<p>变更网格所依赖的 VPC 与虚拟交换机<br>如果创建时未开启公网暴露 API Server，暂不支持增加公网 SLB 暴露 API Server<br>如果创建时未开启公网暴露 Istio Pilot，暂不支持增加公网 SLB 暴露 Istio Pilot<br>变更链路追踪服务配置<br>这些确实说明，在动态配置方面，PaaS做得还没有足够成熟。</p>
+<p>不过这些问题，都可以用时间磨平，并不是太深层次的技术问题。</p>
+<p>但是关于配额，目前还是有些夸张。</p>
+<p>每个用户的可创建网格实例数：2</p>
+<p>每个网格的Envoy代理数：建议200以下，超过 200 可能会造成网格实例的不稳定。</p>
+<p>关于这个实例数，确实还是太小了。如果只是为了200个实例，那么确实控制面内部不需要做什么优化，主要是功能性的开发，而不用太关心性能的问题。</p>
+<p>而且，适用场景上来看，ASM只能应对中小型企业的使用场景，在这个200个Envoy实例这个量级下，估计接口的QPS无法超过10万，一般只能适用于100万日活跃用户左右的App来使用。要将代理的规模突破一万，甚至一百万，可能还需要很多的努力。</p>
+<h1 id="规则修改"><a href="#规则修改" class="headerlink" title="规则修改"></a>规则修改</h1><p>根据文档介绍，修改目标规则需要：</p>
+<p>在控制平面区域的目标规则页签，找到待修改的目标规则，在操作列中单击YAML。<br>在编辑实例页面，修改目标规则，单击确定。<br>从这个介绍来看，控制平面的规则修改没有做到平台化，主要仍是通过配置文件的方式来进行管理。不过由于是社区版本，所以配置文件的格式应当与社区是一致的，这给有社区经验的配置者提供了一定的好处。</p>
+<h1 id="定价"><a href="#定价" class="headerlink" title="定价"></a>定价</h1><p>公测版目前免费，未来还不确定。</p>
+<p>由于 Service Mesh 目前的社区版还主要是面向中小型企业，而且很多都是尝试性地使用，所以估计不会有太高的定价。中小用户使用服务网格更多意义上是一个尝鲜，恐怕把主要业务都移动上来需要很大的勇气，暂时不看好两年以内的服务网格公有云市场。</p>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p>确实没有更多额外的信息了，等我的公测申请通过了，再来同步吧。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;篇名叫做使用体验，其实并不准确，目前来看纯粹是吐槽。&lt;/p&gt;
+&lt;p&gt;并不打算写一个 ASM 使用流程指南，毕竟 &lt;a href=&quot;https://help.aliyun.com/document_detail/149552.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://help.aliyun.com/document_detail/149552.html&lt;/a&gt; 才是更为专业的文档。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
     <title>从荷兰改名想到的</title>
     <link href="http://zablog.me/2020/01/10/2020-01-10/"/>
     <id>http://zablog.me/2020/01/10/2020-01-10/</id>
     <published>2020-01-10T10:20:00.000Z</published>
     <updated>2020-01-21T07:30:53.226Z</updated>
+    
+    <content type="html"><![CDATA[<p>荷兰最近有一个新闻，希望把国名修改为尼德兰。<br>因为狭义上的荷兰只代表整个国家内部的两个省而已。<br>虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。</p>
+<p>对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。</p>
+<a id="more"></a>
+<p>譬如服务发现，如果一个人说他是做服务发现的话，他基本上也会去做服务注册。服务发现广义上是包含服务注册的。<br>同样的，流量染色在广义上，应该包括无色流量的浸染过程，以及染色后的流量的处理过程。</p>
+<p>继Service Mesh之后，又逐渐迸发了很多诸如 DB Mesh、MQ Mesh、General-Purpose Mesh 等新的Mesh，那么实际上广义上的 Service Mesh 也可以涵盖后续一些新的名词。</p>
+<p>在国家演进的过程中，很可能出现荷兰这种名称不匹配的问题；<br>英国尚且可以通过“大不列颠”来代替英格兰，作为整个帝国的名称，但是绝大多数情况下是没有办法的。<br>技术演进的过程中，也会有一个相对片面的名词来代指整个事情的状况。这种情况其实是很难改变的，只要选择接受就好。<br>更多时候，不纠结反而有利于技术的交流和宣传，不要拘泥于绝对的严谨。</p>
+<p>改名实在是一件非常困难的事情。如果想定一个名字，尽量刚开始就想清楚吧。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;荷兰最近有一个新闻，希望把国名修改为尼德兰。&lt;br&gt;因为狭义上的荷兰只代表整个国家内部的两个省而已。&lt;br&gt;虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。&lt;/p&gt;
+&lt;p&gt;对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>从荷兰改名想到的</title>
+    <link href="http://zablog.me/2020/01/10/2020-01-30/"/>
+    <id>http://zablog.me/2020/01/10/2020-01-30/</id>
+    <published>2020-01-10T10:20:00.000Z</published>
+    <updated>2020-01-29T07:04:19.505Z</updated>
     
     <content type="html"><![CDATA[<p>荷兰最近有一个新闻，希望把国名修改为尼德兰。<br>因为狭义上的荷兰只代表整个国家内部的两个省而已。<br>虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。</p>
 <p>对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。</p>
@@ -906,161 +988,6 @@
     
     
       <category term="crawler" scheme="http://zablog.me/tags/crawler/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>每周一个Github项目【第八期】go-cache</title>
-    <link href="http://zablog.me/2017/10/08/github_go-cache/"/>
-    <id>http://zablog.me/2017/10/08/github_go-cache/</id>
-    <published>2017-10-08T10:00:00.000Z</published>
-    <updated>2017-10-09T13:03:25.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>用Go实现的驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用 // An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.<br><a id="more"></a></p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>go-cache</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>地址</td>
-<td><a href="https://github.com/patrickmn/go-cache" target="_blank" rel="noopener">Github</a></td>
-</tr>
-<tr>
-<td>作者</td>
-<td><a href="https://github.com/patrickmn" target="_blank" rel="noopener">patrickmn</a>等</td>
-</tr>
-<tr>
-<td>Brief Intro</td>
-<td>An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.</td>
-</tr>
-<tr>
-<td>LICENSE</td>
-<td>MIT</td>
-</tr>
-<tr>
-<td>starts</td>
-<td>1,119</td>
-</tr>
-</tbody>
-</table>
-<p>go-cache是一个驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用。<br>它大致上可以认为是一个线程安全的<code>map[string]interface{}</code>，同时支持时间过期。</p>
-<p>任何对象都可以被存储，可以指定过期时间，也可以指定为永久存在。go-cache是线程安全的。</p>
-<p>虽然go-cache并非作为持久存储而设计的，但是整个高速缓存的内容可以通过<code>c.Items()</code>序列化以后存储，然后使用<code>NewFrom()</code>重新加载。</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/patrickmn/go-cache</div></pre></td></tr></table></figure>
-<p>用法</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/patrickmn/go-cache"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// 创建一个默认过期时间为5分钟，清理间隔时间为10分钟的高速缓存</span></div><div class="line">	c := cache.New(<span class="number">5</span>*time.Minute, <span class="number">10</span>*time.Minute)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“foo”键的值为“bar”，默认过期时间</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, <span class="string">"bar"</span>, cache.DefaultExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“baz”为42，不过期</span></div><div class="line">	<span class="comment">// 如果没有重置或者删除的话，它不会被删除</span></div><div class="line">	c.Set(<span class="string">"baz"</span>, <span class="number">42</span>, cache.NoExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 获取"foo"对应的字符串</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		fmt.Println(foo)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 因为Go是一种静态类型语言，而cache可以存储任何类型，因此可以使用断言来判断任意类型</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		MyFunction(foo.(<span class="keyword">string</span>))</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 需要高性能？那就存指针吧</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, &amp;MyStruct, cache.DefaultExpiration)</div><div class="line">	<span class="keyword">if</span> x, found := c.Get(<span class="string">"foo"</span>); found &#123;</div><div class="line">		foo := x.(*MyStruct)</div><div class="line">			<span class="comment">// ...</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>用法相对很简单，实现也不难，具体文档参考<a href="https://godoc.org/github.com/patrickmn/go-cache" target="_blank" rel="noopener">文档</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;用Go实现的驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用 // An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.&lt;br&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>剖析Go的读写锁</title>
-    <link href="http://zablog.me/2017/09/27/go_sync/"/>
-    <id>http://zablog.me/2017/09/27/go_sync/</id>
-    <published>2017-09-27T12:00:00.000Z</published>
-    <updated>2017-09-28T02:40:00.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>源码级剖析Go标准库中的sync.RWMutex。</p>
-<a id="more"></a>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>RWMutex，读写锁，又称“读写互斥锁”。<br>读写锁简单来说就是可以由任意数量的读者同时使用，或者只由一个写者使用的锁。</p>
-<p>读写锁和互斥量(<code>Mutex</code>)类似，但是比起互斥量有着更高的并行性，它允许多个读者同时读取，因此有一些特殊的应用场景。<br>在并发编程的很多场景下，数据的读取可能比写入更加频繁，这时就要允许多个线程同时读取一块内容。</p>
-<h2 id="用例"><a href="#用例" class="headerlink" title="用例"></a>用例</h2><p>Go中，RWMutex的零值是一个未加锁的互斥量。</p>
-<p>RWMutex使用起来相对比较简单，这里举一个简单的例子：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	rw := <span class="built_in">new</span>(sync.RWMutex)</div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">2</span>; i++ &#123;   <span class="comment">// 建立两个写者</span></div><div class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">			<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">3</span>; j++ &#123;</div><div class="line">				rw.Lock()</div><div class="line">				<span class="comment">// 写</span></div><div class="line">				rw.Unlock()</div><div class="line">			&#125;</div><div class="line">		&#125;()</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123;    <span class="comment">// 建立两个读者</span></div><div class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">			<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">3</span>; j++ &#123;</div><div class="line">				rw.RLock()</div><div class="line">				<span class="comment">// 读</span></div><div class="line">				rw.RUnlock()</div><div class="line">			&#125;</div><div class="line">		&#125;()</div><div class="line">	&#125;</div><div class="line">	time.Sleep(time.Second)</div><div class="line">	fmt.Println(<span class="string">"Done"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><a href="https://play.golang.org/p/joOSIM__Yg" target="_blank" rel="noopener"><strong>PlayGround</strong></a></p>
-<h2 id="一个（神奇）优秀的（大坑）特性"><a href="#一个（神奇）优秀的（大坑）特性" class="headerlink" title="一个（神奇）优秀的（大坑）特性"></a>一个<del>（神奇）</del>优秀的<del>（大坑）</del>特性</h2><blockquote>
-<p>读者在读的时候，不能够假定别的读者也能够获得锁。因此，禁止读锁嵌套。</p>
-</blockquote>
-<p>是不是有点儿绕？下面举个“七秒例”：🌰</p>
-<ul>
-<li>第一秒：读者1在第1秒成功申请了读锁</li>
-<li>第二秒：写者1在第2秒申请写锁，申请失败，阻塞，但它会防止新的读者获锁</li>
-<li>第三秒：读者2在第3秒申请读锁，申请失败</li>
-<li>第四秒：读者1释放读锁，写者1获得写锁</li>
-<li>第五秒：写者1释放写锁，读者2获得读锁</li>
-<li>第六秒：读者1再次申请读锁，申请成功，与读者2共享</li>
-<li>第七秒：读者1、读者2释放读锁，结束</li>
-</ul>
-<p>当写锁阻塞时，新的读锁是无法申请的，这可以有效防止写者饥饿。<em>如果一个线程因为某种原因，导致得不到CPU运行时间，这种状态被称之为</em> <strong><em>饥饿</em></strong>。</p>
-<p>然而，这种机制也禁止了读锁嵌套。读锁嵌套可能造成死锁：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"sync"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	rw := <span class="built_in">new</span>(sync.RWMutex)</div><div class="line"></div><div class="line">	<span class="keyword">var</span> deadLockCase time.Duration = <span class="number">1</span></div><div class="line"></div><div class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</div><div class="line">		time.Sleep(time.Second * deadLockCase)</div><div class="line">		fmt.Println(<span class="string">"Writer Try"</span>)</div><div class="line">		rw.Lock()</div><div class="line">		fmt.Println(<span class="string">"Writer Fetch"</span>)</div><div class="line">		time.Sleep(time.Second * <span class="number">1</span>)</div><div class="line">		fmt.Println(<span class="string">"Writer Release"</span>)</div><div class="line">		rw.Unlock()</div><div class="line">	&#125;()</div><div class="line">	fmt.Println(<span class="string">"Reader 1 Try"</span>)</div><div class="line">	rw.RLock()</div><div class="line">	fmt.Println(<span class="string">"Reader 1 Fetch"</span>)</div><div class="line">	time.Sleep(time.Second * <span class="number">2</span>)</div><div class="line">	fmt.Println(<span class="string">"Reader 2 Try"</span>)</div><div class="line">	rw.RLock()</div><div class="line">	fmt.Println(<span class="string">"Reader 2 Fetch"</span>)</div><div class="line">	time.Sleep(time.Second * <span class="number">2</span>)</div><div class="line">	fmt.Println(<span class="string">"Reader 1 Release"</span>)</div><div class="line">	rw.RUnlock()</div><div class="line">	time.Sleep(time.Second * <span class="number">1</span>)</div><div class="line">	fmt.Println(<span class="string">"Reader 2 Release"</span>)</div><div class="line">	rw.RUnlock()</div><div class="line">	time.Sleep(time.Second * <span class="number">2</span>)</div><div class="line">	fmt.Println(<span class="string">"Done"</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>读者1和读者2是嵌套关系，按照这种时间安排，上述程序会导致死锁。</p>
-<p>而有些死锁的可怕之处就在于，它不一定会发生。假设上面程序中的time.Sleep都是随机的时间，那么这一段代码每次的结果有可能不一致，这会给Debug带来极大的困难。</p>
-<p><strong>吾闻读锁莫嵌套，写锁嵌套长已矣</strong>。（读锁嵌套了还有概率成功，写锁嵌套了100%完蛋🏥）</p>
-<h2 id="源码剖析"><a href="#源码剖析" class="headerlink" title="源码剖析"></a>源码剖析</h2><p><sub>（源码具体内容、行数，以版本<code>go version 1.8.1</code>为例。）</sub></p>
-<p>为了方便理解，可以把所有的<code>if race.Enabled {...}</code>扔掉不看。接下来，我们重述“七秒例”。🌰</p>
-<p>第一秒，读者1请求读锁。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Line41: </div><div class="line">	<span class="keyword">if</span> atomic.AddInt32(&amp;rw.readerCount, <span class="number">1</span>) &lt; <span class="number">0</span> &#123;</div><div class="line">		<span class="comment">// A writer is pending, wait for it.</span></div><div class="line">		runtime_Semacquire(&amp;rw.readerSem)</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
-<p>读者数量<code>readerCount</code>开始是0，这个时候加1，变成了1，不符合判负条件所以跳出，成功获得读锁一枚。</p>
-<p>第二秒，写者尝试获取写锁。第85行获取w的锁。不管这个读写锁有没有获取成功，先排斥别的写者。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Line85:</div><div class="line">	<span class="comment">// First, resolve competition with other writers.</span></div><div class="line">	rw.w.Lock()</div><div class="line">	<span class="comment">// Announce to readers there is a pending writer.</span></div><div class="line">	r := atomic.AddInt32(&amp;rw.readerCount, -rwmutexMaxReaders) + rwmutexMaxReaders</div><div class="line">	<span class="comment">// Wait for active readers.</span></div><div class="line">	<span class="keyword">if</span> r != <span class="number">0</span> &amp;&amp; atomic.AddInt32(&amp;rw.readerWait, r) != <span class="number">0</span> &#123;</div><div class="line">		runtime_Semacquire(&amp;rw.writerSem)</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
-<p>刚才说了，一个写者阻塞在这里的时候，也不会让新的读者去读了，所以它干了一件非常坏的事情：<br>把readerCount变成了1-rwmutexMaxReaders。<br>这样就能卡住新来的读者了。<br>接下来，算出r等于1。这意味着有当前有写者存在。<br>因为有读者，所以写者卡在了信号量<code>writerSem</code>上。但是它不甘心啊，心想“等完现在的这几个读者，我就要去写！”，它默默地把现在占有读锁的人记在了<del>小本本</del>rw.readerWait上。在本例子中，readerWait被设置为了1。</p>
-<p>第三秒，读者2尝试获得读锁，它又来到了第41行，结果发现读者的数量是1-rwmutexMaxReaders，好吧，它只好卡在信号量<code>readerSem</code>上。</p>
-<p>第四秒，读者1调用RUnlock()，它首先把读者数量减一，毕竟自己已经不读了。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Line61:</div><div class="line">	<span class="keyword">if</span> r := atomic.AddInt32(&amp;rw.readerCount, <span class="number">-1</span>); r &lt; <span class="number">0</span> &#123;</div><div class="line">		<span class="comment">// A writer is pending.</span></div><div class="line">		<span class="keyword">if</span> atomic.AddInt32(&amp;rw.readerWait, <span class="number">-1</span>) == <span class="number">0</span> &#123;</div><div class="line">			<span class="comment">// The last reader unblocks the writer.</span></div><div class="line">			runtime_Semrelease(&amp;rw.writerSem)</div><div class="line">		&#125;</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
-<p>在读者数量减一的时候，它发现读者数量是负数，这回读者1明白了，有一个写者在等待写。估计读者1自己已经在这个写者的<del>小本本</del>readerWait上了，因此它把readerWait减一，表示自己不读了。这时候读者1发现自己就是最后一个读者了，所以赶紧祭出writerSem，让写者可以去写。<br>读者1释放了writerSem信号量以后，写者很快就收到了这个提醒，兴高采烈地获得了写锁，开始自己的写作生涯。</p>
-<p>读者2还卡着呢…</p>
-<p>第五秒，写者1写完了一稿便不想写了，调用Unlock()准备释放读锁。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Line114:</div><div class="line">	<span class="comment">// Announce to readers there is no active writer.</span></div><div class="line">	r := atomic.AddInt32(&amp;rw.readerCount, rwmutexMaxReaders)</div><div class="line"></div><div class="line">	<span class="comment">// Unblock blocked readers, if any.</span></div><div class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(r); i++ &#123;</div><div class="line">		runtime_Semrelease(&amp;rw.readerSem)</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
-<p>只见他重新为readerCount加上rwmutexMaxReaders，使他重新变为了正数。这个正数恰好也是阻塞的读者的数量。<br>接下来，写者按照这个读者的数量，释放了这么多的readerSem信号量，相当于将所有阻塞的读者一一唤醒。读者2在收到readerSem的那一刻喜极而泣，它终于可以读了。</p>
-<p>第六秒，读者1又来了，它把读者数量加1，发现它是正数哎，写者现在又没来，它再次幸运地瞬间获得读锁，与读者2一起读了起来。</p>
-<p>第七秒，读者1和读者2都释放了自己的读锁。至此，结束。</p>
-<h2 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h2><table>
-<thead>
-<tr>
-<th>中文</th>
-<th>英文</th>
-<th>解释</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>信号量 （也称信号灯）</td>
-<td>Semaphore</td>
-<td></td>
-</tr>
-<tr>
-<td>条件变量</td>
-<td>Condition</td>
-<td></td>
-</tr>
-<tr>
-<td>互斥量</td>
-<td>Mutex</td>
-</tr>
-</tbody>
-</table>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
-<li><a href="https://en.wikipedia.org/wiki/Semaphore_(programming" target="_blank" rel="noopener">Wikipedia: Semaphore (programming)</a>)</li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;源码级剖析Go标准库中的sync.RWMutex。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="go" scheme="http://zablog.me/tags/go/"/>
     
   </entry>
   
