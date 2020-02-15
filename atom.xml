@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2020-02-15T07:25:56.397Z</updated>
+  <updated>2020-02-15T07:27:39.382Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://zablog.me/2020/02/15/2020-02-15/"/>
     <id>http://zablog.me/2020/02/15/2020-02-15/</id>
     <published>2020-02-15T10:20:00.000Z</published>
-    <updated>2020-02-15T07:25:56.397Z</updated>
+    <updated>2020-02-15T07:27:39.382Z</updated>
     
     <content type="html"><![CDATA[<p>篇名叫做使用体验，其实并不准确，目前来看纯粹是吐槽。</p>
 <p>并不打算写一个 ASM 使用流程指南，毕竟 <a href="https://help.aliyun.com/document_detail/149552.html" target="_blank" rel="noopener">https://help.aliyun.com/document_detail/149552.html</a> 才是更为专业的文档。</p>
@@ -73,36 +73,6 @@
     <id>http://zablog.me/2020/01/10/2020-01-10/</id>
     <published>2020-01-10T10:20:00.000Z</published>
     <updated>2020-01-21T07:30:53.226Z</updated>
-    
-    <content type="html"><![CDATA[<p>荷兰最近有一个新闻，希望把国名修改为尼德兰。<br>因为狭义上的荷兰只代表整个国家内部的两个省而已。<br>虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。</p>
-<p>对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。</p>
-<a id="more"></a>
-<p>譬如服务发现，如果一个人说他是做服务发现的话，他基本上也会去做服务注册。服务发现广义上是包含服务注册的。<br>同样的，流量染色在广义上，应该包括无色流量的浸染过程，以及染色后的流量的处理过程。</p>
-<p>继Service Mesh之后，又逐渐迸发了很多诸如 DB Mesh、MQ Mesh、General-Purpose Mesh 等新的Mesh，那么实际上广义上的 Service Mesh 也可以涵盖后续一些新的名词。</p>
-<p>在国家演进的过程中，很可能出现荷兰这种名称不匹配的问题；<br>英国尚且可以通过“大不列颠”来代替英格兰，作为整个帝国的名称，但是绝大多数情况下是没有办法的。<br>技术演进的过程中，也会有一个相对片面的名词来代指整个事情的状况。这种情况其实是很难改变的，只要选择接受就好。<br>更多时候，不纠结反而有利于技术的交流和宣传，不要拘泥于绝对的严谨。</p>
-<p>改名实在是一件非常困难的事情。如果想定一个名字，尽量刚开始就想清楚吧。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;荷兰最近有一个新闻，希望把国名修改为尼德兰。&lt;br&gt;因为狭义上的荷兰只代表整个国家内部的两个省而已。&lt;br&gt;虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。&lt;/p&gt;
-&lt;p&gt;对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>从荷兰改名想到的</title>
-    <link href="http://zablog.me/2020/01/10/2020-01-30/"/>
-    <id>http://zablog.me/2020/01/10/2020-01-30/</id>
-    <published>2020-01-10T10:20:00.000Z</published>
-    <updated>2020-01-29T07:04:19.505Z</updated>
     
     <content type="html"><![CDATA[<p>荷兰最近有一个新闻，希望把国名修改为尼德兰。<br>因为狭义上的荷兰只代表整个国家内部的两个省而已。<br>虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。</p>
 <p>对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。</p>
@@ -988,6 +958,66 @@
     
     
       <category term="crawler" scheme="http://zablog.me/tags/crawler/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>每周一个Github项目【第八期】go-cache</title>
+    <link href="http://zablog.me/2017/10/08/github_go-cache/"/>
+    <id>http://zablog.me/2017/10/08/github_go-cache/</id>
+    <published>2017-10-08T10:00:00.000Z</published>
+    <updated>2017-10-09T13:03:25.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>用Go实现的驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用 // An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.<br><a id="more"></a></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>go-cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址</td>
+<td><a href="https://github.com/patrickmn/go-cache" target="_blank" rel="noopener">Github</a></td>
+</tr>
+<tr>
+<td>作者</td>
+<td><a href="https://github.com/patrickmn" target="_blank" rel="noopener">patrickmn</a>等</td>
+</tr>
+<tr>
+<td>Brief Intro</td>
+<td>An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>starts</td>
+<td>1,119</td>
+</tr>
+</tbody>
+</table>
+<p>go-cache是一个驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用。<br>它大致上可以认为是一个线程安全的<code>map[string]interface{}</code>，同时支持时间过期。</p>
+<p>任何对象都可以被存储，可以指定过期时间，也可以指定为永久存在。go-cache是线程安全的。</p>
+<p>虽然go-cache并非作为持久存储而设计的，但是整个高速缓存的内容可以通过<code>c.Items()</code>序列化以后存储，然后使用<code>NewFrom()</code>重新加载。</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/patrickmn/go-cache</div></pre></td></tr></table></figure>
+<p>用法</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"github.com/patrickmn/go-cache"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</div><div class="line">	<span class="comment">// 创建一个默认过期时间为5分钟，清理间隔时间为10分钟的高速缓存</span></div><div class="line">	c := cache.New(<span class="number">5</span>*time.Minute, <span class="number">10</span>*time.Minute)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“foo”键的值为“bar”，默认过期时间</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, <span class="string">"bar"</span>, cache.DefaultExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 设置“baz”为42，不过期</span></div><div class="line">	<span class="comment">// 如果没有重置或者删除的话，它不会被删除</span></div><div class="line">	c.Set(<span class="string">"baz"</span>, <span class="number">42</span>, cache.NoExpiration)</div><div class="line"></div><div class="line">	<span class="comment">// 获取"foo"对应的字符串</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		fmt.Println(foo)</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 因为Go是一种静态类型语言，而cache可以存储任何类型，因此可以使用断言来判断任意类型</span></div><div class="line">	foo, found := c.Get(<span class="string">"foo"</span>)</div><div class="line">	<span class="keyword">if</span> found &#123;</div><div class="line">		MyFunction(foo.(<span class="keyword">string</span>))</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">// 需要高性能？那就存指针吧</span></div><div class="line">	c.Set(<span class="string">"foo"</span>, &amp;MyStruct, cache.DefaultExpiration)</div><div class="line">	<span class="keyword">if</span> x, found := c.Get(<span class="string">"foo"</span>); found &#123;</div><div class="line">		foo := x.(*MyStruct)</div><div class="line">			<span class="comment">// ...</span></div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>用法相对很简单，实现也不难，具体文档参考<a href="https://godoc.org/github.com/patrickmn/go-cache" target="_blank" rel="noopener">文档</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;用Go实现的驻留内存的键值对存储/高速缓存（类似Memcached），适合单机应用 // An in-memory key:value store/cache (similar to Memcached) library for Go, suitable for single-machine applications.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="Github Every Week" scheme="http://zablog.me/tags/Github-Every-Week/"/>
     
   </entry>
   
