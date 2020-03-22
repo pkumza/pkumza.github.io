@@ -6,7 +6,7 @@
 <p>假如得到now的时间以后，机器与外部时间进行了一步同步，把本机实际时间调慢1分钟，那么程序将会在第二行卡上70秒。<br>这会导致本地日志队列可能会爆仓。</p>
 <p>与Duration相关的时间操作，譬如time.Since(start), time.Until(deadline), and time.Now().Before(deadline)等，对于时间重置非常敏感，所以它们需要参考 Monotonic 时间。</p>
 <p>而如果时间是为了打印，或者start time/deadline time是外界传入的，那么 monotonic 时间将会是一个干扰。 此时应该使用  t = t.Round(0) 排除 monotonic。</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2018/12/23/CloudNative/" class="prev">PREV</a><a href="/2018/10/29/LB/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+</div></article></div></main><footer><div class="paginator"><a href="/2018/12/23/CloudNative/" class="prev">上一篇</a><a href="/2018/10/29/LB/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
 var disqus_identifier = '2018/11/29/Monotonic/';
 var disqus_title = 'Monotonic time';
 var disqus_url = 'http://zablog.me/2018/11/29/Monotonic/';
