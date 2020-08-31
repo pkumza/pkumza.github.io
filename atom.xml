@@ -103,6 +103,69 @@
   </entry>
   
   <entry>
+    <title>ASM使用体验2</title>
+    <link href="http://zablog.me/2020/02/15/2020-03-26/"/>
+    <id>http://zablog.me/2020/02/15/2020-03-26/</id>
+    <published>2020-02-15T10:20:00.000Z</published>
+    <updated>2020-03-26T06:48:39.087Z</updated>
+    
+    <content type="html"><![CDATA[<p>时隔1个月，申请成功，再次体验。</p>
+<a id="more"></a>
+<p>首先 RAM 授权 ASM 的访问权限。</p>
+<p>创建网格。<br>创建的过程中需要填写 专有网络，还要创建专有网络。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;时隔1个月，申请成功，再次体验。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Bazel被限流怎么办</title>
+    <link href="http://zablog.me/2020/02/15/2020-08-31/"/>
+    <id>http://zablog.me/2020/02/15/2020-08-31/</id>
+    <published>2020-02-15T10:20:00.000Z</published>
+    <updated>2020-08-31T09:46:15.454Z</updated>
+    
+    <content type="html"><![CDATA[<p>Bazel 是个好用的编译工具，但是如果处在一个共享IP的环境，经常会遇到如下错误：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ bazel                   </div><div class="line">2020/08/31 17:10:27 could not resolve the version <span class="string">'latest'</span> to an actual version number: could not get releases from github.com/bazelbuild/bazel: could not download list of Bazel releases from github.com/bazelbuild: unexpected status code <span class="keyword">while</span> reading https://api.github.com/repos/bazelbuild/bazel/releases: 403</div></pre></td></tr></table></figure>
+<p>导致编译过程受阻，非常麻烦。<br><a id="more"></a></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>出现这个问题的原因是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">curl https://api.github.com/repos/bazelbuild/bazel/releases</div><div class="line">&#123;<span class="string">"message"</span>:<span class="string">"API rate limit exceeded for 100.101.102.103. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)"</span>,<span class="string">"documentation_url"</span>:<span class="string">"https://developer.github.com/v3/#rate-limiting"</span>&#125;</div></pre></td></tr></table></figure>
+<p>说白了就是你和别人共用了 <code>100.101.102.103</code> 作为共用的出口代理，这个出口命中限流了。</p>
+<h2 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h2><p>登陆 github</p>
+<p><img src="https://docs.github.com/assets/images/help/settings/userbar-account-settings.png" alt="点击▽-Settings-Personal access tokens"></p>
+<p>点击 Generate-now-token 按钮，生成一个新的 token，譬如起名<code>bazel</code></p>
+<p>check box不用选，这个地方不需要什么权限。</p>
+<p>把 <code>export BAZELISK_GITHUB_TOKEN=37493ba********f32d4c4</code> 添加到你的 <code>.bash_profile</code> 文件结尾：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="string">'export BAZELISK_GITHUB_TOKEN=37493ba********f32d4c4'</span> &gt;&gt; ~/.bash_profile</div><div class="line"><span class="built_in">source</span> .bash_profile</div></pre></td></tr></table></figure>
+<p>然后就好了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">bazel version</div><div class="line">Bazelisk version: v1.3.0</div><div class="line">Build label: 3.4.1</div><div class="line">Build target: bazel-out/darwin-opt/bin/src/main/java/com/google/devtools/build/lib/bazel/BazelServer_deploy.jar</div><div class="line">Build time: Tue Jul 14 06:32:14 2020 (1594708334)</div><div class="line">Build timestamp: 1594708334</div><div class="line">Build timestamp as int: 1594708334</div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Bazel 是个好用的编译工具，但是如果处在一个共享IP的环境，经常会遇到如下错误：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;$ bazel                   &lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2020/08/31 17:10:27 could not resolve the version &lt;span class=&quot;string&quot;&gt;&#39;latest&#39;&lt;/span&gt; to an actual version number: could not get releases from github.com/bazelbuild/bazel: could not download list of Bazel releases from github.com/bazelbuild: unexpected status code &lt;span class=&quot;keyword&quot;&gt;while&lt;/span&gt; reading https://api.github.com/repos/bazelbuild/bazel/releases: 403&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;导致编译过程受阻，非常麻烦。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
     <title>从荷兰改名想到的</title>
     <link href="http://zablog.me/2020/01/10/2020-01-10/"/>
     <id>http://zablog.me/2020/01/10/2020-01-10/</id>
@@ -932,67 +995,6 @@
     
     
       <category term="go" scheme="http://zablog.me/tags/go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>匿名代理、透传代理和精英代理之间的区别</title>
-    <link href="http://zablog.me/2017/12/04/proxy/"/>
-    <id>http://zablog.me/2017/12/04/proxy/</id>
-    <published>2017-12-04T13:00:00.000Z</published>
-    <updated>2018-09-10T12:29:07.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>匿名代理、透传代理和精英代理之间的区别 / differences between transparent, anonymous and elite proxy<br><a id="more"></a></p>
-<p>作为一个代理的普通用户，你也许不知道你在用的代理到底是透明的，匿名的还是精英的。<br>你也许会倾向于使用精英代理，正如它名字指示的那样。那么这几种代理到底有什么区别呢？</p>
-<p>首先，代理一般会在HTTP的Header中传输以下3个字段：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">REMOTE_ADDR</div><div class="line">HTTP_X_FORWARDED_FOR</div><div class="line">HTTP_VIA</div></pre></td></tr></table></figure>
-<p>REMOTE_ADDR总是发送代理服务器的IP地址。</p>
-<h2 id="透传代理"><a href="#透传代理" class="headerlink" title="透传代理"></a>透传代理</h2><p>对于透传代理（Transparent Proxy）来说，你真实IP地址会被放在HTTP_X_FORWARDED_FOR里面。这意味着网站可以知道代理的IP，还知道你真正的IP地址。<br>HTTP_VIA头也会发送，显示你正在使用代理服务器</p>
-<h2 id="匿名代理"><a href="#匿名代理" class="headerlink" title="匿名代理"></a>匿名代理</h2><p>匿名代理不会把你的真实IP写在<code>HTTP_X_FORWARDED_FOR</code>头里面。但是HTTP_VIA头还是透露了您正在使用一个代理服务器。</p>
-<h2 id="精英代理"><a href="#精英代理" class="headerlink" title="精英代理"></a>精英代理</h2><p>精英代理只发送REMOTE_ADDR头,因此让你看起来像一个普通互联网用户不使用代理。</p>
-<h2 id="检测精英代理"><a href="#检测精英代理" class="headerlink" title="检测精英代理"></a>检测精英代理</h2><p>精英代理并非不可以检测。<br>网站可以检查这个IP，是否使用了常用的代理接口（如8080、3128、8080、3128）。</p>
-<p>可以使用以下网站来检测你是否匿名:<a href="http://whoer.net/ext" target="_blank" rel="noopener">http://whoer.net/ext</a> 或 <a href="https://whoer.net/zh#extended" target="_blank" rel="noopener">https://whoer.net/zh#extended</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;匿名代理、透传代理和精英代理之间的区别 / differences between transparent, anonymous and elite proxy&lt;br&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>爬虫小纪</title>
-    <link href="http://zablog.me/2017/11/12/crawler/"/>
-    <id>http://zablog.me/2017/11/12/crawler/</id>
-    <published>2017-11-12T13:00:00.000Z</published>
-    <updated>2018-12-23T06:11:50.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>最近比较繁忙，所以博客也没有什么新文章。<br>说一下爬虫吧。<br>自从互联网时代开始，爬虫就没停止活跃…恐怕今后很长一段时间爬虫都会长期存在。当人们谈到XSS、DDos、SQL injection、SSL attacks的时候，多数你在谈论计算机安全，当你谈到爬虫的时候，你更多的在关心内容安全。爬虫有时候会涉及内容安全，有些内容是别人的立站根本，譬如PGC、UGC的文章；有的内容是别人的商业机密，譬如酒店、商品的价格。</p>
-<p>对于爬虫来说，有没有规范定义它不允许爬取的内容呢。有一个文件叫做robots.txt，它是是一种存放于网站根目录下的ASCII编码的文本文件，通常用来告诉搜索引擎的爬取器哪些内容是不应该被获取的。</p>
-<p>曾经阿里巴巴有一个很火的网站<a href="http://etao.com/" target="_blank" rel="noopener">一淘</a>，这个网站的最大优势是可以在线比价。它可以将一件商品在各个平台上的价格放在一起，消费者可以在这里瞬间看到很多平台的价格，从而找到最便宜的。</p>
-<p>而更杀手级的功能是，它提供历史价格的功能。譬如对于京东来说，它可以看到京东里面某件商品的价格历史。当前虽然在搞促销，但是也许并非历史最低价格，消费者可能就继续观望了。</p>
-<p>这对京东这种商家的损害很大，一淘这样就侵犯京东的商业机密了。京东不希望别人知道一件商品的价格历史。所以，京东的robots.txt设置为了这样：<a href="https://www.jd.com/robots.txt" target="_blank" rel="noopener">robots.txt</a><br>其中有一条写作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">User-agent: EtaoSpider </div><div class="line">Disallow: /</div></pre></td></tr></table></figure></p>
-<p>也就是说，对于Etao的爬虫来说，我不允许你爬取京东的任何内容。</p>
-<p>一淘是阿里旗下的，所以这个竞争对手是不希望被允许的了。这个市场看起来被一个不太知名的网站“慢慢买”占了。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;最近比较繁忙，所以博客也没有什么新文章。&lt;br&gt;说一下爬虫吧。&lt;br&gt;自从互联网时代开始，爬虫就没停止活跃…恐怕今后很长一段时间爬虫都会长期存在。当人们谈到XSS、DDos、SQL injection、SSL attacks的时候，多数你在谈论计算机安全，当你谈到爬虫的时候
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="crawler" scheme="http://zablog.me/tags/crawler/"/>
     
   </entry>
   
