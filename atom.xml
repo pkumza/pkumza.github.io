@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zablog.me/"/>
-  <updated>2020-08-31T09:46:43.517Z</updated>
+  <updated>2020-08-31T09:46:43.000Z</updated>
   <id>http://zablog.me/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://zablog.me/2020/08/31/2020-08-31/"/>
     <id>http://zablog.me/2020/08/31/2020-08-31/</id>
     <published>2020-08-31T11:20:00.000Z</published>
-    <updated>2020-08-31T09:46:43.517Z</updated>
+    <updated>2020-08-31T09:46:43.000Z</updated>
     
     <content type="html"><![CDATA[<p>Bazel 是个好用的编译工具，但是如果处在一个共享IP的环境，经常会遇到如下错误：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ bazel                   </div><div class="line">2020/08/31 17:10:27 could not resolve the version <span class="string">'latest'</span> to an actual version number: could not get releases from github.com/bazelbuild/bazel: could not download list of Bazel releases from github.com/bazelbuild: unexpected status code <span class="keyword">while</span> reading https://api.github.com/repos/bazelbuild/bazel/releases: 403</div></pre></td></tr></table></figure>
@@ -57,7 +57,7 @@
     <link href="http://zablog.me/2020/03/21/2020-03-21/"/>
     <id>http://zablog.me/2020/03/21/2020-03-21/</id>
     <published>2020-03-21T10:20:00.000Z</published>
-    <updated>2020-03-22T02:58:01.556Z</updated>
+    <updated>2020-03-22T02:58:01.000Z</updated>
     
     <content type="html"><![CDATA[<p>我们如何才能把一个复杂的项目做出来，并且做好？</p>
 <p>一直以来，我们接受的教育都会教导我们，把问题拆解开来，把事情拆细，分而治之。诚然，这卓有成效。对于树状的组织人员结构来说，每个分支、每个成员都有自己负责的部分，每个分支把负责的部分做好，最终整合起来，整体就做好了。划分细致之后，各个细节也都会变得清晰，便于具体追踪。然而，太多地使用拆解之后，我们往往忘记了系统性思考，从整体的角度仔细揣摩，这也造成了很多问题。</p>
@@ -88,37 +88,11 @@
   </entry>
   
   <entry>
-    <title>ASM使用体验2</title>
-    <link href="http://zablog.me/2020/02/15/2020-03-26/"/>
-    <id>http://zablog.me/2020/02/15/2020-03-26/</id>
-    <published>2020-02-15T10:20:00.000Z</published>
-    <updated>2020-03-26T06:48:39.087Z</updated>
-    
-    <content type="html"><![CDATA[<p>时隔1个月，申请成功，再次体验。</p>
-<a id="more"></a>
-<p>首先 RAM 授权 ASM 的访问权限。</p>
-<p>创建网格。<br>创建的过程中需要填写 专有网络，还要创建专有网络。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;时隔1个月，申请成功，再次体验。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
-    
-  </entry>
-  
-  <entry>
     <title>ASM使用体验</title>
     <link href="http://zablog.me/2020/02/15/2020-02-15/"/>
     <id>http://zablog.me/2020/02/15/2020-02-15/</id>
     <published>2020-02-15T10:20:00.000Z</published>
-    <updated>2020-02-15T07:27:39.382Z</updated>
+    <updated>2020-02-15T07:27:39.000Z</updated>
     
     <content type="html"><![CDATA[<p>篇名叫做使用体验，其实并不准确，目前来看纯粹是吐槽。</p>
 <p>并不打算写一个 ASM 使用流程指南，毕竟 <a href="https://help.aliyun.com/document_detail/149552.html" target="_blank" rel="noopener">https://help.aliyun.com/document_detail/149552.html</a> 才是更为专业的文档。</p>
@@ -166,11 +140,37 @@
   </entry>
   
   <entry>
+    <title>ASM使用体验2</title>
+    <link href="http://zablog.me/2020/02/15/2020-03-26/"/>
+    <id>http://zablog.me/2020/02/15/2020-03-26/</id>
+    <published>2020-02-15T10:20:00.000Z</published>
+    <updated>2020-03-26T06:48:39.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>时隔1个月，申请成功，再次体验。</p>
+<a id="more"></a>
+<p>首先 RAM 授权 ASM 的访问权限。</p>
+<p>创建网格。<br>创建的过程中需要填写 专有网络，还要创建专有网络。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;时隔1个月，申请成功，再次体验。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
     <title>从荷兰改名想到的</title>
     <link href="http://zablog.me/2020/01/10/2020-01-10/"/>
     <id>http://zablog.me/2020/01/10/2020-01-10/</id>
     <published>2020-01-10T10:20:00.000Z</published>
-    <updated>2020-01-21T07:30:53.226Z</updated>
+    <updated>2020-01-21T07:30:53.000Z</updated>
     
     <content type="html"><![CDATA[<p>荷兰最近有一个新闻，希望把国名修改为尼德兰。<br>因为狭义上的荷兰只代表整个国家内部的两个省而已。<br>虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。</p>
 <p>对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。</p>
