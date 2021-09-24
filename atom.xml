@@ -4,9 +4,9 @@
   <subtitle>疾风知劲草 岁寒见后凋</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://zablog.me/"/>
+  <link href="https://zablog.me/"/>
   <updated>2021-08-22T14:04:46.994Z</updated>
-  <id>http://zablog.me/</id>
+  <id>https://zablog.me/</id>
   
   <author>
     <name>Zachary Marv</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>首批！火山引擎获得可信云服务网格解决方案最高等级认证</title>
-    <link href="http://zablog.me/2021/08/22/2021-08-22/"/>
-    <id>http://zablog.me/2021/08/22/2021-08-22/</id>
+    <link href="https://zablog.me/2021/08/22/2021-08-22/"/>
+    <id>https://zablog.me/2021/08/22/2021-08-22/</id>
     <published>2021-08-22T11:20:00.000Z</published>
     <updated>2021-08-22T14:04:46.994Z</updated>
     
@@ -38,17 +38,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>Bazel被限流怎么办</title>
-    <link href="http://zablog.me/2020/08/31/2020-08-31/"/>
-    <id>http://zablog.me/2020/08/31/2020-08-31/</id>
+    <link href="https://zablog.me/2020/08/31/2020-08-31/"/>
+    <id>https://zablog.me/2020/08/31/2020-08-31/</id>
     <published>2020-08-31T11:20:00.000Z</published>
     <updated>2020-08-31T09:46:43.000Z</updated>
     
@@ -75,17 +75,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>系统性思考训练1</title>
-    <link href="http://zablog.me/2020/03/21/2020-03-21/"/>
-    <id>http://zablog.me/2020/03/21/2020-03-21/</id>
+    <link href="https://zablog.me/2020/03/21/2020-03-21/"/>
+    <id>https://zablog.me/2020/03/21/2020-03-21/</id>
     <published>2020-03-21T10:20:00.000Z</published>
     <updated>2020-03-22T02:58:01.000Z</updated>
     
@@ -110,17 +110,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>ASM使用体验</title>
-    <link href="http://zablog.me/2020/02/15/2020-02-15/"/>
-    <id>http://zablog.me/2020/02/15/2020-02-15/</id>
+    <link href="https://zablog.me/2020/02/15/2020-02-15/"/>
+    <id>https://zablog.me/2020/02/15/2020-02-15/</id>
     <published>2020-02-15T10:20:00.000Z</published>
     <updated>2020-02-15T07:27:39.000Z</updated>
     
@@ -162,17 +162,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>ASM使用体验2</title>
-    <link href="http://zablog.me/2020/02/15/2020-03-26/"/>
-    <id>http://zablog.me/2020/02/15/2020-03-26/</id>
+    <link href="https://zablog.me/2020/02/15/2020-03-26/"/>
+    <id>https://zablog.me/2020/02/15/2020-03-26/</id>
     <published>2020-02-15T10:20:00.000Z</published>
     <updated>2020-03-26T06:48:39.000Z</updated>
     
@@ -188,17 +188,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>从荷兰改名想到的</title>
-    <link href="http://zablog.me/2020/01/10/2020-01-10/"/>
-    <id>http://zablog.me/2020/01/10/2020-01-10/</id>
+    <link href="https://zablog.me/2020/01/10/2020-01-10/"/>
+    <id>https://zablog.me/2020/01/10/2020-01-10/</id>
     <published>2020-01-10T10:20:00.000Z</published>
     <updated>2020-01-21T07:30:53.000Z</updated>
     
@@ -218,17 +218,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>EDF负载均衡调度算法</title>
-    <link href="http://zablog.me/2019/08/02/2019-08-02/"/>
-    <id>http://zablog.me/2019/08/02/2019-08-02/</id>
+    <link href="https://zablog.me/2019/08/02/2019-08-02/"/>
+    <id>https://zablog.me/2019/08/02/2019-08-02/</id>
     <published>2019-08-02T10:20:00.000Z</published>
     <updated>2019-08-02T12:38:56.000Z</updated>
     
@@ -278,17 +278,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>Traffic Director 使用体验</title>
-    <link href="http://zablog.me/2019/07/01/2019-07-01/"/>
-    <id>http://zablog.me/2019/07/01/2019-07-01/</id>
+    <link href="https://zablog.me/2019/07/01/2019-07-01/"/>
+    <id>https://zablog.me/2019/07/01/2019-07-01/</id>
     <published>2019-07-01T10:20:00.000Z</published>
     <updated>2019-07-01T11:35:57.000Z</updated>
     
@@ -368,17 +368,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>谷歌云网络深度解析：流量指挥官如何为服务网格提供全局负载均衡</title>
-    <link href="http://zablog.me/2019/05/16/2019-05-16/"/>
-    <id>http://zablog.me/2019/05/16/2019-05-16/</id>
+    <link href="https://zablog.me/2019/05/16/2019-05-16/"/>
+    <id>https://zablog.me/2019/05/16/2019-05-16/</id>
     <published>2019-05-16T10:20:00.000Z</published>
     <updated>2019-05-16T10:50:22.000Z</updated>
     
@@ -423,17 +423,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>coding练习：键盘侠</title>
-    <link href="http://zablog.me/2019/03/30/q02/"/>
-    <id>http://zablog.me/2019/03/30/q02/</id>
+    <link href="https://zablog.me/2019/03/30/q02/"/>
+    <id>https://zablog.me/2019/03/30/q02/</id>
     <published>2019-03-30T13:00:00.000Z</published>
     <updated>2019-05-16T10:22:58.000Z</updated>
     
@@ -452,17 +452,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>计算21点在摸五张的情况下不爆牌的概率</title>
-    <link href="http://zablog.me/2018/12/30/q01/"/>
-    <id>http://zablog.me/2018/12/30/q01/</id>
+    <link href="https://zablog.me/2018/12/30/q01/"/>
+    <id>https://zablog.me/2018/12/30/q01/</id>
     <published>2018-12-30T13:00:00.000Z</published>
     <updated>2018-12-30T13:39:38.000Z</updated>
     
@@ -539,17 +539,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>云原生的定义</title>
-    <link href="http://zablog.me/2018/12/23/CloudNative/"/>
-    <id>http://zablog.me/2018/12/23/CloudNative/</id>
+    <link href="https://zablog.me/2018/12/23/CloudNative/"/>
+    <id>https://zablog.me/2018/12/23/CloudNative/</id>
     <published>2018-12-23T13:00:00.000Z</published>
     <updated>2018-12-23T06:19:21.000Z</updated>
     
@@ -584,17 +584,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>Monotonic time</title>
-    <link href="http://zablog.me/2018/11/29/Monotonic/"/>
-    <id>http://zablog.me/2018/11/29/Monotonic/</id>
+    <link href="https://zablog.me/2018/11/29/Monotonic/"/>
+    <id>https://zablog.me/2018/11/29/Monotonic/</id>
     <published>2018-11-29T13:00:00.000Z</published>
     <updated>2018-11-29T06:14:39.000Z</updated>
     
@@ -614,17 +614,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>Envoy中的 LB 算法</title>
-    <link href="http://zablog.me/2018/10/29/LB/"/>
-    <id>http://zablog.me/2018/10/29/LB/</id>
+    <link href="https://zablog.me/2018/10/29/LB/"/>
+    <id>https://zablog.me/2018/10/29/LB/</id>
     <published>2018-10-29T13:00:00.000Z</published>
     <updated>2018-10-30T02:18:36.000Z</updated>
     
@@ -660,17 +660,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>HTTP 简史复习</title>
-    <link href="http://zablog.me/2018/10/04/http-brief-history/"/>
-    <id>http://zablog.me/2018/10/04/http-brief-history/</id>
+    <link href="https://zablog.me/2018/10/04/http-brief-history/"/>
+    <id>https://zablog.me/2018/10/04/http-brief-history/</id>
     <published>2018-10-04T13:00:00.000Z</published>
     <updated>2018-10-29T12:47:48.000Z</updated>
     
@@ -719,17 +719,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>Mac OS X屏幕快照完全指南</title>
-    <link href="http://zablog.me/2018/09/16/snapshot/"/>
-    <id>http://zablog.me/2018/09/16/snapshot/</id>
+    <link href="https://zablog.me/2018/09/16/snapshot/"/>
+    <id>https://zablog.me/2018/09/16/snapshot/</id>
     <published>2018-09-16T13:00:00.000Z</published>
     <updated>2018-09-16T13:07:48.000Z</updated>
     
@@ -780,19 +780,19 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
-      <category term="OS X" scheme="http://zablog.me/tags/OS-X/"/>
+      <category term="OS X" scheme="https://zablog.me/tags/OS-X/"/>
     
   </entry>
   
   <entry>
     <title>AKF扩展立方</title>
-    <link href="http://zablog.me/2018/09/10/scale-cube/"/>
-    <id>http://zablog.me/2018/09/10/scale-cube/</id>
+    <link href="https://zablog.me/2018/09/10/scale-cube/"/>
+    <id>https://zablog.me/2018/09/10/scale-cube/</id>
     <published>2018-09-10T13:00:00.000Z</published>
     <updated>2018-09-10T12:57:44.000Z</updated>
     
@@ -843,17 +843,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="技术随笔" scheme="http://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+      <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
   <entry>
     <title>Redis漏洞攻击</title>
-    <link href="http://zablog.me/2018/04/06/redis-hole/"/>
-    <id>http://zablog.me/2018/04/06/redis-hole/</id>
+    <link href="https://zablog.me/2018/04/06/redis-hole/"/>
+    <id>https://zablog.me/2018/04/06/redis-hole/</id>
     <published>2018-04-06T07:34:46.000Z</published>
     <updated>2018-04-06T08:04:35.000Z</updated>
     
@@ -886,17 +886,17 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="Redis" scheme="http://zablog.me/tags/Redis/"/>
+      <category term="Redis" scheme="https://zablog.me/tags/Redis/"/>
     
   </entry>
   
   <entry>
     <title>Mediakit报告设备商的空间不足以执行此操作的纯MAC解法</title>
-    <link href="http://zablog.me/2018/03/09/diskutil/"/>
-    <id>http://zablog.me/2018/03/09/diskutil/</id>
+    <link href="https://zablog.me/2018/03/09/diskutil/"/>
+    <id>https://zablog.me/2018/03/09/diskutil/</id>
     <published>2018-03-09T11:06:39.000Z</published>
     <updated>2018-03-12T02:15:53.000Z</updated>
     
@@ -931,15 +931,15 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
   </entry>
   
   <entry>
     <title>几款MarkDown对比</title>
-    <link href="http://zablog.me/2017/12/16/markdown/"/>
-    <id>http://zablog.me/2017/12/16/markdown/</id>
+    <link href="https://zablog.me/2017/12/16/markdown/"/>
+    <id>https://zablog.me/2017/12/16/markdown/</id>
     <published>2017-12-16T13:00:00.000Z</published>
     <updated>2017-12-17T02:53:56.000Z</updated>
     
@@ -994,10 +994,10 @@
     
     </summary>
     
-      <category term="个人随笔" scheme="http://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+      <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="Markdown" scheme="http://zablog.me/tags/Markdown/"/>
+      <category term="Markdown" scheme="https://zablog.me/tags/Markdown/"/>
     
   </entry>
   
