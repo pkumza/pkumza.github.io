@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Mac OS X屏幕快照完全指南 · Zablog</title><meta name="description" content="Mac OS X屏幕快照完全指南 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://zablog.me/atom.xml" title="Zablog"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zablog" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/about" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">Mac OS X屏幕快照完全指南</h1><div class="post-info">2018年9月16日</div><div class="post-content"><p>Mac OS X提供了丰富的内嵌屏幕快照（截图）工具，但是默认的格式、截图位置等并不一定可以契合每一个用户的需求。好在我们使用命令行（Terminal.app 或者iTerm2等别的命令行工具）可以方便地定制屏幕快照。</p>
+<span id="more"></span>
+
+<h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p>在我们具体地讨论屏幕快照之前，我们先讲一下基本使用（经验丰富的用户可以跳过这个部分）</p>
+<p>在Mac OS X中，有三种方式来截图：截取整个屏幕、截取选定的窗口、截取指定方形区域，以上每一个都可以用快捷键唤起。</p>
+<p>Command + Shift + 3: 截取整个屏幕。如果你有多个屏幕，那么每个屏幕会分别被截在不同的图中。</p>
+<p>Command + Shift + 4: 截取一个方形区域。接下来你可以用你的鼠标划取这个区域。</p>
+<p><img src="https://cdn1.tekrevue.com/wp-content/uploads/2013/05/20130530_screenshotcrosshairs-615x386.jpg"></p>
+<p>Command + Shift + 4, 然后按下空格: 截取一个窗口区域。</p>
+<p>使用上述快捷键，默认会把截图保存到桌面上。</p>
+<p>如果你在按上述快捷键的时候，同时按住Control键，那么截到的图片会暂时存在剪贴板中。</p>
+<p>除了上述三个功能之外，&#x2F;应用程序&#x2F;实用工具&#x2F;抓图.app还提供定时截图的功能。它可以有一个10秒钟的等待时间，会在你点击<code>启动定时器</code>按钮之后的10秒钟完成截图。</p>
+<h1 id="使用终端命令行"><a href="#使用终端命令行" class="headerlink" title="使用终端命令行"></a>使用终端命令行</h1><p>后续每个效果，都得通过执行这句指令才能生效。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">killall SystemUIServer</span><br></pre></td></tr></table></figure>
+
+<p>这句话起到了刷新作用。</p>
+<h1 id="改变格式"><a href="#改变格式" class="headerlink" title="改变格式"></a>改变格式</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture type [format]</span><br></pre></td></tr></table></figure>
+
+<p><code>[format]</code> 可以输入为</p>
+<ul>
+<li>bmp</li>
+<li>pdf</li>
+<li>jpg</li>
+<li>jp2</li>
+<li>tif</li>
+<li>pict</li>
+<li>tga</li>
+<li>png</li>
+</ul>
+<p>譬如，你可以通过输入<code>defaults write com.apple.screencapture type jpg</code>把默认图片格式改为jpg</p>
+<h1 id="改变文件名"><a href="#改变文件名" class="headerlink" title="改变文件名"></a>改变文件名</h1><p>系统默认存储的文件名为<code>屏幕快照 [date] [time].[format]</code>，譬如<code>屏幕快照 2018-07-31 下午4.01.16.png</code>。<br>你无法把时间戳从文件名中移除，但是你可以改掉<code>屏幕快照</code>这个前缀。方法是输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture name [file name]</span><br></pre></td></tr></table></figure>
+
+<h1 id="修改默认保存位置"><a href="#修改默认保存位置" class="headerlink" title="修改默认保存位置"></a>修改默认保存位置</h1><p>默认是保存到桌面的。你可以手动改变保存位置。</p>
+<p>命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture location</span><br></pre></td></tr></table></figure>
+
+<p>首先，你必须要创建一个新的文件夹，当然你要了解你文件夹的位置。<br>譬如你创建了一个名字叫做<code>abc</code>的文件夹在桌面上，那么这个文件夹的位置就是~&#x2F;Desktop&#x2F;abc</p>
+<p>例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture location /Users/[username]/Desktop/abc/</span><br></pre></td></tr></table></figure>
+
+<h1 id="窗口阴影"><a href="#窗口阴影" class="headerlink" title="窗口阴影"></a>窗口阴影</h1><p>截图的时候默认是有窗口阴影的，你可以用命令改掉。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture disable-shadow -bool true</span><br></pre></td></tr></table></figure>
+
+<p>效果图：<br><img src="https://cdn1.tekrevue.com/wp-content/uploads/2013/03/20130301_osxscreenshots_4.jpg"></p>
+<hr>
+<p>参考：<br><a target="_blank" rel="noopener" href="https://www.tekrevue.com/tip/how-to-customize-screenshot-options-in-mac-os-x/">The Complete Guide to Mac OS X Screenshots</a></p>
+</div></article></div></main><footer><div class="paginator"><a href="/2018/10/04/http-brief-history/" class="prev">上一篇</a><a href="/2018/09/10/scale-cube/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2018/09/16/snapshot/';
+var disqus_title = 'Mac OS X屏幕快照完全指南';
+var disqus_url = 'https://zablog.me/2018/09/16/snapshot/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2022 <a href="https://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Zablog</title>
+  
+  <subtitle>疾风知劲草 岁寒见后凋</subtitle>
+  <link href="https://zablog.me/atom.xml" rel="self"/>
+  
+  <link href="https://zablog.me/"/>
+  <updated>2022-11-24T07:26:41.454Z</updated>
+  <id>https://zablog.me/</id>
+  
+  <author>
+    <name>Zachary Marv</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>【译】使用英特尔 AVX-512 更快地解析 JSON</title>
+    <link href="https://zablog.me/2022/07/28/2022-07-28/"/>
+    <id>https://zablog.me/2022/07/28/2022-07-28/</id>
+    <published>2022-07-28T11:20:00.000Z</published>
+    <updated>2022-11-24T07:26:41.454Z</updated>
+    
+    <content type="html"><![CDATA[<p>原文链接：<a href="https://lemire.me/blog/2022/05/25/parsing-json-faster-with-intel-avx-512/">https://lemire.me/blog/2022/05/25/parsing-json-faster-with-intel-avx-512/</a></p><p>许多最新的英特尔处理器都受益于称为 AVX-512 的新指令系列。这些指令在宽寄存器（最多 512 位）上运行，并遵循<a href="https://en.wikipedia.org/wiki/Single_instruction,_multiple_data">单指令多数据 (SIMD) 范例</a>。这些新的 AVX-512 指令允许您打破一些速度记录，例如以<a href="https://arxiv.org/abs/1910.05109">内存副本的速度解码</a><a href="https://en.wikipedia.org/wiki/Base64">base64</a>数据。<a href="https://arxiv.org/abs/1910.05109"></a></p><span id="more"></span><p>大多数现代处理器都有 SIMD 指令。AVX-512 指令更宽（每个寄存器更多位），但这不一定是它们的主要吸引力。如果您只是采用现有的 SIMD 算法并将它们应用于 AVX-512，您可能不会获得您想要的那么多好处。的确，更宽的寄存器是有益的，但在超标量处理器（每个周期可以发出多条指令的处理器）中，每个周期可以发出的指令数量同样重要。通常地，处理器每个周期可以发出的 512 位 AVX-512 的指令更少，因此这些指令更耗费资源。要想真正充分利用 AVX-512，开发者需要仔细设计代码，而与此同时英特尔还在不断增加新的指令。总的说，AVX-512 不是单个技术，而是一个系列指令集。</p><p>此外，AVX-512 指令的早期实现通常会导致可测量的降频：处理器会在使用这些指令后一段时间内降低其频率。值得庆幸的是，支持 AVX-512（Rocket Lake 和 Ice Lake）的最新英特尔处理器<a href="https://travisdowns.github.io/blog/2020/08/19/icl-avx512-freq.html">已经取消了这种系统的频率限制</a>。值得庆幸的是，在运行时很容易检测到这些最新的处理器。</p><p>几年前，我们发布了一个<a href="https://simdjson.org/">名为 simdjson 的非常快速的 C++ JSON 解析器</a>。它作为解析器有些独特，因为它严重依赖 SIMD 指令。在几个指标上，它曾经是并且仍然是最快的 JSON 解析器，尽管已经出现了其他有趣的竞争对手。</p><p>最初，我为 simdjson 编写了一个快速而肮脏的 AVX-512 内核。我们从未合并它，一段时间后，我只是将其删除。然后我就忘记了。</p><p>感谢有才华的英特尔工程师（Fangzheng Zhang 和 Weiqiang Wan）的贡献，以及本博客读者（Kim Walisch 和 Jatin Bhateja）的间接贡献，我们制作了一个新的 AVX-512 内核。与往常一样，simdjson 是许多人的工作，是一个由数十名贡献者组成的整个社区。我必须对第一次写信给我关于 AVX-512 端口的张方正表示感谢。</p><p><a href="https://github.com/simdjson/simdjson/releases">我们刚刚发布了最新版本的 simdjson</a>。它打破了新的速度记录。</p><p>考虑一个有趣的测试，您试图扫描整个文件（跨越千字节）以找到与某个标识符对应的值。在simdjson中，代码如下：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">auto doc = parser.iterate(json);    </span><br><span class="line">for (auto tweet : doc.find_field(&quot;statuses&quot;)) &#123;</span><br><span class="line">    if (uint64_t(tweet.find_field(&quot;id&quot;)) == find_id) &#123;</span><br><span class="line">        result = tweet.find_field(&quot;text&quot;);</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">return false;</span><br></pre></td></tr></table></figure><p>在带有 GCC 11 的 Tiger Lake 处理器上，处理速度提高了 60%，以每秒处理的输入字节数表示。</p><table><thead><tr><th>simdjson (512-bit SIMD): new</th><th>7.4 GB&#x2F;s</th></tr></thead><tbody><tr><td>simdjson (256-bit SIMD): old</td><td>4.6 GB&#x2F;s</td></tr></tbody></table><p>速度增益非常重要，因为在这个任务中，我们大多只是读取数据，而我们做的二次处理相对较少。我们不会从 JSON 数据中创建树，也不会创建数据结构。</p><p>simdjson 库有一个缩小功能，它只是从输入中去除不必要的空格。也许令人惊讶的是，我们的速度是之前基线的两倍多：</p><table><thead><tr><th>simdjson (512-bit SIMD): new</th><th>12 GB&#x2F;s</th></tr></thead><tbody><tr><td>simdjson (256-bit SIMD): old</td><td>4.3 GB&#x2F;s</td></tr></tbody></table><p>另一个合理的基准是将输入完全解析为具有完全验证的 DOM 树。解析标准 JSON 文件 ( <code>twitter.json</code> )，我获得了近 30% 的收益：</p><table><thead><tr><th>simdjson (512-bit SIMD): new</th><th>3.6 GB&#x2F;s</th></tr></thead><tbody><tr><td>simdjson (256-bit SIMD): old</td><td>2.8 GB&#x2F;s</td></tr></tbody></table><p>虽然 30% 听起来可能并不令人兴奋，但我们是从一个快速的基线开始的。</p><p>我们能做得更好吗？肯定的。有许多我们尚未使用的 AVX-512 指令。我们不使用三元布尔运算 ( <code>vpternlog</code> )。我们没有使用新的强大的 shuffle 函数（例如，<code>vpermt2b</code>）。我们有一个共同进化的例子：更好的硬件需要新的软件，这反过来又使硬件大放异彩。</p><p>当然，要获得这些新优势，您需要具有足够 AVX-512 支持的最新 Intel 处理器，显然，您还需要相对较新的 C++ 处理器。最近的一些笔记本电脑级英特尔处理器不支持 AVX-512，但如果您依赖 AWS 并拥有大型英特尔节点，您应该没问题。</p><p>您可以<a href="https://github.com/simdjson/simdjson/releases/tag/v2.0.0">直接获取我们的版本</a>或等待它到达标准包管理器之一（MSYS2、conan、vcpkg、brew、debian、FreeBSD 等）。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;原文链接：&lt;a href=&quot;https://lemire.me/blog/2022/05/25/parsing-json-faster-with-intel-avx-512/&quot;&gt;https://lemire.me/blog/2022/05/25/parsing-json-faster-with-intel-avx-512/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;许多最新的英特尔处理器都受益于称为 AVX-512 的新指令系列。这些指令在宽寄存器（最多 512 位）上运行，并遵循&lt;a href=&quot;https://en.wikipedia.org/wiki/Single_instruction,_multiple_data&quot;&gt;单指令多数据 (SIMD) 范例&lt;/a&gt;。这些新的 AVX-512 指令允许您打破一些速度记录，例如以&lt;a href=&quot;https://arxiv.org/abs/1910.05109&quot;&gt;内存副本的速度解码&lt;/a&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Base64&quot;&gt;base64&lt;/a&gt;数据。&lt;a href=&quot;https://arxiv.org/abs/1910.05109&quot;&gt;&lt;/a&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>什么是 端到端？</title>
+    <link href="https://zablog.me/2022/05/27/2022-05-27/"/>
+    <id>https://zablog.me/2022/05/27/2022-05-27/</id>
+    <published>2022-05-27T11:20:00.000Z</published>
+    <updated>2022-11-24T07:20:29.631Z</updated>
+    
+    <content type="html"><![CDATA[<p>端到端是指从输入点出发到输出点流程的通畅。这样解释可能有些抽象。其实我们可以放在具体的环境下展开看看，端到端到在不同的专业领域有不同的含义。</p><span id="more"></span><p>在神经网络中，端到端是指不关心中间过程，直接从输入到输出。</p><p>在通信领域中，端到端是指从请求节点到访问节点，譬如从手机App端到服务器端。有一个名词叫做“端到端加密”就是指从发送方到接收方全流程是包裹加密的，在这种场景下，流程中的任何一点泄密都会导致端到端加密失效。</p><p>在公司的场景中，端到端更多指的是从需求出发到交付，它强调的是流程打通，部门的协同。假设有一个公司有 市场、采购、生产、销售 四个部门。市场部做好调研，采购买好原材料，生产部门高质量生产，销售部门努力推销，全流程打通满足用户的需求，就算是完成了一个端到端。其中任何一个部门没有完成好自己的职责（生产工艺不合格），或者是部门之间的协同出现问题（采购生产对接失败，采购型号不符合生产需求），都会使得端到端失败。</p><p>端到端的概念本身并不复杂，但是它可以给人一些启示。尤其是长期深入挖掘到技术细节的同学，有可能会忘了出发的初心。此时我们需要回过神来，结合一些系统性思考，再溯源一下做事的本因：当前做的事情是否可以更好地支持最原始的需求。通过这种方式，我们可以调整方向，减少人力资源的浪费。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;端到端是指从输入点出发到输出点流程的通畅。这样解释可能有些抽象。其实我们可以放在具体的环境下展开看看，端到端到在不同的专业领域有不同的含义。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>超复杂调用网下的服务治理新思路</title>
+    <link href="https://zablog.me/2021/11/07/2021-11-07/"/>
+    <id>https://zablog.me/2021/11/07/2021-11-07/</id>
+    <published>2021-11-07T11:20:00.000Z</published>
+    <updated>2022-11-24T07:19:00.076Z</updated>
+    
+    <content type="html"><![CDATA[<p>超复杂调用网，在开始这个话题前，我们先对标题进行拆解。<br>什么是调用网？下图是一个常规的微服务架构，流量从客户端过来后，会通过 Gateway 进入微服务层，这时微服务之间相互调用、相互依赖就形成了所谓的调用链。这些调用链相互交织，最终形成了调用网。</p><span id="more"></span><p>那么什么是超复杂呢？最开始的时候，很多团队可能都采用单体架构，随着业务演进、团队扩充，我们需要对服务进行逐步拆分。因此随着业务变得复杂，我们的调用链、调用网也会变得越来越复杂。当它们复杂到一定的程度时，很多难缠的问题就出现了。<br>当前很多团队在进行微服务化的过程中，可能暂时仅看到微服务的优势，未遇到服务管理上的问题，毕竟不是每一套系统都达到了超复杂的标准，但是提前关注这些问题并做好预案也非常重要。作为企业的软件架构师或是技术负责人，我们应当始终用发展的眼光看问题，软件行业的发展变化非常巨大，如果企业当下的架构无法适应未来一到两年的业务发展，那会对业务和技术进步形成巨大阻碍。如果架构师能吸取其他企业的教训和经验，提前布局，那么业务在扩张过程中遇到的技术问题会少很多。<br>超复杂调用网带来的难题<br>我个人对超复杂调用网给出一个定义：</p><ul><li>内网非测试的微服务达 1000 个以上</li><li>至少存在一个微服务，且其实例数达到 300 个以上</li><li>对外 API 普遍涉及至少 10 个微服务<br>在内部技术实践中，我们发现系统达到这个量级后，超复杂调用网就会产生许多棘手的问题。<br>第一个要点是微服务的数量。如果一个系统内的微服务数目只有几百个，那么绘制一张囊括所有微服务的调用图是有利于管理的；但如果超过了 1000 个，再把它们塞到一张图后整张图变得不可读，它的意义就不大了。<br>第二点，如果一个微服务的实例数只有几十 个，这时实例的管理是比较简单的，如果实例数超过 300，那么团队不可避免地会需要使用一些分片策略或是长连接策略，它们都会带来一些特殊问题。<br>第三点是单个API 涉及的微服务数量。如果 API 需要普遍涉及 10 个以上的服务，这时监控会面临更大的挑战。以字节跳动的场景为例，目前字节跳动内网的在线微服务数量在万级，其中最大的微服务大约有 1-2 万个实例，而单个 API 也普遍在后端关联了几十个甚至上百个微服务。<br>面对这样的复杂度，有三个问题最为突出：<br>一是难以做容量预估。微服务已经达到了一定的复杂度，它们的调用关系是非常复杂的：一个核心服务的依赖链可能就有几百个，对每个依赖方做调研或去细致地跟进每个限流策略显然非常困难。另外，不同业务会通过不同活动实现业务增长，对核心服务来说，追溯每个业务的增长也是一个非常艰巨的任务。<br>二是会大幅提高服务治理难度。这里的服务治理包含限流、ACL 白名单、超时配置等，因为调用关系变得复杂，每个服务可能会调用几十个甚至上百个依赖服务，一些核心服务也会被几百个服务所依赖，这时如何梳理这些调用关系、配置多少限流、配置怎样的白名单策略，就成了团队需要深度探讨的问题。<br>三是容灾复杂度增大。在复杂的调用关系下，每个 API 会依赖大量的微服务，而每一个微服务都有一定的概率产生故障。我们需要区分强依赖和弱依赖，并辅以特定的降级策略，才能够在不稳定的服务环境下获得尽可能稳定的对外效果。<br>业界尝试<br>那么对于这些复杂的治理难题，业界会有怎样的尝试呢？<br>第一种方式是鸵鸟心态。完全不做工作，这反而是业界最广泛的尝试。相信很多企业并不是没有受到超大规模调用网的侵扰，也不是没有对其做一些尝试，而是解决问题所产生的成本和损失实在是难以量化。<br>举个例子，一个核心服务有很多依赖方，其中一个依赖方的代码中存在严重的重试漏洞，瞬间产生大量重试把核心服务给压垮了，最终造成了系统级的灾难。这时我们可以去追溯问题的直接原因——代码质量问题，至于隔离没做好、超复杂调用关系没有梳理清楚等，这些会被归结为间接原因，往往可以不被追究。<br>第二种方式是精细化的监测与限流。业内一些开源组件在功能上确实做得比较出色。如左图是一个知名开源组件，它会对整个服务链路进行精细化监控。在这个示例里，每个三角形是一个 Gateway，中空圆形才真正的服务。它展示了从流量入口到每个微服务的整个链路，如果链路是绿色的，说明流量是健康的；链路是红色的，就说明流量存在异常。有了这样详细的拓扑图，开发者就可以看清它的依赖关系。</li></ul><p>这看起来很美好，所以大概在两年前，我选取了一个中等规模的业务线，把所有依赖关系梳理出来，得到了上图中右侧这张图。里面每一个代号都是一个服务，每一条线都是这个服务的依赖关系——这实在是太复杂了。左图由于只有 4 个服务，整体比较清晰，但如果是几百个服务相互交织、相互依赖，用这种图来进行测算无疑是不可行的。<br>第三种方式是单元化，或称 SET 化，比较有代表性的是蚂蚁和美团。他们采用的主要方式是把每一个服务部署多份：set 1、set 2、set 3，流量通过单一的 shard key 进行 set 的选择。这样，set 之间就可以进行有效的资源隔离，在单个 set 产生问题时可以通过切流的方式容灾。<br>但它也有三方面的局限性。第一方面，SET化需要有合适的分片键，如用地域或账号去切分，这需要和业务属性有匹配，并不是所有的业务都能找到这种合适的分片键。第二方面，这种方式需要的非全局数据比较多，譬如本地生活订单，用户在北京下单酒店的数据没必要经过深圳，用户在上海点外卖的数据也不需要经过。但在抖音、今日头条这些综合信息服务场景中，非全局数据非常少，那些看似本地的数据如用户名、用户的粉丝数、近期的点赞列表，其实也是全局数据。最后一个方面，SET 化需要冗余，需要备份成本，大体量的公司不一定能够支撑。<br>第四种方式是 DOMA。它的英文全称是 Domain-Oriented Microservice Architecture。2020 年，Uber 提出了这个架构。下图是一个简单示例，其中绿色是 public interface，红色的是 private interface。如果有流量想访问域内的一个微服务，它必须要经过 Gateway Service 进行转发，然后才能访问。</p><p>如果用户想要在域外访问这个数据库，我们需要通过左下角的 Query、ETL 把它转化成一个离线数据库。整个大框是一个 domain，它不同于 DDD 的 domain，它被称为服务域，可以理解成是一组服务的集合。字节跳动内部也参考了这种 domain 的思想，把一些服务聚合起来，产生特殊的化学反应。<br>但 DOMA 架构也存在一些问题，比如它过了一层 Gateway Service。我们在外层其实已经有一个从外网到内网的 Gateway，如果内网再放置过多 Gateway（尤其是中心化的），肯定会带来额外的性能消耗，并造成一定的延迟上涨，这也是字节跳动没有采取这种方式的原因。<br>字节跳动的探索和实践<br>对于超复杂调用网，字节跳动探索出了一些最佳实践，其中第一个核心叫做服务分层原则。<br>正如前文的微服务架构图所示，服务在经历从上到下的调用后出现了很复杂的调用关系，对此，我们可以依据康威定律对它做一些横向切分，对调用关系进行分层。</p><p>康威定律是马尔文·康威于 1967 年提出的，指的是设计系统的架构受制于产生这些设计组织的沟通结构。举个例子，假设某家公司内部有四个团队，如上图所示，左侧团队和上方团队沟通较密切，上方团队和下方团队沟通较少，把这种关系映射到微服务架构中后也是类似的，上方微服务和左侧微服务的通信耦合性会大一些，和下方微服务的联系就会弱一些。<br>我们之前讨论过一个悖论：为什么企业的组织架构非常清晰，但是微服务设计就非常复杂？最终得出的结论是没有做好映射。字节跳动内部有很多团队分别负责业务、中台、基础架构等技术领域，在真实的微服务架构下，我们应该把它清晰地切分成不同层次。<br>如下图所示，首先是网关层。外网到内网之间需要有一个 Gateway 来处理一些基本事项，如参数基础校验、session 机制、协议转换等。</p><p>第二层是 BFF 层。BFF 是近几年日趋流行的一个概念，全称是 Backend For Frontend（服务于前端的后端）。如过一个接口的对外主体业务逻辑是一致的，但在 iOS、Android、Web 等不同客户端的可能有一些细微差别，那么这些差别可以放在 BFF 层处理。<br>第三层是业务层。字节跳动有很多业务，如短视频、资讯、游戏、公益等，与特异业务功能直接相关的功能应当由这一层来实现。<br>第四层是中台层，这一层应用了 DDD 的思想，我们抽取了一些通用的特殊能力，对它们进行专业化的建模和封装，以实现大量基础能力的复用。<br>第五层是数据服务层，通过合理的封装，用户无需直接访问数据库的表即可更方便、更安全地使用数据。<br>最后一层是基础架构层，这层主要提供基础架构领域的各种能力，比如微服务基础组件、微服务基础依赖以及数据库或是消息队列等。<br>字节跳动之所以可以快速孵化新产品，业务层和中台层的建设是一个重要原因。比如新做一个教育应用，我们可以直接调用成熟的账号系统、支付系统、直播模块等，也可以通过向学员推送他可能感兴趣的视频，将他们转化成付费会员。由于存在这类专业领域的建模，在对微服务进行归类处理时，分层变得尤为重要。<br>这里有几个指导思想供大家参考：首先是分层原则需要结合业务灵活调整，DDD 只是一种指导思想，不能按照它的每一条规范去做；其次是在分层原则中，建议从上到下去进行访问，业务层的请求可以访问数据服务层，但数据服务层的请求不能访问中台层，逆向访问可能会产生循环依赖等严重问题；第三，对于调用关系异常复杂的业务层、中台层，我们给出了一种点线面结合的方法：</p><ul><li>点：流量身份标记注入点</li><li>线 1：流量身份标记沿调用链透传 </li><li>面：紧耦合的服务聚合为服务域</li><li>线 2：部署和流量按域切分</li></ul><p>点在字节跳动内部被称为流量身份标记 TIM（Traffic Identity Mark）。流量从客户端进来后，我们会在 Gateway 层对 request 的各种参数进行检测，验证之后，一些需要在链路中传递的核心参数会被记录下来，供后续分流、核心服务调用使用。<br>这种做法有助于一些特殊链路数据保护策略的实现，如未成年人数据保护。未成年人发出的请求从一开始就带有相关参数，随着调用链向下传递，通过透传机制，核心的中台层和数据服务层依然能读到这些信息，并执行特殊的逻辑，以便对未成年人做好保护。</p><p>有了点之后，如果想在下游核心业务中使用这些关键信息，就必须要求信息会向下透传。举个例子，假设抖音的一个请求带有流量身份标记 TIM1，到更下游的时候，如果流量还是源于抖音，那么还是 TIM1，如果流量来自西瓜视频且携带了 TIM2，那么由这个请求触发下一个在线请求时，它也一定要携带这个 TIM2，这使得我们整个调用链是能够串起来的，类似 Log ID、Trace ID。<br>所以这个地方有两个依赖，我们最好把 TIM 放在 Header 中，让它能更好地传递信息，并且使下游服务在不解析它的请求 Body 时，就能拿到 Header 中的信息来做流量调度等操作。在一个微服务内部，我们要通过 Context 机制，把入流量和出流量结合起来，把真正的标记传递过去，形成链路。</p><p>在字节跳动，“面”是指高内聚的服务要聚合成服务域。上文介绍过康威定律，即软件架构受制于组织沟通架构：如果有一组服务，它们的合作和联系非常紧密，相互调度非常多，但是共同对外暴露的功能点又比较少，那么我们就可以把它们聚合为一个服务域。<br>通过自动搜索流量的紧密、松散程度，结合组织架构关系，我们可以为内部开发者提供服务域自动推荐，但最终设计还是需要服务维护人员进行确认。确定服务域后，服务之间的关系也真正确定下来。紧耦合的服务也需要采用同样的治理的策略。</p><p>“线 2”有两层含义，一是域管理员自行决定部署策略，二是要根据目标服务域按条件分流。<br>如上图所示，服务域 A 是一个业务，它的域管理员希望按地域进行切流，把南方的服务调度到左边，把北方的服务调度到右边，他可以自由选择调度的策略。<br>服务域 C 是一个核心中台服务，比如评论服务，它不希望按照地域进行划分，而是按照 User ID 进行流量划分。基于这个目标，他希望服务域可以按照 ID 取模进行切分，这也是可以的。在服务域内，它就可以形成这样一条泳道，流量可以在泳道中向下传递。<br>对于服务域之间的流量，在域管理员确定部署策略之后，它会根据目标服务域的调度策略进行分流。举个例子，如果服务域 A 想去访问服务域 C 中的某个服务，流量从 A 出来后，它会根据 C 的切流方式进行切流。字节跳动的绝大多数在线流量已经接入 Service Mesh，我们能够动态分析目标服务的部署策略、切流策略，并反馈给 Client 所在的 mesh proxy，Client mesh proxy 会动态修改目标服务的集群，把流量打到目标集群上去。<br>当然 Mesh 只是一种方法，开发者也可以用框架或业务代码实现同样的效果，但如果有企业和组织正在内部推广 Service Mesh，上述提到的流量透传、流量注入、根据目标部署情况动态按条件分流等都可以提前放在系统和框架中进行考虑。<br>在 2021 年抖音央视春晚红包活动中，这套超复杂调用网服务治理思路也有充分应用。活动往往意味着流量激增，容灾测试、全链路压测、容量预估，我们遇到了不少难题。有了这个切流方案后，我们最终较理想地把服务域都找了出来，最终在活动上线后保障了流量的稳定分发，且没有对其他业务服务造成影响。<br>结语<br>目前，字节跳动正面临超复杂调用网治理的严峻挑战，它带来的问题是实实在在的。我也相信，随着国内企业的不断发展，很多公司未来也会发展到调用网极其复杂的境地，需要直面同样的问题。为了帮助业务实现健康过渡，大家最好能够做两个布局：</p><ul><li>第一个布局是把服务分层做得足够好。可以参考字节跳动的方案，按照分层原则排布服务，使各个组件能够充分发挥优势。</li><li>第二个布局是梳理调用链。这一点同样可以参考我们点线面的实践，根据可信的流量标记动态调配流量。<br>如果这两个布局都能够做好，那么开发者既可以享受微服务的优势，同时也能尽量规避微服务带来的复杂度。</li></ul>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;超复杂调用网，在开始这个话题前，我们先对标题进行拆解。&lt;br&gt;什么是调用网？下图是一个常规的微服务架构，流量从客户端过来后，会通过 Gateway 进入微服务层，这时微服务之间相互调用、相互依赖就形成了所谓的调用链。这些调用链相互交织，最终形成了调用网。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>首批！火山引擎获得可信云服务网格解决方案最高等级认证</title>
+    <link href="https://zablog.me/2021/08/22/2021-08-22/"/>
+    <id>https://zablog.me/2021/08/22/2021-08-22/</id>
+    <published>2021-08-22T11:20:00.000Z</published>
+    <updated>2022-11-24T07:19:00.075Z</updated>
+    
+    <content type="html"><![CDATA[<p>近日，由中国信息通信研究院(以下简称“信通院”)主办的“2021可信云大会”在北京召开，会上火山引擎获首批“服务网络分级先进级(最高等级)”认证。</p><span id="more"></span><p><img src="https://p7.itc.cn/images01/20210804/5237c0d958f5483b84f050f66c52e832.png"></p><p>在此次认证中，火山引擎服务网络解决方案全项满分，总分并列第一。依托于网格分布式隔离架构，火山引擎服务网络解决方案能够有效杜绝中心化服务模式产生的系统性风险，并通过细粒度的服务拆分方式与去中心化架构设计，适应当下“云时代”的敏捷开发、快速迭代需求。据悉，该解决方案在业界处于领先地位，其优势包括全功能、多场景、稳定性、高性能等。</p><p>首批通过可信云服务网格解决方案国家级标准认证，标志着火山引擎自身服务网格解决方案在服务网格控制层面的技术能力、服务网格数据层面的技术能力、服务网格安全能力、服务网格的运维能力、服务网格性能要求等方面的技术指标，均满足可信云服务网格平台先进级的要求。</p><p>此外，在7月28日的可信云大会现场，火山引擎金融行业客户——国信证券凭借蜂鸟容器云平台获颁可信云用户最佳实践。该平台搭载的是火山引擎智能容器云veCompass，适配了国信证券内部多个IT管理系统与微服务架构，构建了一套用于金融行业内部研发运营一体化体系的云原生容器管理平台。veCompass的存在满足了国信证券内部业务系统快速迭代上线的需求，帮助其技术人员快速构建技术运营PaaS和DevOps体系。</p><p>平台上线后，蜂鸟容器云平台为国信证券大大节省了硬件投资，降低了运维工作量，全面提升IT资源的服务效能和管理效能。</p><p>今年5月，火山引擎智能容器云veCompass也以满分通过开发测试场景、CI&#x2F;CD、运维自动化、微服务四大应用场景 42 个子项的测试，获得最新版本的可信云容器解决方案认证。至此，火山引擎在云原生、微服务等方面的技术力和产品力，均已获得“可信云”认证。</p><p>未来，火山引擎将充分发挥在云原生、微服务等领域的技术能力和产品能力，提供更完善的解决方案，服务好更多的行业客户。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;近日，由中国信息通信研究院(以下简称“信通院”)主办的“2021可信云大会”在北京召开，会上火山引擎获首批“服务网络分级先进级(最高等级)”认证。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Bazel被限流怎么办</title>
+    <link href="https://zablog.me/2020/08/31/2020-08-31/"/>
+    <id>https://zablog.me/2020/08/31/2020-08-31/</id>
+    <published>2020-08-31T11:20:00.000Z</published>
+    <updated>2020-08-31T09:46:43.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Bazel 是个好用的编译工具，但是如果处在一个共享IP的环境，经常会遇到如下错误：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ bazel                   </span><br><span class="line">2020/08/31 17:10:27 could not resolve the version <span class="string">&#x27;latest&#x27;</span> to an actual version number: could not get releases from github.com/bazelbuild/bazel: could not download list of Bazel releases from github.com/bazelbuild: unexpected status code <span class="keyword">while</span> reading https://api.github.com/repos/bazelbuild/bazel/releases: 403</span><br></pre></td></tr></table></figure><p>导致编译过程受阻，非常麻烦。</p><span id="more"></span><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>出现这个问题的原因是：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl https://api.github.com/repos/bazelbuild/bazel/releases</span><br><span class="line">&#123;<span class="string">&quot;message&quot;</span>:<span class="string">&quot;API rate limit exceeded for 100.101.102.103. (But here&#x27;s the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)&quot;</span>,<span class="string">&quot;documentation_url&quot;</span>:<span class="string">&quot;https://developer.github.com/v3/#rate-limiting&quot;</span>&#125;</span><br></pre></td></tr></table></figure><p>说白了就是你和别人共用了 <code>100.101.102.103</code> 作为共用的出口代理，这个出口命中限流了。</p><h2 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h2><p>登陆 github</p><p><img src="https://docs.github.com/assets/images/help/settings/userbar-account-settings.png" alt="点击▽-Settings-Personal access tokens"></p><p>点击 Generate-now-token 按钮，生成一个新的 token，譬如起名<code>bazel</code></p><p>check box不用选，这个地方不需要什么权限。</p><p>把 <code>export BAZELISK_GITHUB_TOKEN=37493ba********f32d4c4</code> 添加到你的 <code>.bash_profile</code> 文件结尾：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;export BAZELISK_GITHUB_TOKEN=37493ba********f32d4c4&#x27;</span> &gt;&gt; ~/.bash_profile</span><br><span class="line"><span class="built_in">source</span> .bash_profile</span><br></pre></td></tr></table></figure><p>然后就好了。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">bazel version</span><br><span class="line">Bazelisk version: v1.3.0</span><br><span class="line">Build label: 3.4.1</span><br><span class="line">Build target: bazel-out/darwin-opt/bin/src/main/java/com/google/devtools/build/lib/bazel/BazelServer_deploy.jar</span><br><span class="line">Build time: Tue Jul 14 06:32:14 2020 (1594708334)</span><br><span class="line">Build timestamp: 1594708334</span><br><span class="line">Build timestamp as int: 1594708334</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;Bazel 是个好用的编译工具，但是如果处在一个共享IP的环境，经常会遇到如下错误：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ bazel                   &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2020/08/31 17:10:27 could not resolve the version &lt;span class=&quot;string&quot;&gt;&amp;#x27;latest&amp;#x27;&lt;/span&gt; to an actual version number: could not get releases from github.com/bazelbuild/bazel: could not download list of Bazel releases from github.com/bazelbuild: unexpected status code &lt;span class=&quot;keyword&quot;&gt;while&lt;/span&gt; reading https://api.github.com/repos/bazelbuild/bazel/releases: 403&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;导致编译过程受阻，非常麻烦。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>系统性思考训练1</title>
+    <link href="https://zablog.me/2020/03/21/2020-03-21/"/>
+    <id>https://zablog.me/2020/03/21/2020-03-21/</id>
+    <published>2020-03-21T10:20:00.000Z</published>
+    <updated>2020-03-22T02:58:01.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>我们如何才能把一个复杂的项目做出来，并且做好？</p><p>一直以来，我们接受的教育都会教导我们，把问题拆解开来，把事情拆细，分而治之。诚然，这卓有成效。对于树状的组织人员结构来说，每个分支、每个成员都有自己负责的部分，每个分支把负责的部分做好，最终整合起来，整体就做好了。划分细致之后，各个细节也都会变得清晰，便于具体追踪。然而，太多地使用拆解之后，我们往往忘记了系统性思考，从整体的角度仔细揣摩，这也造成了很多问题。</p><span id="more"></span><h2 id="思考1-组件间的问题转移"><a href="#思考1-组件间的问题转移" class="headerlink" title="思考1 组件间的问题转移"></a>思考1 组件间的问题转移</h2><p>分而治之，每个组件处理自己的事情，组件之间减少耦合，这是多数从业者都理解的主题。不过组件之间的问题也存在转移的可能性，如果不注意，一个分支的成就可能成为整个系统的噩梦。</p><p>单纯地为了减少获取新配置的延迟，而增加轮询的频率，那么目的肯定是达到了，而代价是配置中心的访问量大大增加了，获取配置的错误率也可能上升，这使得获取新配置的不稳定性增加，系统的不稳定性增加。<br>为了尽快完成新产品的推广，在没有完全了解可能隐含的问题情况下，强行增加上线的量。这会导致使用方发现很多问题，SRE的工单堆积。推广覆盖率的难题，转化为问题排查和解决的难题。</p><p>当然这两个例子比较简单，而且你可能认为这是显然，很容易避免。这是因为轮询组件和配置中心可能是同一个人在维护，问题的转移出现在一个小型的系统内部容易定位；Dev团队和SRE团队之间的交流可能比较通畅，工单的量很好量化。而如果这种问题的转移出现在更大的系统内呢？如果问题从一个明确的可度量的问题，变成一个模糊的无法度量的问题呢？</p><h2 id="思考2-Hack-fix-比问题更有害"><a href="#思考2-Hack-fix-比问题更有害" class="headerlink" title="思考2 Hack fix 比问题更有害"></a>思考2 Hack fix 比问题更有害</h2><p>理论化的代码只存在于理论之中。<br>为了工程，为了真正把内容应用于生产，我们可能不得不向代码中塞入一些不太优雅的Hack成分。所谓的 hack fix，大多是指对特殊情况最特殊判断，然后避开问题的一个方式。<br>当系统出现一个问题，打补丁往往是最快速最容易解决的，但这也是最危险的。<br>当hack的代码变多，整体思考就会变得困难，甚至有可能遗漏hack的情况。在对另外一个组件进行修改的过程中，可能导致此处hack造成严重问题。<br>所以，尽量减少 hack 代码的量，思考这个问题能否使用更加通用的方式解决；如果不得不这样，务必要在 hack 的代码附近，用注释明确标出原理，以及带来的风险。</p><h2 id="思考3-一个组件暴露的问题，可能须由另一个组件解决"><a href="#思考3-一个组件暴露的问题，可能须由另一个组件解决" class="headerlink" title="思考3 一个组件暴露的问题，可能须由另一个组件解决"></a>思考3 一个组件暴露的问题，可能须由另一个组件解决</h2><p>在城市天际线这个游戏中，Traffic是最为恼人的问题。当城市的规模发展到一定程度的时候，堵车问题也会一发不可收拾。<br>道路不断加宽，立体交通不断增进，最终还是拥堵严重。</p><p>实质上，问题可能并不在交通，而在于城市区域规划。如果从高速路到工业区必须要经过居民区，那居民区就会有大量的车流；如果工厂、商店过于密集，生产和消费的类型不匹配，进出口需求量大，这本身就会造成巨量的运输压力，无法通过道路交通系统解决。</p><p>在问题发生的时候，主动寻求整体最优的解决方案，而不应该在一个组件上耗费太大的精力。在城市规划不合理的时候，必须要优先修改产业布局；在系统规划不合理的时候，务必要优先调整组件排布。磁盘压力过大，网络压力过大，也许是缓存组件没做好。</p><h2 id="思考4-大力不一定出奇迹，强推可能会反弹"><a href="#思考4-大力不一定出奇迹，强推可能会反弹" class="headerlink" title="思考4 大力不一定出奇迹，强推可能会反弹"></a>思考4 大力不一定出奇迹，强推可能会反弹</h2><p>这是在新功能推广过程中出现的。<br>耗费了很多精力，吹嘘了很多优势，推广了很多的接入，但突然因为一个不稳定，导致所有接入全部回滚，很长一段时间使用者心有余悸，不愿意主动接入。</p><p>组件和组件之间要系统性思考，权衡利弊，追求整体利益；时间维度上，也需要系统性思考。<br>目标是确定的，在某个时间区间内完成稳定的接入，那么必须在长时间维度上综合考虑，一时的强推很容易造成反弹。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;我们如何才能把一个复杂的项目做出来，并且做好？&lt;/p&gt;
+&lt;p&gt;一直以来，我们接受的教育都会教导我们，把问题拆解开来，把事情拆细，分而治之。诚然，这卓有成效。对于树状的组织人员结构来说，每个分支、每个成员都有自己负责的部分，每个分支把负责的部分做好，最终整合起来，整体就做好了。划分细致之后，各个细节也都会变得清晰，便于具体追踪。然而，太多地使用拆解之后，我们往往忘记了系统性思考，从整体的角度仔细揣摩，这也造成了很多问题。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ASM使用体验</title>
+    <link href="https://zablog.me/2020/02/15/2020-02-15/"/>
+    <id>https://zablog.me/2020/02/15/2020-02-15/</id>
+    <published>2020-02-15T10:20:00.000Z</published>
+    <updated>2020-02-15T07:27:39.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>篇名叫做使用体验，其实并不准确，目前来看纯粹是吐槽。</p><p>并不打算写一个 ASM 使用流程指南，毕竟 <a href="https://help.aliyun.com/document_detail/149552.html">https://help.aliyun.com/document_detail/149552.html</a> 才是更为专业的文档。</p><span id="more"></span><p>点击了 服务网格 ASM 的链接之后，映入眼帘的是错误提示</p><p>Aliyun API Error: RequestId: 08147C2C-9EE9-XXXXXX Status Code: 404 Code: EntityNotExist. Role Message: The role not exists: acs:ram::931204812349238:role&#x2F;aliyuncsdefaultrole.</p><p>重试了一下，终于进来了，但是整个页面什么都没有：</p><p>最后发现服务公测中，还需要独立申请才可以使用，所以没有办法，还是先看一下文档吧。</p><h1 id="产品简介"><a href="#产品简介" class="headerlink" title="产品简介"></a>产品简介</h1><p>所谓的功能特性，应当和其它的服务网格产品差不多。</p><p><img src="http://p3.pstatp.com/large/pgc-image/b14cbd753fe94f7d9454155f47322e0c"></p><p>都是把服务网格划分为控制平面和数据平面。</p><p>ASM的优势在于兼容Istio，估计是在 Istio 的基础上，增加了支持 aliyun PaaS基础架构的内容。</p><p>从部署上看，依然是支持了混合云的环境，可以支持 Kubernetes集群、ServerLess集群和ECS虚拟机的混合部署。Proxy 与具体的服务进程在一起分享资源，并代理 Service 的出入流量。</p><p>共性的内容就不提了，既然作为公有云的一个主打产品，它的主要贡献应当在与组件的托管，可以通过简单的配置，就可以搭建起一整套服务网格，而不需要用户担心环境和配置的问题。</p><h1 id="产品优势"><a href="#产品优势" class="headerlink" title="产品优势"></a>产品优势</h1><p>目前来看ASM除了托管之外，其实没有什么额外的优势。相应的功能，包括流量路由、安全、监控都是社区版本已经提供的内容。高稳定性和高可用性，由于该产品本身就是公测版，所以暂且无法证实。</p><p>对于中小型厂商来说，没有足够的精力去维持一个团队，专门做一些细节的事情，譬如分5个人的团队来做混沌工程，7个人做可观测性、链路追踪，或者8个人的团队专门做RBAC的维护、mTLS的推进，因此ASM确实还是有一定的吸引力的。</p><p>应用场景就是把优势又冗长地说了一遍。</p><h1 id="使用限制"><a href="#使用限制" class="headerlink" title="使用限制"></a>使用限制</h1><p>有些内容务必在网格实例刚刚创立的时候，就配置好。譬如</p><p>变更网格所依赖的 VPC 与虚拟交换机<br>如果创建时未开启公网暴露 API Server，暂不支持增加公网 SLB 暴露 API Server<br>如果创建时未开启公网暴露 Istio Pilot，暂不支持增加公网 SLB 暴露 Istio Pilot<br>变更链路追踪服务配置<br>这些确实说明，在动态配置方面，PaaS做得还没有足够成熟。</p><p>不过这些问题，都可以用时间磨平，并不是太深层次的技术问题。</p><p>但是关于配额，目前还是有些夸张。</p><p>每个用户的可创建网格实例数：2</p><p>每个网格的Envoy代理数：建议200以下，超过 200 可能会造成网格实例的不稳定。</p><p>关于这个实例数，确实还是太小了。如果只是为了200个实例，那么确实控制面内部不需要做什么优化，主要是功能性的开发，而不用太关心性能的问题。</p><p>而且，适用场景上来看，ASM只能应对中小型企业的使用场景，在这个200个Envoy实例这个量级下，估计接口的QPS无法超过10万，一般只能适用于100万日活跃用户左右的App来使用。要将代理的规模突破一万，甚至一百万，可能还需要很多的努力。</p><h1 id="规则修改"><a href="#规则修改" class="headerlink" title="规则修改"></a>规则修改</h1><p>根据文档介绍，修改目标规则需要：</p><p>在控制平面区域的目标规则页签，找到待修改的目标规则，在操作列中单击YAML。<br>在编辑实例页面，修改目标规则，单击确定。<br>从这个介绍来看，控制平面的规则修改没有做到平台化，主要仍是通过配置文件的方式来进行管理。不过由于是社区版本，所以配置文件的格式应当与社区是一致的，这给有社区经验的配置者提供了一定的好处。</p><h1 id="定价"><a href="#定价" class="headerlink" title="定价"></a>定价</h1><p>公测版目前免费，未来还不确定。</p><p>由于 Service Mesh 目前的社区版还主要是面向中小型企业，而且很多都是尝试性地使用，所以估计不会有太高的定价。中小用户使用服务网格更多意义上是一个尝鲜，恐怕把主要业务都移动上来需要很大的勇气，暂时不看好两年以内的服务网格公有云市场。</p><h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p>确实没有更多额外的信息了，等我的公测申请通过了，再来同步吧。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;篇名叫做使用体验，其实并不准确，目前来看纯粹是吐槽。&lt;/p&gt;
+&lt;p&gt;并不打算写一个 ASM 使用流程指南，毕竟 &lt;a href=&quot;https://help.aliyun.com/document_detail/149552.html&quot;&gt;https://help.aliyun.com/document_detail/149552.html&lt;/a&gt; 才是更为专业的文档。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ASM使用体验2</title>
+    <link href="https://zablog.me/2020/02/15/2020-03-26/"/>
+    <id>https://zablog.me/2020/02/15/2020-03-26/</id>
+    <published>2020-02-15T10:20:00.000Z</published>
+    <updated>2020-03-26T06:48:39.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>时隔1个月，申请成功，再次体验。</p><span id="more"></span><p>首先 RAM 授权 ASM 的访问权限。</p><p>创建网格。<br>创建的过程中需要填写 专有网络，还要创建专有网络。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;时隔1个月，申请成功，再次体验。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>从荷兰改名想到的</title>
+    <link href="https://zablog.me/2020/01/10/2020-01-10/"/>
+    <id>https://zablog.me/2020/01/10/2020-01-10/</id>
+    <published>2020-01-10T10:20:00.000Z</published>
+    <updated>2020-01-21T07:30:53.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>荷兰最近有一个新闻，希望把国名修改为尼德兰。<br>因为狭义上的荷兰只代表整个国家内部的两个省而已。<br>虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。</p><p>对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。</p><span id="more"></span><p>譬如服务发现，如果一个人说他是做服务发现的话，他基本上也会去做服务注册。服务发现广义上是包含服务注册的。<br>同样的，流量染色在广义上，应该包括无色流量的浸染过程，以及染色后的流量的处理过程。</p><p>继Service Mesh之后，又逐渐迸发了很多诸如 DB Mesh、MQ Mesh、General-Purpose Mesh 等新的Mesh，那么实际上广义上的 Service Mesh 也可以涵盖后续一些新的名词。</p><p>在国家演进的过程中，很可能出现荷兰这种名称不匹配的问题；<br>英国尚且可以通过“大不列颠”来代替英格兰，作为整个帝国的名称，但是绝大多数情况下是没有办法的。<br>技术演进的过程中，也会有一个相对片面的名词来代指整个事情的状况。这种情况其实是很难改变的，只要选择接受就好。<br>更多时候，不纠结反而有利于技术的交流和宣传，不要拘泥于绝对的严谨。</p><p>改名实在是一件非常困难的事情。如果想定一个名字，尽量刚开始就想清楚吧。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;荷兰最近有一个新闻，希望把国名修改为尼德兰。&lt;br&gt;因为狭义上的荷兰只代表整个国家内部的两个省而已。&lt;br&gt;虽然最后好像只是一个改徽标而已，并不是要改国名，但总之，改名字这件事还是极为困难。&lt;/p&gt;
+&lt;p&gt;对于微服务领域，也有一些词汇，其狭义上和广义上范畴不同的问题。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>EDF负载均衡调度算法</title>
+    <link href="https://zablog.me/2019/08/02/2019-08-02/"/>
+    <id>https://zablog.me/2019/08/02/2019-08-02/</id>
+    <published>2019-08-02T10:20:00.000Z</published>
+    <updated>2019-08-02T12:38:56.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>最早截止时间优先调度法 Earliest Deadline First (EDF) scheduler<br><a href="https://en.wikipedia.org/wiki/Earliest_deadline_first_scheduling">EDF in Wikipedia</a></p><p>EDF调度算法，是加权轮转调度算法（WRR，Weighted Round-Robin）的一种实现方式。<br>其核心思想是为每个条目截止时间赋值为当前时间加权重的倒数，然后采用最早截止时间优先的方式进行调度。<br>上述定义比较晦涩，我们可以透过后面例子，来说明为什么需要调度算法、如何实现调度算法、EDF调度算法的优势和劣势。</p><span id="more"></span><p>调度算法最主要的应用是操作系统调度进程，重要的调度理论基本上都是在此时涌现的。而后续反向代理对下游条目进行负载均衡，也可以参考一样的调度理论，只是进程的运行和切换转变为请求的接受与投递。</p><p>微服务架构下，请求方会获得一个服务节点列表，对服务节点的访问也可以利用同样一套负载均衡算法。它们大部分内容是可互通的，而访问负载均衡又会额外衍生出如一致性哈希等新的调度方式。</p><h3 id="简例"><a href="#简例" class="headerlink" title="简例"></a>简例</h3><p>假设有三个条目可供调度，分别是A、B、C，他们的权重分别是3：2：1。<br>设置权重的目标是相关条目被调度到的频次应该是与权重成正比。<br>对于这个权重来说，假设有6000次调度，那么我们希望A被调度3000次左右，B是2000次左右，C是1000次左右。</p><p>为了实现这种调度方式，我绘制了一个图，来解释这种方法：</p><p class="img-tip" data-str="edf.png"><img src="https://sf3-ttcdn-tos.pstatp.com/img/tos-cn-v-0000/7a07dce6501e4a849db3d033d47ddd0c~noop.png" height="209" width="694"/></p><p>图上有一个数轴，从0开始，到达3，以至无穷。<br>A条目的权重是3，我们以1&#x2F;3为分隔不断重绘A，使得数轴的1&#x2F;3，2&#x2F;3，1，4&#x2F;3等位置印上A；<br>B条目的权重是2，我们以1&#x2F;2为分隔不断重绘B，使得数轴的1&#x2F;2，1，3&#x2F;2，2等位置印上B；<br>C条目的权重是1，我们以1为分隔不断重绘C，使得数轴的1，2，3等位置印上C；<br>最后，我们使用一个游标从左向右扫，扫描到的顺序就是调度的顺序，因此我们调度的顺序为A-B-A-C-B-A-A-B-A…<br>显而易见，调用的顺序含有一个循环节A-B-A-C-B-A，所以当调度足够多次数后，A、B、C的调度比值将会趋近于3：2：1</p><p>从数学上也很好证明。<br>假设有N个条目，其权重分别是a1,a2,a3…aN。<br>使用权重不停重绘，那么在一个周期内，第一个条目被重绘a1次，第二个条目被重绘a2次，第N个条目被重绘aN次。<br>因此，每个周期的调度都是按照目标比例的。</p><p>由于采用倒数进行重复，相当于对条目进行了穿插，这样可以减少了连续调度，降低了饥饿和过载的概率。<br>A-B-A-C-B-A-A-B-A-C-B-A的调度效果一般要比A-A-A-B-B-C-A-A-A-B-B-C更好。</p><h2 id="WRR实现1"><a href="#WRR实现1" class="headerlink" title="WRR实现1"></a>WRR实现1</h2><p>最简单的实现，是使用上述办法模拟一个周期，然后把周期存到数组中，用游标扫描即可。<br>以上述情形为例，首先我们定制一个数组 A-B-A-C-B-A，然后不断回环扫描这个数组，就可以完成加权轮转调度。<br>这种方法的每次调度的时间复杂度为O(1)，空间复杂度为O(M*N)，其中M是条目的平均权重，N是条目的数量。</p><p>分析一下这个实现的优劣：<br>优势：</p><ul><li>实现简单，容易理解</li><li>单次调度的很快</li><li>多线程共享游标index即可，协作方便<br>劣势：</li><li>空间复杂度高</li><li>对条目修改很不友好</li></ul><p>对于条目平均权重和条目总数比较小的情形下，这种实现其实已经比较优秀了。但是当平均权重和条目总量非常多的情形下，这种方式未免太耗内存。<br>在我的实际经验中，N可能超过5k，而M经常也在50左右，那么为了实现加权轮转，相当于我们需要耗费250K*Sizeof(Entry)的空间来做调度。即使Entry使用指针，64位系统下每个指针占据4字节，1M的内存就这么用出去了。<br>一个系统同时使用多个调度器，且条目数、条目权重还可能随着系统的运行而不断修改。<br>假设每隔十秒钟修改其中一个条目的权重，那么整个表需要重新构建，这对内存和CPU都是一个很大的考验。</p><h2 id="WRR实现2"><a href="#WRR实现2" class="headerlink" title="WRR实现2"></a>WRR实现2</h2><p>所有的条目信息必须要存储下来，因此对于存储空间来说，O(N)的内存消耗几乎不可避免，所以要想办法减少M带来的消耗。<br>由于 Weight &gt; 0 且不可能等于 +♾，所以数轴上不会有单点出现多个同样的条目，所以从这个角度来看条目是可以复用的。<br>从这个思路出发，我们定义以下结构体。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// Entry is an item for load balance</span><br><span class="line">type Entry struct &#123;</span><br><span class="line">    deadline float64</span><br><span class="line">    index    int64</span><br><span class="line">    Value    string</span><br><span class="line">    Weight   float64</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>初始时 entry.deadline &#x3D; 1.0&#x2F;entry.Weight<br>调度的时候，从中选择 deadline 最小的使用，并重新把这个条目放入优先队列中，并把 deadline 设置为 deadline + 1.0&#x2F;entry.Weight，重新排布优先队列，如此往复。<br>复杂度分析：</p><ul><li>空间复杂度降低为 O(N)</li><li>初始化的时间复杂度为 O(N)，也就是堆排序的复杂度</li><li>每次Pick的时间复杂度为 O(logN)<br>具体实现可参考： </li><li><a href="https://github.com/pkumza/edf">简单Go实现</a></li><li><a href="https://github.com/envoyproxy/envoy/blob/90a7a3eb8f477350a7175cc0d98487bbed1c4188/source/common/upstream/edf_scheduler.h">Envoy的C++实现</a></li></ul><p>效果参考：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">=== add entry A(3), B(2), C(1) </span><br><span class="line">A  C  B  A  A  B</span><br><span class="line">=== add entry D(2) </span><br><span class="line">A  C  B  D  A  A  B  D</span><br><span class="line">=== del entry B </span><br><span class="line">A  C  D  A  A  D</span><br></pre></td></tr></table></figure><h2 id="其他思考"><a href="#其他思考" class="headerlink" title="其他思考"></a>其他思考</h2><h3 id="index-的作用"><a href="#index-的作用" class="headerlink" title="index 的作用"></a>index 的作用</h3><p>当 deadline 一样的时候，index的作用才能显现出来。先加入的条目应该先出现，这样可以保证一定的稳定性。<br>否则，对于100个条目权重一模一样的调度来说，如果没有index的存在，那机会就变成随机调度了。<br>当weight不相同的时候，index也并非总是有效。<br>譬如 A 的 weight 为 3，C的 weight 为2 的时候，在第八轮，A有可能因deadline为精度问题比C早调度到。</p><h3 id="存储优化"><a href="#存储优化" class="headerlink" title="存储优化"></a>存储优化</h3><p>O(N)的内存消耗并非完全不可避免。<br>在 Service Mesh 场景下， control plane 对交给 proxy 的服务发现列表进行分片，可以使得每个 proxy 获得的条目数量减少。这种方式可以减少存储和Pick的时间消耗，同时还会有优化连接池等其他额外的优势。<br>关于服务发现分片的问题，未来会出一篇专门的文章详细解释。</p><h3 id="起始随机Pick"><a href="#起始随机Pick" class="headerlink" title="起始随机Pick"></a>起始随机Pick</h3><p>在 <a href="https://github.com/pkumza/edf/blob/ba4968d6180f289e8b091135e43cd3f2bce7e3ec/edf.go#L106">edf.go#L106</a></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// avoid instance flood pressure for the first entry</span><br><span class="line">// start from a random one via pick random times</span><br><span class="line">randomPick := rand.Intn(len(entries))</span><br><span class="line">for i := 0; i &lt; randomPick; i++ &#123;</span><br><span class="line">    edf.Pick()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>新建一个EDF的时候，开始进行了一定的随机，为什么要这么做呢？<br>假设有一个条目的权重较大，那么不进行随机，第一次调度选举一定会调度到这个条目。<br>想象这样一个场景，分布式环境下所有的调度器由于某种问题同时重启，那么第一瞬间，所有的调度器都会调度到第一个条目，这很有可能造成第一个条目被瞬间的压力打挂。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;最早截止时间优先调度法 Earliest Deadline First (EDF) scheduler&lt;br&gt;&lt;a href=&quot;https://en.wikipedia.org/wiki/Earliest_deadline_first_scheduling&quot;&gt;EDF in Wikipedia&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;EDF调度算法，是加权轮转调度算法（WRR，Weighted Round-Robin）的一种实现方式。&lt;br&gt;其核心思想是为每个条目截止时间赋值为当前时间加权重的倒数，然后采用最早截止时间优先的方式进行调度。&lt;br&gt;上述定义比较晦涩，我们可以透过后面例子，来说明为什么需要调度算法、如何实现调度算法、EDF调度算法的优势和劣势。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Traffic Director 使用体验</title>
+    <link href="https://zablog.me/2019/07/01/2019-07-01/"/>
+    <id>https://zablog.me/2019/07/01/2019-07-01/</id>
+    <published>2019-07-01T10:20:00.000Z</published>
+    <updated>2019-07-01T11:35:57.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Traffic Director是由谷歌云平台（Google Cloud Platform）推出的服务网格（Service Mesh）流量控制面（Control Plane）。</p><p>Traffic Director可以应用于虚拟机（Virtual Machine），也可以应用于基于Kubernetes管理的容器，它使用Envoy开源的xDS v2 API接口来与数据面的服务代理进行交互。</p><span id="more"></span><p>​<img src="https://cloud.google.com/images/traffic-director/hero-traffic-director.png"></p><p>Traffic Director 官网图例</p><p>下面，我会从发布现状、主体结构、主要功能、支持场景和使用体验五个方面讲解Traffic Director。</p><h2 id="Traffic-Director-的发布现状"><a href="#Traffic-Director-的发布现状" class="headerlink" title="Traffic Director 的发布现状"></a>Traffic Director 的发布现状</h2><p>从发布来看，现状相对来说令人悲观。</p><p>在2018年7月推出Alpha版本</p><p>在2019年4月推出Beta版本</p><p>截止目前（2019-07-01），该功能仍未GA，而且Beta版本涵盖的功能非常有限。</p><p><img src="/images/traffic_director/arch.png"></p><p>Traffic Director的主体结构</p><p><img src="/images/traffic_director/service_mesh.png"></p><p>Service Mesh基本结构</p><p>这个图是比较基本的Service Mesh架构图。Traffic Director的位置，是充当 Service Mesh Control Plane。</p><p>对于数据面，Traffic Director建议使用Lyft公司开源的envoy。当然，一切支持 xDSv2 APIs 的数据面都是可以使用的。</p><p>微服务环境下，作为控制面的Traffic Director</p><h2 id="Traffic-Director-的主要功能"><a href="#Traffic-Director-的主要功能" class="headerlink" title="Traffic Director 的主要功能"></a>Traffic Director 的主要功能</h2><ul><li><p>全局负载均衡</p></li><li><p>中心化健康检查</p></li><li><p>基于Load的自动扩缩容</p></li><li><p>内嵌的弹性（高可用）</p></li><li><p>强大的流量控制能力</p></li></ul><p>从功能上，我的一篇翻译来的博客 <a href="http://zablog.me/2019/05/16/2019-05-16/">GCP网络深度解析：Traffic Director 如何提供全局负载均衡</a> 已经讲述地比较清楚了；</p><p>原理和意义上，敖老师的<a href="https://skyao.io/post/201905-google-traffic-director-detail/">《Google Traffic Director 详细介绍》</a> 讲的也非常清晰，因此这里不会讲得特别详细，只会针对一些功能与使用的重点。</p><h2 id="Traffic-Director-的支持场景"><a href="#Traffic-Director-的支持场景" class="headerlink" title="Traffic Director 的支持场景"></a>Traffic Director 的支持场景</h2><p>从支持来看，Traffic Director目前支持 VM + Pod，这还是令人欣慰的。</p><p>你可以在 GCE（Google Compute Engine）和 GKE（Google Kubernetes Engine）上使用。不过从官方的指南来看，Traffic Director只支持自家产品，这是源于Traffic Director在生效的时候会操纵一些Google的API，因而不能直接支持其他的公有云或者私有云。</p><p>无论如何，VM+Pod的模式也是顺应了混合云的趋势，控制面不应该和云原生进行太强的绑定，还是要考虑到很多的服务仍有可能部署在虚拟机之中，这也是所有想要把Service Mesh落地的人需要重点考虑的问题。</p><h2 id="Traffic-Director-的实际体验"><a href="#Traffic-Director-的实际体验" class="headerlink" title="Traffic Director 的实际体验"></a>Traffic Director 的实际体验</h2><p>部署</p><p>首先建立一个GKE集群。云原生的集群，使用Traffic Director 应该比VM要更方便一点。</p><p>启动样例service，这个时候需要注意的是Traffic Director 只支持手动注入。也就是需要手动修改 kubectl -f 后面的 yaml 文件，让 container 把 Envoy 的容器也加载进同一个Pod内部。未来有可能会支持自动注入。</p><p>和其他的教程一样，这些指导性的操作都可以使用 Console 和 Gcloud 分别配置。即同时支持控制台图形界面操作和命令行操作的能力。（其实背后的API是一致的）</p><p>部署的体验总体还算容易，不过对于用户来说，需要比较多的GCP操控经验。否则面对很多GCP的概念还是一头雾水。</p><p>服务配置</p><p>Beta版本的配置能力非常地弱。</p><p>事实上，在Beta版本的Traffic Director配置页面中，只有两个Tab，分别是“服务”和“规则”。</p><p>什么是服务，理论上 VM&#x2F;Pod + xDS API &#x3D; 服务</p><p>只要你的VM或者Pod注入了Proxy，拥有了xDS API的能力，就算是一个服务了。当然配置服务的时候可以选择一些额外的配置，譬如端口号、平衡模式、健康检查等等。</p><p><img src="/images/traffic_director/svc.png"></p><p>服务配置<br>平衡模式的涵义就是流量速率控制，可以选择RPS（Request Per Second）的阈值，也可以选择CPU的比例。当RPC达到阈值，或者CPU达到比例之后，Traffic Director就不会把流量打过来，而是选择最为临近的可用的其他节点。</p><p>因为Traffic Director只能用来导引HTTP的服务，因此健康检查也相对容易一些。一般地，只需要每隔5秒检查一下端口可用性即可。连续两次发现端口不可用，即认为服务不健康。</p><p>规则配置</p><p>绝大对数流量配置能力还在Alpha阶段，需要单独申请才能试用。</p><p>Beta版本下只有一些基础功能，配置界面如下：</p><p>路由规则配置<br>首先，你需要制定一个转发规则，决定目标；</p><p>然后你再确定一下主机和路径规则。可以使用主机（Host）、路径（Path）、服务（Service）进行匹配，匹配能力和转发能力都非常差。</p><p><img src="/images/traffic_director/rule.png"></p><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Traffic Director 目前还处于测试状态，功能也不全，距离落地仍然很远。对于一个线上应用来说，进行Traffic Director的迁移肯定是得不偿失的。</p><p>在官网文档中，作者描述了很多局限性，包括：不支持Istio API、只支持HTTP流量、流量控制还在Alpha测试阶段、暂时与GCP强绑定等等。几乎每个局限性都是生产环境落地的死门。</p><p>但无论如何，使用数据面的开放接口并提供一个高可用的托管控制面的思路是非常明确的。在未来的计划中，Traffic Director将会对Istio的功能有更好的支持，提供更强大的流量控制与可观测能力，带来更强的稳定性和灵活性，所以Traffic Director的未来依然值得期待。</p><p>相关参考：</p><ul><li><p>《Traffic Director官网文档》<a href="https://cloud.google.com/traffic-director/docs/traffic-director-concepts">https://cloud.google.com/traffic-director/docs/traffic-director-concepts</a></p></li><li><p>《GCP网络深度解析：Traffic Director 如何提供全局负载均衡》 <a href="http://zablog.me/2019/05/16/2019-05-16/">http://zablog.me/2019/05/16/2019-05-16/</a> </p></li><li><p>《Google Traffic Director 详细介绍》 <a href="https://skyao.io/post/201905-google-traffic-director-detail/">https://skyao.io/post/201905-google-traffic-director-detail/</a></p></li><li><p>《Google Cloud networking in depth: How Traffic Director provides global load balancing for open service mesh》<a href="https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh">https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh</a></p></li></ul>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;Traffic Director是由谷歌云平台（Google Cloud Platform）推出的服务网格（Service Mesh）流量控制面（Control Plane）。&lt;/p&gt;
+&lt;p&gt;Traffic Director可以应用于虚拟机（Virtual Machine），也可以应用于基于Kubernetes管理的容器，它使用Envoy开源的xDS v2 API接口来与数据面的服务代理进行交互。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>谷歌云网络深度解析：流量指挥官如何为服务网格提供全局负载均衡</title>
+    <link href="https://zablog.me/2019/05/16/2019-05-16/"/>
+    <id>https://zablog.me/2019/05/16/2019-05-16/</id>
+    <published>2019-05-16T10:20:00.000Z</published>
+    <updated>2019-05-16T10:50:22.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>原文：<a href="https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh">https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh</a><br>作者：Anna Berenberg &amp; Arunkumar Jayaraman April 18, 2019</p><p>服务网格为不同队伍用不同语言开发的独立微服务提供了基础。服务网格将开发和运维进行解耦，开发者再也不用在应用代码中维护一套网络路由规则了。所有的流量路由规则都被<a href="http://envoyproxy.io/">Envoy</a>等服务代理所接管，由服务网格<strong>控制面</strong>提供动态的流量管控。</p><span id="more"></span><p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Traffic_Director_for_service_mesh.max-1200x1200.png"></p><blockquote><p>流量指挥官让服务网格和Envoy更容易在生产环境中使用。 —— Matt Klein, Envoy的创始人</p></blockquote><p>流量指挥官是谷歌云全方位管控的服务网格流量控制面。流量指挥官对于虚拟机和容器都有效，它使用开源的<code>xDS</code>接口来与数据面的服务代理进行交互。</p><h2 id="流量指挥官的能力"><a href="#流量指挥官的能力" class="headerlink" title="流量指挥官的能力"></a>流量指挥官的能力</h2><ol><li>全局负载均衡</li><li>中心化健康检查</li><li>基于Load的自动扩缩容</li><li>内嵌的弹性（高可用）</li><li>强大的流量控制能力</li></ol><h3 id="全局负载均衡"><a href="#全局负载均衡" class="headerlink" title="全局负载均衡"></a>全局负载均衡</h3><p>你们很多人肯定都使用过谷歌面向互联网服务的全局负载均衡。流量指挥官把全局负载均衡带到了服务网格的微服务场景下。通过全局负载均衡，我们可以为你在GCP上全球部署的服务实例赋能。流量指挥官提供了一套智能的通信方案，是的客户端自动把流量发往容量有空余的最近服务节点。<br>这可以大大优化服务上下游之间的流量分布，为请求提供最短的<a href="https://en.wikipedia.org/wiki/Round-trip_delay_time">RTT</a>时间。</p><p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Global_load_balancing.max-1400x1400.png" alt="全局负载均衡"></p><p>如果距离客户端最近的服务节点挂掉了，那么流量指挥官会智能无缝地把流量切换到最近的健康节点。</p><p><img src="https://storage.googleapis.com/gweb-cloudblog-publish/images/Traffic_Director_intelligence.max-1400x1400.png" alt="切换到最近的健康节点"></p><h3 id="中心化健康监测"><a href="#中心化健康监测" class="headerlink" title="中心化健康监测"></a>中心化健康监测</h3><p>大规模部署的服务网格会产生大量的健康检查的流量，因为每一个代理都要去检查下游的所有服务的健康状态。当服务网格的体量增长的时候，健康检查就称为了一个 n<sup>2</sup> 的问题（假设 client 的数量和 server 的数量级都是n）。这会成为服务伸缩的一个重大障碍。</p><p>流量指挥官通过中心化的服务健康检查解决了这个问题。它使用一个全局分布式的弹性系统监控器去监控所有的服务实例。接下来，流量指挥官使用<code>EDS API</code>，把健康检查的结果分发到全球所有的代理。</p><h3 id="基于Load的自动扩缩容"><a href="#基于Load的自动扩缩容" class="headerlink" title="基于Load的自动扩缩容"></a>基于Load的自动扩缩容</h3><p>流量指挥官可以基于Load，支持自动扩容和缩容。Load信号是由proxy上报给它的。流量指挥官通知计算引擎扩&#x2F;缩容到具体的大小。</p><p>当计算引擎扩容成功之前，流量指挥官会临时把流量打到其他可用的实例上，如果需要的话甚至会把流量临时打到其他的区域。一旦自动扩容成功，流量指挥官会把流量重新定位到最近的区域上。</p><h3 id="内嵌弹性（高可用）"><a href="#内嵌弹性（高可用）" class="headerlink" title="内嵌弹性（高可用）"></a>内嵌弹性（高可用）</h3><p>流量指挥官是全面部署在GCP上的，你不用担心它的启动时间、生命周期管理、扩缩容、可用性等任何问题。流量指挥官的架构是全球分部署弹性部署的，它与Google自身的2C业务使用同样的系统。<br>流量指挥官可以提供 99.99% GA（Generally Available） 的 SLA（Service Level Aggreement）。</p><h3 id="流量控制能力"><a href="#流量控制能力" class="headerlink" title="流量控制能力"></a>流量控制能力</h3><p>流量指挥官让你可以在不修改应用代码的情况下控制流量<br>你可以创建一个自定义的流量控制规则或者策略</p><ul><li>HTTP匹配：指定参数，包括host，path以及header</li><li>HTTP行为：在匹配成功之后，指定需要进行的行为，包括重定向、重写、header变换、镜像、故障注入等等</li><li>每个服务的流量策略：可以设置负载均衡算法、熔断参数等其他服务级别的配置</li><li>配置过滤：把配置推送到客户端的部分子集的能力</li></ul><p>使用上述路由规则和流量策略，你可以轻松地使得流量控制能力足够强大。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;原文：&lt;a href=&quot;https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh&quot;&gt;https://cloud.google.com/blog/products/networking/traffic-director-global-traffic-management-for-open-service-mesh&lt;/a&gt;&lt;br&gt;作者：Anna Berenberg &amp;amp; Arunkumar Jayaraman April 18, 2019&lt;/p&gt;
+&lt;p&gt;服务网格为不同队伍用不同语言开发的独立微服务提供了基础。服务网格将开发和运维进行解耦，开发者再也不用在应用代码中维护一套网络路由规则了。所有的流量路由规则都被&lt;a href=&quot;http://envoyproxy.io/&quot;&gt;Envoy&lt;/a&gt;等服务代理所接管，由服务网格&lt;strong&gt;控制面&lt;/strong&gt;提供动态的流量管控。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>coding练习：键盘侠</title>
+    <link href="https://zablog.me/2019/03/30/q02/"/>
+    <id>https://zablog.me/2019/03/30/q02/</id>
+    <published>2019-03-30T13:00:00.000Z</published>
+    <updated>2019-05-16T10:22:58.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用<br>C：拷贝，可以把输入框的所有内容拷贝下来<br>P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容<br>请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？</p><span id="more"></span><h2 id="样例"><a href="#样例" class="headerlink" title="样例"></a>样例</h2><p>如果不可能，则返回{-1, “”}。<br>我们保证 N &gt;&#x3D; 0</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">N = 0</span><br><span class="line">做不到，返回 -1, &quot;&quot;</span><br><span class="line"></span><br><span class="line">N = 1</span><br><span class="line">0次：</span><br><span class="line"></span><br><span class="line">N = 2</span><br><span class="line">2次：CP</span><br><span class="line"></span><br><span class="line">N = 12</span><br><span class="line">7次：CPCPCPP</span><br><span class="line"></span><br></pre></td></tr></table></figure><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>有的同学可能会误以为这是一个动态规划的题目，<br>可能是因为有一道题叫做“矩阵乘法”，这个题目相比来说很类似。</p><p>实际上因为它可以完全用贪心法，所以没有必要动态规划。</p><p>直接采用因式分解，然后把因子加起来就可以了。</p><h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// KeyPress accepts target number of repeat times on the screen,</span></span><br><span class="line"><span class="comment">// returns times of key pressing &amp; key pressing sequence</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">KeyPress</span><span class="params">(N <span class="type">int</span>)</span></span> (<span class="type">int</span>, <span class="type">string</span>) &#123;</span><br><span class="line"><span class="keyword">var</span> seq <span class="type">string</span></span><br><span class="line"><span class="keyword">if</span> N &lt;= <span class="number">0</span> &#123;</span><br><span class="line"><span class="keyword">return</span> <span class="number">-1</span>, seq</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> result = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i := <span class="number">2</span>; i &lt;= N; &#123;</span><br><span class="line"><span class="keyword">if</span> N%i == <span class="number">0</span> &#123;</span><br><span class="line">N = N / i</span><br><span class="line">result += i</span><br><span class="line">seq = seq + <span class="string">&quot;C&quot;</span></span><br><span class="line"><span class="keyword">for</span> j := <span class="number">1</span>; j &lt; i; j++ &#123;</span><br><span class="line">seq = seq + <span class="string">&quot;P&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">i++</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> result, seq</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;网络喷子键盘侠的输入框上已经键入了一句喷人的话，现在他的键盘上只有两个键可用&lt;br&gt;C：拷贝，可以把输入框的所有内容拷贝下来&lt;br&gt;P：粘贴，可以在输入框结尾处添加刚刚拷贝的所有内容&lt;br&gt;请问他至少需要按多少次，可以把输入框里的话复制N次发送出去呢？&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>计算21点在摸五张的情况下不爆牌的概率</title>
+    <link href="https://zablog.me/2018/12/30/q01/"/>
+    <id>https://zablog.me/2018/12/30/q01/</id>
+    <published>2018-12-30T13:00:00.000Z</published>
+    <updated>2018-12-30T13:39:38.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>21点游戏，在摸五张牌的情况下，不爆牌的概率。&#x2F; Calculating the probability of no burst while fetching 5 cards in blackjack.</p><span id="more"></span><h2 id="详细-x2F-Details"><a href="#详细-x2F-Details" class="headerlink" title="详细 &#x2F; Details"></a>详细 &#x2F; Details</h2><p>21点游戏，英文：Blackjack，是使用扑克牌玩的赌博游戏。</p><p>A可作1点或11点，2-10作该牌之点数，J、Q、K作10点。</p><p>玩家初始手上有2张牌。</p><p>如果玩家要牌后，其手上拥有的牌的总点数超过21点，便要揭开手上所拥有的牌，称为爆牌。</p><p>反之若其手上拥有的牌的总点数不超过21点，该玩家可决定是否继续要牌。</p><p>假设一个玩家为了完成某项挑战，一定会选择要牌三次，那么对于一局游戏来说，他要牌三次仍未爆牌的概率是多少？</p><h2 id="背景-x2F-Background"><a href="#背景-x2F-Background" class="headerlink" title="背景 &#x2F; Background"></a>背景 &#x2F; Background</h2><p>最近在玩R星开发的《荒野大镖客2》游戏，遇到了一个“赌徒系列挑战”之8：</p><p><img src="https://github.com/pkumza/coding/blob/master/q01/images/q01_01.jpeg?raw=true" alt="赌徒8"></p><p>当时耗费了2个小时不停地玩21点，终于完成了这个挑战。</p><p>这个挑战在网上被吐槽不少，只要在搜索引擎搜索“赌徒8”，全都是喷这个挑战的。大家都认为这个挑战的运气成分太大，而且完成这个挑战非常困难。</p><p>我突发奇想，想计算一下要牌3次还不爆牌的概率。（要牌3次就是有5张手牌）发现这是一个很好的概率题。</p><p>当然，对于真正的赌徒8挑战来说，想要算出完成赌徒8需要的期望局数，并不是3&#x2F;不爆牌的概率。题目对于真正的游戏有一些简化。（尝试抽出最挑战大脑的部分，忽略其他细节，细节写在下面了。）</p><blockquote><p>首先，不爆牌并不意味着能赢过庄家，庄家仍有可能比你的5张牌更接近21点；<br>其次，这个游戏没有办法在已经达到21点的时候继续要牌。譬如你起手牌为 <code>A</code>和<code>K</code>，那么游戏会自动让你停牌，虽然这个时候你仍有可能摸5张牌而不爆，但是游戏机制决定你在这种情况下没办法继续摸牌了。 </p></blockquote><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>一共有52张牌。A,2,3,4,5,6,7,8,9,10,J,Q,K各四张。<br>因为题目要求是不爆牌，所以A看做11点是没有意义的，直接把A当做1点即可。</p><p>52张牌中任意选5张，一共有C(52,5)种可能，即2598960种。<br>剩下的只需要枚举出所有的不爆牌的情形即可。</p><h2 id="Solution01"><a href="#Solution01" class="headerlink" title="Solution01"></a>Solution01</h2><p>使用模拟的方法，模拟1000000次情形，并统计不爆牌的次数，得出一个近似概率。</p><p>不是特别准确，但是也可以当做一个近似值。但是要真正较真的话，这是一个错误的解法。</p><p>实测：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ go run ./s01/main.go</span><br><span class="line">Result is 0.053647</span><br><span class="line">Time consumed 505.888256ms</span><br></pre></td></tr></table></figure><h2 id="Solution02"><a href="#Solution02" class="headerlink" title="Solution02"></a>Solution02</h2><p>暴力枚举</p><p>通过迭代的方式，枚举出每一种方法，并计算出总的不爆牌的方法数目，最终除以总方法数，得到概率值。<br>该方法的核心点在于模拟。</p><p><strong>算法复杂度</strong></p><p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p><p><strong>时间复杂度</strong></p><p><code>O(M^N)</code> 指数级别，复杂度与阈值无关。</p><p><strong>空间复杂度</strong></p><p>很少，使用函数迭代，还有一个记录扑克的数组，勉强算是消耗 <code>O(M+N)</code> 的空间而已，</p><p><strong>实测</strong></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run ./s02/main.go</span><br><span class="line">Result is 0.053856927386339154</span><br><span class="line">Time consumed 7.98652ms</span><br></pre></td></tr></table></figure><h2 id="Solution03"><a href="#Solution03" class="headerlink" title="Solution03"></a>Solution03</h2><p>状态保留</p><p>我们调用<code>numOfPossibleCases</code>函数的时候发现，很多参数一模一样的被调用了很多次。<br>我们建立一个HashMap保存一下状态，当遇到已经吊用过的函数时候，直接返回即可，不需要再次计算。<br>达到免除重复计算的剪枝效果。</p><p><strong>算法复杂度</strong></p><p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p><p><strong>时间复杂度</strong></p><p><code>O(N*T*M^2)</code> 将指数级别的复杂度降到了多项式级别。</p><p><strong>空间复杂度</strong></p><p>需要用一个 <code>HashMap</code> 来暂存状态</p><p>复杂度为<code>O(N*T*M)</code></p><p>实测：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run ./s03/main.go</span><br><span class="line">Result is 0.053856927386339154</span><br><span class="line">Time consumed 1.408398ms</span><br></pre></td></tr></table></figure><h2 id="Solution04"><a href="#Solution04" class="headerlink" title="Solution04"></a>Solution04</h2><p>动态规划</p><p>var dp [maxCardsToPick + 1][maxThreshold + 1][maxStart + 1]int</p><p>dp[i][j][k]的含义为：摸i张牌，最大不超过j，从第k张开始到最后一张牌是可选的范围，那么有几种摸牌的可能性。</p><p>状态转移方程：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j][k] = ∑ (l from k to totalNum) dp[i-1][j-pokers[l]][l+1]</span><br></pre></td></tr></table></figure><p><strong>算法复杂度</strong></p><p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p><p><strong>时间复杂度</strong></p><p><code>O(N*T*M^2)</code> 将指数级别的复杂度降到了多项式级别。</p><p><strong>空间复杂度</strong></p><p>建立了一个三维数组 var dp [maxCardsToPick + 1][maxThreshold + 1][maxStart + 1]int<br>复杂度为<code>O(N*T*M)</code></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run ./s04/main.go</span><br><span class="line">Result is 0.053856927386339154</span><br><span class="line">Time consumed 474.663µs</span><br></pre></td></tr></table></figure><h2 id="Solution05"><a href="#Solution05" class="headerlink" title="Solution05"></a>Solution05</h2><p>优化空间复杂度的动态规划</p><p>因为三维数组的每一层只和前面一层有关系，因此可以通过翻转的方式，减少内存消耗。</p><p><strong>算法复杂度</strong></p><p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p><p><strong>时间复杂度</strong></p><p>和 Solution04 一致</p><p><strong>空间复杂度</strong></p><p>建立了一个三维数组 var dp [2][maxThreshold + 1][maxStart + 1]int<br>复杂度为<code>O(T*M)</code></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run ./s05/main.go</span><br><span class="line">Result is 0.053856927386339154</span><br><span class="line">Time consumed 402.794µs</span><br></pre></td></tr></table></figure><hr><p>代码库位置 <a href="https://github.com/pkumza/coding/tree/master/q01">https://github.com/pkumza/coding/tree/master/q01</a></p><p>附：测试环境</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">MacBook Pro</span><br><span class="line">macOS Mojave 10.14.2</span><br><span class="line">2.4 GHz Intel Core i7</span><br><span class="line">16 GB 1867 MHz LPDDR3</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;21点游戏，在摸五张牌的情况下，不爆牌的概率。&amp;#x2F; Calculating the probability of no burst while fetching 5 cards in blackjack.&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>云原生的定义</title>
+    <link href="https://zablog.me/2018/12/23/CloudNative/"/>
+    <id>https://zablog.me/2018/12/23/CloudNative/</id>
+    <published>2018-12-23T13:00:00.000Z</published>
+    <updated>2018-12-23T06:19:21.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>云原生是一个比较新的概念。<br>Pivotal 是相关领域的先行者。<br><a href="https://www.cncf.io/">CNCF</a>是一个2015年成立的基金会。<br>他们都对云原生有着自己的定义</p><span id="more"></span><h1 id="Pivotal"><a href="#Pivotal" class="headerlink" title="Pivotal"></a>Pivotal</h1><p>Pivotal 最早给出了相关的定义。</p><blockquote><p>Cloud-native is an approach to building and running applications that exploits the advantages of the cloud computing delivery model. Cloud-native is about how applications are created and deployed, not where.<br>While today public cloud impacts the thinking about infrastructure investment for virtually every industry, a cloud-like delivery model isn’t exclusive to public environments. It’s appropriate for both public and private clouds. Most important is the ability to offer nearly limitless computing power, on-demand, along with modern data and application services for developers. When companies build and operate applications in a cloud-native fashion, they bring new ideas to market faster and respond sooner to customer demands.</p></blockquote><blockquote><p>Organizations require a platform for building and operating cloud-native applications and services that automates and integrates the concepts of DevOps, continuous delivery, microservices, and containers:</p></blockquote><p>云原生是一种利用云计算交付模型的优势，来构建和运行应用程序的方法。<br>云原生的关注点在于应用程序如何创建和部署，而不关注在哪里部署。<br>虽然今天的公共云影响了几乎每个行业的基础设施投资思想，但类似云的交付模式并不仅限于公共环境。<br>它适用于公共云和私有云。<br>云原生应当始终是架构团队的追求目标。<br>当我们能够为业务团队按需提供充沛的计算能力，现代化的数据库和应用程序服务，那么业务团队也就能够更快地把新想法推向市场，并更快地响应客户请求。</p><p>组织需要一个平台来构建和运行云原生应用程序和服务，以自动化和集成DevOps，持续交付，微服务和容器的概念：</p><h1 id="CNCF"><a href="#CNCF" class="headerlink" title="CNCF"></a>CNCF</h1><p>云原生计算基金会（Cloud Native Computing Foundation）给出了另一个定义。</p><blockquote><p>Cloud native technologies empower organizations to build and run scalable applications in modern, dynamic environments such as public, private, and hybrid clouds. Containers, service meshes, microservices, immutable infrastructure, and declarative APIs exemplify this approach.</p></blockquote><blockquote><p>These techniques enable loosely coupled systems that are resilient, manageable, and observable. Combined with robust automation, they allow engineers to make high-impact changes frequently and predictably with minimal toil.</p></blockquote><blockquote><p>The Cloud Native Computing Foundation seeks to drive adoption of this paradigm by fostering and sustaining an ecosystem of open source, vendor-neutral projects. We democratize state-of-the-art patterns to make these innovations accessible for everyone.</p></blockquote><blockquote><p>云原生技术有利于各组织在公有云、私有云和混合云等新型动态环境中，构建和运行可弹性扩展的应用。</p></blockquote><blockquote><p>云原生的代表技术包括<code>容器</code>、<code>服务网格</code>、<code>微服务</code>、<code>不可变基础设施</code>和<code>声明式API</code>。</p></blockquote><blockquote><p>这些技术能够构建容错性好、易于管理和便于观察的松耦合系统。结合可靠的自动化手段，云原生技术使工程师能够轻松地对系统作出频繁和可预测的重大变更。</p></blockquote><blockquote><p>云原生计算基金会（CNCF）致力于培育和维护一个厂商中立的开源生态系统，来推广云原生技术。我们通过将最前沿的模式民主化，让这些创新为大众所用。</p></blockquote><h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul><li><a href="https://github.com/cncf/toc/blob/master/DEFINITION.md">https://github.com/cncf/toc/blob/master/DEFINITION.md</a></li><li><a href="https://pivotal.io/cloud-native">https://pivotal.io/cloud-native</a></li></ul>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;云原生是一个比较新的概念。&lt;br&gt;Pivotal 是相关领域的先行者。&lt;br&gt;&lt;a href=&quot;https://www.cncf.io/&quot;&gt;CNCF&lt;/a&gt;是一个2015年成立的基金会。&lt;br&gt;他们都对云原生有着自己的定义&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Monotonic time</title>
+    <link href="https://zablog.me/2018/11/29/Monotonic/"/>
+    <id>https://zablog.me/2018/11/29/Monotonic/</id>
+    <published>2018-11-29T13:00:00.000Z</published>
+    <updated>2018-11-29T06:14:39.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>go 1.9 之后，给Time增加了 Monotonic 部分。</p><span id="more"></span><p>系统提供了wall time 和 monotonic 时间。<br>其中wall time会根据时间校准而改变，而monotonic不会。</p><p>举个例子。<br>你写了一个日志收集程序，每10秒把收到的日志汇报给流式收集系统。<br>但是你的机器事件比真实时间快了1分钟。</p><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">now := time.Now()</span><br><span class="line">&lt;-now.After(time.Second*<span class="number">10</span>):</span><br><span class="line"><span class="comment">// do sth</span></span><br></pre></td></tr></table></figure><p>假如得到now的时间以后，机器与外部时间进行了一步同步，把本机实际时间调慢1分钟，那么程序将会在第二行卡上70秒。<br>这会导致本地日志队列可能会爆仓。</p><p>与Duration相关的时间操作，譬如time.Since(start), time.Until(deadline), and time.Now().Before(deadline)等，对于时间重置非常敏感，所以它们需要参考 Monotonic 时间。</p><p>而如果时间是为了打印，或者start time&#x2F;deadline time是外界传入的，那么 monotonic 时间将会是一个干扰。 此时应该使用  t &#x3D; t.Round(0) 排除 monotonic。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;go 1.9 之后，给Time增加了 Monotonic 部分。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Envoy中的 LB 算法</title>
+    <link href="https://zablog.me/2018/10/29/LB/"/>
+    <id>https://zablog.me/2018/10/29/LB/</id>
+    <published>2018-10-29T13:00:00.000Z</published>
+    <updated>2018-10-30T02:18:36.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>LB是现代高并发应用必然的需求，下面介绍一下Envoy中使用的LB算法。</p><span id="more"></span><p>from <a href="https://github.com/envoyproxy/envoy/blob/stable/v1.7.1/api/envoy/api/v2/cds.proto#L119">https://github.com/envoyproxy/envoy/blob/stable/v1.7.1/api/envoy/api/v2/cds.proto#L119</a></p><figure class="highlight pb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">enum LbPolicy &#123;</span><br><span class="line">    ROUND_ROBIN = 0<span class="comment">;</span></span><br><span class="line">    LEAST_REQUEST = 1<span class="comment">;</span></span><br><span class="line">    RING_HASH = 2<span class="comment">;</span></span><br><span class="line">    RANDOM = 3<span class="comment">;</span></span><br><span class="line">    ORIGINAL_DST_LB = 4<span class="comment">;</span></span><br><span class="line">    MAGLEV = 5<span class="comment">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h2 id="ROUND-ROBIN"><a href="#ROUND-ROBIN" class="headerlink" title="ROUND_ROBIN"></a>ROUND_ROBIN</h2><p>ROUND_ROBIN是使用最为广泛的LB算法，轮询。<br>举个例子：<br>1，2，3，4，5，6，六个请求依次访问有两个后端的LB，那么依ROUND_ROBIN算法，<br>服务器A服务1，3，5<br>服务器B服务2，4，6</p><p>Envoy的ROUND_ROBIN实际上是加权的。<br>由于服务后端的处理能力不同。假如服务器A能力比较强，我们分配了Weight&#x3D;2；B的服务能力一般，我们分配了Weight&#x3D;1，那么依照Weighted Round-Robin<br>服务器A服务1，2，4，5<br>服务器B服务3，6</p><h2 id="LEAST-REQUEST"><a href="#LEAST-REQUEST" class="headerlink" title="LEAST_REQUEST"></a>LEAST_REQUEST</h2><p>LEAST_REQUEST的意思是把请求送给当前活跃请求最少的服务器。<br>因为不同的请求需要耗费的资源实际上也是不一样的，我们假设2，4，6请求都特别耗费资源，1，3，5请求都很简单，那么把2，4，6都分配给服务器B就不甚合理。<br>1，2两个请求来了<br>服务器A服务1<br>服务器B服务2<br>1很快结束了，2还卡单<br>请求3来了，由于B现在有1个active req，A没有，所以分配给A<br>请求3也很快处理完<br>请求4来了，由于B现在有1个active req，A没有，所以分配给A<br>两个都在卡单。<br>请求5和6来了，分别分配给A，B。<br>最终，所有请求解决。</p><p>综上<br>服务器A服务1，3，4，5<br>服务器B服务2，6</p><h2 id="RING-HASH"><a href="#RING-HASH" class="headerlink" title="RING_HASH"></a>RING_HASH</h2><p>环形哈希是最基本的一致性哈希算法<br>需要设置hash key</p><p>来了一个新的请求，需要得到下游的时候，需要对Lookup Table进行二分查找。<br>当Lookup Table的大小为N的时候，需要Log(N)的查找时间复杂度。<br>N太大，每次查找时间太长；<br>N太小，环形哈希的均匀性又不够。<br>这个地方需要Trade-off，或者可以选用Maglev算法。</p><h2 id="RANDOM"><a href="#RANDOM" class="headerlink" title="RANDOM"></a>RANDOM</h2><p>纯随机<br>一般效果还不错。</p><h2 id="ORIGINAL-DST-LB"><a href="#ORIGINAL-DST-LB" class="headerlink" title="ORIGINAL_DST_LB"></a>ORIGINAL_DST_LB</h2><p>原始目的地负载均衡</p><p>upstream的主机基于downstream的连接元数据。这个是envoy特定的，不详细讲了。</p><h2 id="MAGLEV"><a href="#MAGLEV" class="headerlink" title="MAGLEV"></a>MAGLEV</h2><p>一种特殊的一致性哈希算法，效率比环形哈希要高一些，增删节点的影响一般更小。<br>需要设置hash key</p><p>首先对每一个后端节点产生一个permutation；<br>然后用一种特殊的walk算法，得到一个Lookup Table。<br>新的请求到来的时候，只需要直接查表即可，时间复杂度为O(1)。<br>walk算法保证哈希的概率是基本均匀的。</p><h1 id="Extra-healthy-panic-threshold"><a href="#Extra-healthy-panic-threshold" class="headerlink" title="Extra: healthy_panic_threshold"></a>Extra: healthy_panic_threshold</h1><p>Envoy中有一个监控恐慌阈值的设置，这个设置很有意思，所以在这里额外讲一下。</p><p>负载均衡一般是根据集群中主机的健康情况灵活变动的。当某台主机跪了，LB算法将会把它从候选列表中踢出去，这也是很合理的。</p><p>但是我们假设这么一种情况，某一时间，所有服务主机的负载情况是最大负载的80%，（负载800；最大处理能力1000）<br>因为某种原因，导致20.0%的机器彻底崩溃。（负载800；最大处理能力800）<br>LB策略忽略20%的机器，导致剩下的80%的机器都在最大处理负载上运行；<br>又来了一个网络波动，造成所有的服务器一个接一个崩溃，整个集群雪崩。<br>每拉起一台新的机器，LB策略立刻把所有的流量打到这么一台机器上，导致它再次崩溃。</p><p>如果有一个恐慌阈值，譬如50%，那么LB会在50%机器崩溃的时候，禁用淘汰策略，把所有机器都当做健康的，在整体集群上执行普通的Round-Robin策略。<br>多数机器恢复，整个集群的处理能力恢复80%的正确率。这使得整个集群能够在遇到极特殊情况的时候能够从困境中恢复。</p><h1 id=""><a href="#" class="headerlink" title=""></a></h1><p>通用运营后台</p><p>火山和抖音都有搜索彩蛋的需求 就是搜索某个特定词的时候 出一些彩蛋，配合广告售卖或者活动<br>大家接到需求的想法就是 写个运营后台，数据存入mysql，然后再起个脚本，定时把数据按照格式dump到redis，在线服务读redis判断<br>或者说 单独抽象一个服务，运营后台负责写入，在线业务负责读取</p><p>搜索结果过滤条件</p><p>客户端配置，广告、图片链接配置，客户端Toast提示文本内容。<br>你可以设置用户满足什么地域、UID在哪个灰度的情况下，更换某一项内容。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;LB是现代高并发应用必然的需求，下面介绍一下Envoy中使用的LB算法。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>HTTP 简史复习</title>
+    <link href="https://zablog.me/2018/10/04/http-brief-history/"/>
+    <id>https://zablog.me/2018/10/04/http-brief-history/</id>
+    <published>2018-10-04T13:00:00.000Z</published>
+    <updated>2018-10-29T12:47:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>简要复习一下HTTP的发展历史。</p><span id="more"></span><h2 id="HTTP-x2F-0-9"><a href="#HTTP-x2F-0-9" class="headerlink" title="HTTP&#x2F;0.9"></a>HTTP&#x2F;0.9</h2><p>初代不成熟协议，只支持<code>GET</code>命令，仅接受HTML格式的子串，一次请求结束之后TCP连接随即关闭。</p><h2 id="HTTP-x2F-1-0"><a href="#HTTP-x2F-1-0" class="headerlink" title="HTTP&#x2F;1.0"></a>HTTP&#x2F;1.0</h2><p>不仅支持HTML，还支持图片、视频、二进制文件等。<br>增加了 POST HEAD，<br>每次Req和Resp都必须含有头部。整个头部只能使用ASCII编码<br>新增了状态码、权限、缓存、内容编码(content encoding)等功能。<br>新增Content-Type字段。</p><p>缺点：<br>但是每次只能发送一个请求，三次握手比较慢，另外需要慢启动。</p><p>连接复用采用 <code>Connection: keep-alive</code> 字段，该字段非标准。</p><h2 id="HTTP-x2F-1-1"><a href="#HTTP-x2F-1-1" class="headerlink" title="HTTP&#x2F;1.1"></a>HTTP&#x2F;1.1</h2><p>RFC 2616<br>第一个有正式标准的版本。</p><p>举个 🌰</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">$&gt; telnet website.org 80</span><br><span class="line">Connected to xxx.xxx.xxx.xxx</span><br><span class="line"></span><br><span class="line">GET /index.html HTTP/1.1 ①</span><br><span class="line">Host: website.org</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4)... (snip)</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span><br><span class="line">Accept-Encoding: gzip,deflate,sdch</span><br><span class="line">Accept-Language: en-US,en;q=0.8</span><br><span class="line">Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3</span><br><span class="line">Cookie: __qca=P0-800083390... (snip)</span><br><span class="line"></span><br><span class="line">HTTP/1.1 200 OK ②</span><br><span class="line">Server: nginx/1.0.11</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Content-Type: text/html; charset=utf-8</span><br><span class="line">Via: HTTP/1.1 GWA</span><br><span class="line">Date: Wed, 25 Jul 2012 20:23:35 GMT</span><br><span class="line">Expires: Wed, 25 Jul 2012 20:23:35 GMT</span><br><span class="line">Cache-Control: max-age=0, no-cache</span><br><span class="line">Transfer-Encoding: chunked</span><br><span class="line"></span><br><span class="line">100  ③</span><br><span class="line">&lt;!doctype html&gt;</span><br><span class="line">(snip)</span><br><span class="line"></span><br><span class="line">100</span><br><span class="line">(snip)</span><br><span class="line"></span><br><span class="line">0 ④</span><br><span class="line"></span><br><span class="line">GET /favicon.ico HTTP/1.1 ⑤</span><br><span class="line">Host: www.website.org</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4)... (snip)</span><br><span class="line">Accept: */*</span><br><span class="line">Referer: http://website.org/</span><br><span class="line">Connection: close ⑥</span><br><span class="line">Accept-Encoding: gzip,deflate,sdch</span><br><span class="line">Accept-Language: en-US,en;q=0.8</span><br><span class="line">Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3</span><br><span class="line">Cookie: __qca=P0-800083390... (snip)</span><br><span class="line"></span><br><span class="line">HTTP/1.1 200 OK ⑦</span><br><span class="line">Server: nginx/1.0.11</span><br><span class="line">Content-Type: image/x-icon</span><br><span class="line">Content-Length: 3638</span><br><span class="line">Connection: close</span><br><span class="line">Last-Modified: Thu, 19 Jul 2012 17:51:44 GMT</span><br><span class="line">Cache-Control: max-age=315360000</span><br><span class="line">Accept-Ranges: bytes</span><br><span class="line">Via: HTTP/1.1 GWA</span><br><span class="line">Date: Sat, 21 Jul 2012 21:35:22 GMT</span><br><span class="line">Expires: Thu, 31 Dec 2037 23:55:55 GMT</span><br><span class="line">Etag: W/PSA-GAu26oXbDi</span><br><span class="line"></span><br><span class="line">(icon data)</span><br><span class="line">(connection closed)</span><br></pre></td></tr></table></figure><p>①：附带了encoding，charset和cookie元信息请求HTML文件<br>②：分块传输结果<br>③：分块的大小，以ASCII 十六进制表示。 100代表256字节。<br>④：用0，代表整个Response分块结束。<br>⑤：使用同一条TCP连接请求图标文件<br>⑥：提醒服务器，这个连接将不再被复用，可以关闭连接。<br>⑦：返回图标文件的信息，并在结尾处关闭连接。</p><p>以上样例重点贯彻了<code>HTTP/1.1</code>的连接复用、分块以及显式关闭等特征。</p><p>特征：</p><ol><li>默认TCP连接不关闭，可以被多个请求复用。不像HTTP&#x2F;1.0还必须明确指明 Connection: Keep-Alive。</li><li>管道机制：同一个TCP连接，客户端可以发送多个请求。为了切分每个请求，必须在头部注明Content-Length</li><li>分块传输 chunk。</li></ol><p>其他功能</p><p>增加了 content, encoding, character set 等字段。<br>Host 字段<br>PUT PATCH HEAD OPTIONS DELETE</p><p>缺点</p><p>队头堵塞 Head-of-line blocking</p><h2 id="SPDY"><a href="#SPDY" class="headerlink" title="SPDY"></a>SPDY</h2><p>谷歌自研 2009年 ，HTTP&#x2F;2的基础</p><h2 id="HTTP-x2F-2"><a href="#HTTP-x2F-2" class="headerlink" title="HTTP&#x2F;2"></a>HTTP&#x2F;2</h2><p>注意，不叫<code>HTTP/2.0</code>，下一个版本将是<code>HTTP/3</code>。</p><p>二进制协议</p><p>HTTP&#x2F;1.1 的header肯定是ASCII，数据体可以是文本或二进制。<br>HTTP&#x2F;2 是一个彻底的二进制协议，header和body都是二进制，并且统称为<code>帧</code>：头信息帧和数据帧。</p><p>多工 Multiplexing</p><p>HTTP&#x2F;2 复用了TCP连接，在一个连接里，客户端和浏览器都可以同时发送多个请求或回应，而不是按照顺序。这避免了<code>队头堵塞</code>。</p><p>数据流</p><p>因为HTTP&#x2F;2的数据包不按顺序发送，所以要指出每个数据包属于哪个回应。</p><p>每个请求或回应的所有数据包，称为一个数据流。每个数据流有个独一无二的ID。<br>客户端来的数据包的ID是奇数，服务端发送的数据包ID是偶数。</p><p>头信息压缩</p><p>一方面头可以压缩；另一方面，客户端和服务端维护了一张索引表，不用发送相同的字段。</p><p>服务器推送</p><p>未经过客户端的主动请求，服务器可以主动向客户端发送资源。</p><hr><p>参考：</p><p><a href="http://www.ruanyifeng.com/blog/2016/08/http.html">http://www.ruanyifeng.com/blog/2016/08/http.html</a><br><a href="https://github.com/abbshr/rfc7540-translation-zh_cn">https://github.com/abbshr/rfc7540-translation-zh_cn</a><br><a href="https://tools.ietf.org/html/rfc7540">https://tools.ietf.org/html/rfc7540</a> &#x2F; <a href="https://httpwg.org/specs/rfc7540.html">https://httpwg.org/specs/rfc7540.html</a><br><a href="https://developers.google.com/web/fundamentals/performance/http2/?hl=zh-cn">https://developers.google.com/web/fundamentals/performance/http2/?hl=zh-cn</a><br><a href="https://hpbn.co/brief-history-of-http/">https://hpbn.co/brief-history-of-http/</a></p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;简要复习一下HTTP的发展历史。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Mac OS X屏幕快照完全指南</title>
+    <link href="https://zablog.me/2018/09/16/snapshot/"/>
+    <id>https://zablog.me/2018/09/16/snapshot/</id>
+    <published>2018-09-16T13:00:00.000Z</published>
+    <updated>2018-09-16T13:07:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Mac OS X提供了丰富的内嵌屏幕快照（截图）工具，但是默认的格式、截图位置等并不一定可以契合每一个用户的需求。好在我们使用命令行（Terminal.app 或者iTerm2等别的命令行工具）可以方便地定制屏幕快照。</p><span id="more"></span><h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p>在我们具体地讨论屏幕快照之前，我们先讲一下基本使用（经验丰富的用户可以跳过这个部分）</p><p>在Mac OS X中，有三种方式来截图：截取整个屏幕、截取选定的窗口、截取指定方形区域，以上每一个都可以用快捷键唤起。</p><p>Command + Shift + 3: 截取整个屏幕。如果你有多个屏幕，那么每个屏幕会分别被截在不同的图中。</p><p>Command + Shift + 4: 截取一个方形区域。接下来你可以用你的鼠标划取这个区域。</p><p><img src="https://cdn1.tekrevue.com/wp-content/uploads/2013/05/20130530_screenshotcrosshairs-615x386.jpg"></p><p>Command + Shift + 4, 然后按下空格: 截取一个窗口区域。</p><p>使用上述快捷键，默认会把截图保存到桌面上。</p><p>如果你在按上述快捷键的时候，同时按住Control键，那么截到的图片会暂时存在剪贴板中。</p><p>除了上述三个功能之外，&#x2F;应用程序&#x2F;实用工具&#x2F;抓图.app还提供定时截图的功能。它可以有一个10秒钟的等待时间，会在你点击<code>启动定时器</code>按钮之后的10秒钟完成截图。</p><h1 id="使用终端命令行"><a href="#使用终端命令行" class="headerlink" title="使用终端命令行"></a>使用终端命令行</h1><p>后续每个效果，都得通过执行这句指令才能生效。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">killall SystemUIServer</span><br></pre></td></tr></table></figure><p>这句话起到了刷新作用。</p><h1 id="改变格式"><a href="#改变格式" class="headerlink" title="改变格式"></a>改变格式</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture type [format]</span><br></pre></td></tr></table></figure><p><code>[format]</code> 可以输入为</p><ul><li>bmp</li><li>pdf</li><li>jpg</li><li>jp2</li><li>tif</li><li>pict</li><li>tga</li><li>png</li></ul><p>譬如，你可以通过输入<code>defaults write com.apple.screencapture type jpg</code>把默认图片格式改为jpg</p><h1 id="改变文件名"><a href="#改变文件名" class="headerlink" title="改变文件名"></a>改变文件名</h1><p>系统默认存储的文件名为<code>屏幕快照 [date] [time].[format]</code>，譬如<code>屏幕快照 2018-07-31 下午4.01.16.png</code>。<br>你无法把时间戳从文件名中移除，但是你可以改掉<code>屏幕快照</code>这个前缀。方法是输入：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture name [file name]</span><br></pre></td></tr></table></figure><h1 id="修改默认保存位置"><a href="#修改默认保存位置" class="headerlink" title="修改默认保存位置"></a>修改默认保存位置</h1><p>默认是保存到桌面的。你可以手动改变保存位置。</p><p>命令是：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture location</span><br></pre></td></tr></table></figure><p>首先，你必须要创建一个新的文件夹，当然你要了解你文件夹的位置。<br>譬如你创建了一个名字叫做<code>abc</code>的文件夹在桌面上，那么这个文件夹的位置就是~&#x2F;Desktop&#x2F;abc</p><p>例：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture location /Users/[username]/Desktop/abc/</span><br></pre></td></tr></table></figure><h1 id="窗口阴影"><a href="#窗口阴影" class="headerlink" title="窗口阴影"></a>窗口阴影</h1><p>截图的时候默认是有窗口阴影的，你可以用命令改掉。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.screencapture disable-shadow -bool true</span><br></pre></td></tr></table></figure><p>效果图：<br><img src="https://cdn1.tekrevue.com/wp-content/uploads/2013/03/20130301_osxscreenshots_4.jpg"></p><hr><p>参考：<br><a href="https://www.tekrevue.com/tip/how-to-customize-screenshot-options-in-mac-os-x/">The Complete Guide to Mac OS X Screenshots</a></p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;Mac OS X提供了丰富的内嵌屏幕快照（截图）工具，但是默认的格式、截图位置等并不一定可以契合每一个用户的需求。好在我们使用命令行（Terminal.app 或者iTerm2等别的命令行工具）可以方便地定制屏幕快照。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+    <category term="OS X" scheme="https://zablog.me/tags/OS-X/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>AKF扩展立方</title>
+    <link href="https://zablog.me/2018/09/10/scale-cube/"/>
+    <id>https://zablog.me/2018/09/10/scale-cube/</id>
+    <published>2018-09-10T13:00:00.000Z</published>
+    <updated>2018-09-10T12:57:44.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>《THE ART OF SCALABILITY》中描述了一个非常有用的扩展模型：扩展立方（也叫AKF扩展立方）。<br>这个模型把应用比作立方体，为了支持应用的发展和演进，我们可以通过x，y，z三个方向对它进行扩展。</p><span id="more"></span><p><img src="https://akfpartners.com//uploads/blog/AKF_Scale_Cube.gif"></p><h2 id="X轴扩展"><a href="#X轴扩展" class="headerlink" title="X轴扩展"></a>X轴扩展</h2><p>在负载均衡之后运行应用的多个拷贝。这是最简单最常用的扩展方式。</p><p>缺陷：</p><ul><li>每个拷贝需要访问所有的数据，对缓存机制要求很高，数据库很可能成为瓶颈。</li><li>不会减少日益增长的开发复杂度。</li></ul><h2 id="Y轴扩展"><a href="#Y轴扩展" class="headerlink" title="Y轴扩展"></a>Y轴扩展</h2><p>把整个应用切分为不同的服务，每个服务负责一个或少量几个关系相近的函数。</p><p>有好几种解耦拆分方式。一种是按照动词分割，一种是按照名词分割。</p><p>以购物网站为例：按照动词分割就是按照操作分割，服务1只负责购买流程，服务2只负责售后流程，服务3只负责广告投放流程；<br>按照名词分割就是按照对象类型分割，服务1只负责商品信息；服务2只负责用户信息。</p><p>两种扩展经常是同时使用的！</p><p>微服务化就是Y轴扩展的一个重要方式。</p><h2 id="Z轴扩展"><a href="#Z轴扩展" class="headerlink" title="Z轴扩展"></a>Z轴扩展</h2><p>Z轴扩展和X轴扩展很像，但是在Z轴扩展中，每个服务只跑特定的一部分代码或数据集。</p><p>Z轴扩展一般用来扩展数据库。（数据库分片）<br>在做某些查询的时候，查询指令被送给每一个分片，然后分别查询，最终获得的结果聚合之后返回。<br>做写入的时候，只需要按照分片键，找到对应的实例进行写入即可。</p><p>Z轴扩展的优势：</p><ul><li>每个服务器只处理一部分数据</li><li>优化了缓存的利用率，减少内存使用和I&#x2F;O</li><li>增强了事务的扩展性</li><li>故障隔离</li></ul><p>劣势：</p><ul><li>增加了整体的复杂度。</li><li>需要实现分片机制。万一有重新分片的需求的话，令人头大。</li><li>增加复杂度的同事，并没有降低开发的复杂度，这个需要Y轴扩展配合解决。</li></ul><hr><p>参考：<br><a href="https://microservices.io/articles/scalecube.html">The Scale Cube | Microservice Architecture</a></p><h1 id="JWT"><a href="#JWT" class="headerlink" title="JWT"></a>JWT</h1><p>JSON Web Tokens</p><h1 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h1><p>跨站请求伪造Cross-site request forgery（简称CSRF, 读作 [sea-surf]）是一种典型的利用cookie-session漏洞的攻击，这里借用spring-security的一个例子来解释CSRF：</p><p>假设你经常使用bank.example.com进行网上转账，在你提交转账请求时bank.example.com的前端代码会提交一个HTTP请求:</p><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/transfer</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>bank.example.com</span><br><span class="line"><span class="attribute">cookie</span><span class="punctuation">: </span>JsessionID=randomid; Domain=bank.example.com; Secure; HttpOnly</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded</span><br><span class="line"></span><br><span class="line"><span class="language-apache"><span class="attribute">amount</span>=<span class="number">100</span>.<span class="number">00</span>&amp;routingNumber=<span class="number">1234</span>&amp;account=<span class="number">9876</span></span></span><br></pre></td></tr></table></figure><p>你图方便没有登出bank.example.com，随后又访问了一个恶意网站，该网站的HTML页面包含了这样一个表单：</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;https://bank.example.com/transfer&quot;</span> <span class="attr">method</span>=<span class="string">&quot;post&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;hidden&quot;</span> <span class="attr">name</span>=<span class="string">&quot;amount&quot;</span> <span class="attr">value</span>=<span class="string">&quot;100.00&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;hidden&quot;</span> <span class="attr">name</span>=<span class="string">&quot;routingNumber&quot;</span> <span class="attr">value</span>=<span class="string">&quot;evilsRoutingNumber&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;hidden&quot;</span> <span class="attr">name</span>=<span class="string">&quot;account&quot;</span> <span class="attr">value</span>=<span class="string">&quot;evilsAccountNumber&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;点击就送!&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure><p>你被“点击就送”吸引了，当你点了提交按钮时你已经向攻击者的账号转了100元。现实中的攻击可能更隐蔽，恶意网站的页面可能使用Javascript自动完成提交。尽管恶意网站没有办法盗取你的session cookie（从而假冒你的身份），但恶意网站向bank.example.com发起请求时，你的cookie会被自动发送过去。</p><p>因此，有些人认为前端代码将JWT通过HTTP header发送给服务端（而不是通过cookie自动发送）可以有效防护CSRF。在这种方案中，服务端代码在完成认证后，会在HTTP response的header中返回JWT，前端代码将该JWT存放到Local Storage里待用，或是服务端直接在cookie中保存HttpOnly&#x3D;false的JWT。</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;《THE ART OF SCALABILITY》中描述了一个非常有用的扩展模型：扩展立方（也叫AKF扩展立方）。&lt;br&gt;这个模型把应用比作立方体，为了支持应用的发展和演进，我们可以通过x，y，z三个方向对它进行扩展。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="个人随笔" scheme="https://zablog.me/categories/%E4%B8%AA%E4%BA%BA%E9%9A%8F%E7%AC%94/"/>
+    
+    
+    <category term="技术随笔" scheme="https://zablog.me/tags/%E6%8A%80%E6%9C%AF%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+</feed>

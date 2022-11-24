@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> ASM使用体验 · Zablog</title><meta name="description" content="ASM使用体验 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://zablog.me/atom.xml" title="Zablog"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zablog" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/about" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">ASM使用体验</h1><div class="post-info">2020年2月15日</div><div class="post-content"><p>篇名叫做使用体验，其实并不准确，目前来看纯粹是吐槽。</p>
+<p>并不打算写一个 ASM 使用流程指南，毕竟 <a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/149552.html">https://help.aliyun.com/document_detail/149552.html</a> 才是更为专业的文档。</p>
+<span id="more"></span>
+
+<p>点击了 服务网格 ASM 的链接之后，映入眼帘的是错误提示</p>
+<p>Aliyun API Error: RequestId: 08147C2C-9EE9-XXXXXX Status Code: 404 Code: EntityNotExist. Role Message: The role not exists: acs:ram::931204812349238:role&#x2F;aliyuncsdefaultrole.</p>
+<p>重试了一下，终于进来了，但是整个页面什么都没有：</p>
+<p>最后发现服务公测中，还需要独立申请才可以使用，所以没有办法，还是先看一下文档吧。</p>
+<h1 id="产品简介"><a href="#产品简介" class="headerlink" title="产品简介"></a>产品简介</h1><p>所谓的功能特性，应当和其它的服务网格产品差不多。</p>
+<p><img src="http://p3.pstatp.com/large/pgc-image/b14cbd753fe94f7d9454155f47322e0c"></p>
+<p>都是把服务网格划分为控制平面和数据平面。</p>
+<p>ASM的优势在于兼容Istio，估计是在 Istio 的基础上，增加了支持 aliyun PaaS基础架构的内容。</p>
+<p>从部署上看，依然是支持了混合云的环境，可以支持 Kubernetes集群、ServerLess集群和ECS虚拟机的混合部署。Proxy 与具体的服务进程在一起分享资源，并代理 Service 的出入流量。</p>
+<p>共性的内容就不提了，既然作为公有云的一个主打产品，它的主要贡献应当在与组件的托管，可以通过简单的配置，就可以搭建起一整套服务网格，而不需要用户担心环境和配置的问题。</p>
+<h1 id="产品优势"><a href="#产品优势" class="headerlink" title="产品优势"></a>产品优势</h1><p>目前来看ASM除了托管之外，其实没有什么额外的优势。相应的功能，包括流量路由、安全、监控都是社区版本已经提供的内容。高稳定性和高可用性，由于该产品本身就是公测版，所以暂且无法证实。</p>
+<p>对于中小型厂商来说，没有足够的精力去维持一个团队，专门做一些细节的事情，譬如分5个人的团队来做混沌工程，7个人做可观测性、链路追踪，或者8个人的团队专门做RBAC的维护、mTLS的推进，因此ASM确实还是有一定的吸引力的。</p>
+<p>应用场景就是把优势又冗长地说了一遍。</p>
+<h1 id="使用限制"><a href="#使用限制" class="headerlink" title="使用限制"></a>使用限制</h1><p>有些内容务必在网格实例刚刚创立的时候，就配置好。譬如</p>
+<p>变更网格所依赖的 VPC 与虚拟交换机<br>如果创建时未开启公网暴露 API Server，暂不支持增加公网 SLB 暴露 API Server<br>如果创建时未开启公网暴露 Istio Pilot，暂不支持增加公网 SLB 暴露 Istio Pilot<br>变更链路追踪服务配置<br>这些确实说明，在动态配置方面，PaaS做得还没有足够成熟。</p>
+<p>不过这些问题，都可以用时间磨平，并不是太深层次的技术问题。</p>
+<p>但是关于配额，目前还是有些夸张。</p>
+<p>每个用户的可创建网格实例数：2</p>
+<p>每个网格的Envoy代理数：建议200以下，超过 200 可能会造成网格实例的不稳定。</p>
+<p>关于这个实例数，确实还是太小了。如果只是为了200个实例，那么确实控制面内部不需要做什么优化，主要是功能性的开发，而不用太关心性能的问题。</p>
+<p>而且，适用场景上来看，ASM只能应对中小型企业的使用场景，在这个200个Envoy实例这个量级下，估计接口的QPS无法超过10万，一般只能适用于100万日活跃用户左右的App来使用。要将代理的规模突破一万，甚至一百万，可能还需要很多的努力。</p>
+<h1 id="规则修改"><a href="#规则修改" class="headerlink" title="规则修改"></a>规则修改</h1><p>根据文档介绍，修改目标规则需要：</p>
+<p>在控制平面区域的目标规则页签，找到待修改的目标规则，在操作列中单击YAML。<br>在编辑实例页面，修改目标规则，单击确定。<br>从这个介绍来看，控制平面的规则修改没有做到平台化，主要仍是通过配置文件的方式来进行管理。不过由于是社区版本，所以配置文件的格式应当与社区是一致的，这给有社区经验的配置者提供了一定的好处。</p>
+<h1 id="定价"><a href="#定价" class="headerlink" title="定价"></a>定价</h1><p>公测版目前免费，未来还不确定。</p>
+<p>由于 Service Mesh 目前的社区版还主要是面向中小型企业，而且很多都是尝试性地使用，所以估计不会有太高的定价。中小用户使用服务网格更多意义上是一个尝鲜，恐怕把主要业务都移动上来需要很大的勇气，暂时不看好两年以内的服务网格公有云市场。</p>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p>确实没有更多额外的信息了，等我的公测申请通过了，再来同步吧。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2020/03/21/2020-03-21/" class="prev">上一篇</a><a href="/2020/02/15/2020-03-26/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2020/02/15/2020-02-15/';
+var disqus_title = 'ASM使用体验';
+var disqus_url = 'https://zablog.me/2020/02/15/2020-02-15/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2022 <a href="https://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

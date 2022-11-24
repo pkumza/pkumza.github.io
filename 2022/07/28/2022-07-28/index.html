@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【译】使用英特尔 AVX-512 更快地解析 JSON · Zablog</title><meta name="description" content="【译】使用英特尔 AVX-512 更快地解析 JSON - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://zablog.me/atom.xml" title="Zablog"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zablog" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/about" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">【译】使用英特尔 AVX-512 更快地解析 JSON</h1><div class="post-info">2022年7月28日</div><div class="post-content"><p>原文链接：<a target="_blank" rel="noopener" href="https://lemire.me/blog/2022/05/25/parsing-json-faster-with-intel-avx-512/">https://lemire.me/blog/2022/05/25/parsing-json-faster-with-intel-avx-512/</a></p>
+<p>许多最新的英特尔处理器都受益于称为 AVX-512 的新指令系列。这些指令在宽寄存器（最多 512 位）上运行，并遵循<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Single_instruction,_multiple_data">单指令多数据 (SIMD) 范例</a>。这些新的 AVX-512 指令允许您打破一些速度记录，例如以<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1910.05109">内存副本的速度解码</a><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Base64">base64</a>数据。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1910.05109"></a></p>
+<span id="more"></span>
+
+<p>大多数现代处理器都有 SIMD 指令。AVX-512 指令更宽（每个寄存器更多位），但这不一定是它们的主要吸引力。如果您只是采用现有的 SIMD 算法并将它们应用于 AVX-512，您可能不会获得您想要的那么多好处。的确，更宽的寄存器是有益的，但在超标量处理器（每个周期可以发出多条指令的处理器）中，每个周期可以发出的指令数量同样重要。通常地，处理器每个周期可以发出的 512 位 AVX-512 的指令更少，因此这些指令更耗费资源。要想真正充分利用 AVX-512，开发者需要仔细设计代码，而与此同时英特尔还在不断增加新的指令。总的说，AVX-512 不是单个技术，而是一个系列指令集。</p>
+<p>此外，AVX-512 指令的早期实现通常会导致可测量的降频：处理器会在使用这些指令后一段时间内降低其频率。值得庆幸的是，支持 AVX-512（Rocket Lake 和 Ice Lake）的最新英特尔处理器<a target="_blank" rel="noopener" href="https://travisdowns.github.io/blog/2020/08/19/icl-avx512-freq.html">已经取消了这种系统的频率限制</a>。值得庆幸的是，在运行时很容易检测到这些最新的处理器。</p>
+<p>几年前，我们发布了一个<a target="_blank" rel="noopener" href="https://simdjson.org/">名为 simdjson 的非常快速的 C++ JSON 解析器</a>。它作为解析器有些独特，因为它严重依赖 SIMD 指令。在几个指标上，它曾经是并且仍然是最快的 JSON 解析器，尽管已经出现了其他有趣的竞争对手。</p>
+<p>最初，我为 simdjson 编写了一个快速而肮脏的 AVX-512 内核。我们从未合并它，一段时间后，我只是将其删除。然后我就忘记了。</p>
+<p>感谢有才华的英特尔工程师（Fangzheng Zhang 和 Weiqiang Wan）的贡献，以及本博客读者（Kim Walisch 和 Jatin Bhateja）的间接贡献，我们制作了一个新的 AVX-512 内核。与往常一样，simdjson 是许多人的工作，是一个由数十名贡献者组成的整个社区。我必须对第一次写信给我关于 AVX-512 端口的张方正表示感谢。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/simdjson/simdjson/releases">我们刚刚发布了最新版本的 simdjson</a>。它打破了新的速度记录。</p>
+<p>考虑一个有趣的测试，您试图扫描整个文件（跨越千字节）以找到与某个标识符对应的值。在simdjson中，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">auto doc = parser.iterate(json);    </span><br><span class="line">for (auto tweet : doc.find_field(&quot;statuses&quot;)) &#123;</span><br><span class="line">    if (uint64_t(tweet.find_field(&quot;id&quot;)) == find_id) &#123;</span><br><span class="line">        result = tweet.find_field(&quot;text&quot;);</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">return false;</span><br></pre></td></tr></table></figure>
+
+<p>在带有 GCC 11 的 Tiger Lake 处理器上，处理速度提高了 60%，以每秒处理的输入字节数表示。</p>
+<table>
+<thead>
+<tr>
+<th>simdjson (512-bit SIMD): new</th>
+<th>7.4 GB&#x2F;s</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>simdjson (256-bit SIMD): old</td>
+<td>4.6 GB&#x2F;s</td>
+</tr>
+</tbody></table>
+<p>速度增益非常重要，因为在这个任务中，我们大多只是读取数据，而我们做的二次处理相对较少。我们不会从 JSON 数据中创建树，也不会创建数据结构。</p>
+<p>simdjson 库有一个缩小功能，它只是从输入中去除不必要的空格。也许令人惊讶的是，我们的速度是之前基线的两倍多：</p>
+<table>
+<thead>
+<tr>
+<th>simdjson (512-bit SIMD): new</th>
+<th>12 GB&#x2F;s</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>simdjson (256-bit SIMD): old</td>
+<td>4.3 GB&#x2F;s</td>
+</tr>
+</tbody></table>
+<p>另一个合理的基准是将输入完全解析为具有完全验证的 DOM 树。解析标准 JSON 文件 ( <code>twitter.json</code> )，我获得了近 30% 的收益：</p>
+<table>
+<thead>
+<tr>
+<th>simdjson (512-bit SIMD): new</th>
+<th>3.6 GB&#x2F;s</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>simdjson (256-bit SIMD): old</td>
+<td>2.8 GB&#x2F;s</td>
+</tr>
+</tbody></table>
+<p>虽然 30% 听起来可能并不令人兴奋，但我们是从一个快速的基线开始的。</p>
+<p>我们能做得更好吗？肯定的。有许多我们尚未使用的 AVX-512 指令。我们不使用三元布尔运算 ( <code>vpternlog</code> )。我们没有使用新的强大的 shuffle 函数（例如，<code>vpermt2b</code>）。我们有一个共同进化的例子：更好的硬件需要新的软件，这反过来又使硬件大放异彩。</p>
+<p>当然，要获得这些新优势，您需要具有足够 AVX-512 支持的最新 Intel 处理器，显然，您还需要相对较新的 C++ 处理器。最近的一些笔记本电脑级英特尔处理器不支持 AVX-512，但如果您依赖 AWS 并拥有大型英特尔节点，您应该没问题。</p>
+<p>您可以<a target="_blank" rel="noopener" href="https://github.com/simdjson/simdjson/releases/tag/v2.0.0">直接获取我们的版本</a>或等待它到达标准包管理器之一（MSYS2、conan、vcpkg、brew、debian、FreeBSD 等）。</p>
+</div></article></div></main><footer><div class="paginator"><a href="/2022/05/27/2022-05-27/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2022/07/28/2022-07-28/';
+var disqus_title = '【译】使用英特尔 AVX-512 更快地解析 JSON';
+var disqus_url = 'https://zablog.me/2022/07/28/2022-07-28/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2022 <a href="https://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 计算21点在摸五张的情况下不爆牌的概率 · Zablog</title><meta name="description" content="计算21点在摸五张的情况下不爆牌的概率 - Zachary Marv"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://zablog.me/atom.xml" title="Zablog"><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zablog" type="application/atom+xml">
+</head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="http://weibo.com/Aggerfrank" target="_blank" class="nav-list-link">WEIBO</a></li><li class="nav-list-item"><a href="https://github.com/pkumza" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li><li class="nav-list-item"><a href="/about" target="_self" class="nav-list-link">ABOUT</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">计算21点在摸五张的情况下不爆牌的概率</h1><div class="post-info">2018年12月30日</div><div class="post-content"><p>21点游戏，在摸五张牌的情况下，不爆牌的概率。&#x2F; Calculating the probability of no burst while fetching 5 cards in blackjack.</p>
+<span id="more"></span>
+
+<h2 id="详细-x2F-Details"><a href="#详细-x2F-Details" class="headerlink" title="详细 &#x2F; Details"></a>详细 &#x2F; Details</h2><p>21点游戏，英文：Blackjack，是使用扑克牌玩的赌博游戏。</p>
+<p>A可作1点或11点，2-10作该牌之点数，J、Q、K作10点。</p>
+<p>玩家初始手上有2张牌。</p>
+<p>如果玩家要牌后，其手上拥有的牌的总点数超过21点，便要揭开手上所拥有的牌，称为爆牌。</p>
+<p>反之若其手上拥有的牌的总点数不超过21点，该玩家可决定是否继续要牌。</p>
+<p>假设一个玩家为了完成某项挑战，一定会选择要牌三次，那么对于一局游戏来说，他要牌三次仍未爆牌的概率是多少？</p>
+<h2 id="背景-x2F-Background"><a href="#背景-x2F-Background" class="headerlink" title="背景 &#x2F; Background"></a>背景 &#x2F; Background</h2><p>最近在玩R星开发的《荒野大镖客2》游戏，遇到了一个“赌徒系列挑战”之8：</p>
+<p><img src="https://github.com/pkumza/coding/blob/master/q01/images/q01_01.jpeg?raw=true" alt="赌徒8"></p>
+<p>当时耗费了2个小时不停地玩21点，终于完成了这个挑战。</p>
+<p>这个挑战在网上被吐槽不少，只要在搜索引擎搜索“赌徒8”，全都是喷这个挑战的。大家都认为这个挑战的运气成分太大，而且完成这个挑战非常困难。</p>
+<p>我突发奇想，想计算一下要牌3次还不爆牌的概率。（要牌3次就是有5张手牌）发现这是一个很好的概率题。</p>
+<p>当然，对于真正的赌徒8挑战来说，想要算出完成赌徒8需要的期望局数，并不是3&#x2F;不爆牌的概率。题目对于真正的游戏有一些简化。（尝试抽出最挑战大脑的部分，忽略其他细节，细节写在下面了。）</p>
+<blockquote>
+<p>首先，不爆牌并不意味着能赢过庄家，庄家仍有可能比你的5张牌更接近21点；<br>其次，这个游戏没有办法在已经达到21点的时候继续要牌。譬如你起手牌为 <code>A</code>和<code>K</code>，那么游戏会自动让你停牌，虽然这个时候你仍有可能摸5张牌而不爆，但是游戏机制决定你在这种情况下没办法继续摸牌了。 </p>
+</blockquote>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>一共有52张牌。A,2,3,4,5,6,7,8,9,10,J,Q,K各四张。<br>因为题目要求是不爆牌，所以A看做11点是没有意义的，直接把A当做1点即可。</p>
+<p>52张牌中任意选5张，一共有C(52,5)种可能，即2598960种。<br>剩下的只需要枚举出所有的不爆牌的情形即可。</p>
+<h2 id="Solution01"><a href="#Solution01" class="headerlink" title="Solution01"></a>Solution01</h2><p>使用模拟的方法，模拟1000000次情形，并统计不爆牌的次数，得出一个近似概率。</p>
+<p>不是特别准确，但是也可以当做一个近似值。但是要真正较真的话，这是一个错误的解法。</p>
+<p>实测：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ go run ./s01/main.go</span><br><span class="line">Result is 0.053647</span><br><span class="line">Time consumed 505.888256ms</span><br></pre></td></tr></table></figure>
+
+<h2 id="Solution02"><a href="#Solution02" class="headerlink" title="Solution02"></a>Solution02</h2><p>暴力枚举</p>
+<p>通过迭代的方式，枚举出每一种方法，并计算出总的不爆牌的方法数目，最终除以总方法数，得到概率值。<br>该方法的核心点在于模拟。</p>
+<p><strong>算法复杂度</strong></p>
+<p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p>
+<p><strong>时间复杂度</strong></p>
+<p><code>O(M^N)</code> 指数级别，复杂度与阈值无关。</p>
+<p><strong>空间复杂度</strong></p>
+<p>很少，使用函数迭代，还有一个记录扑克的数组，勉强算是消耗 <code>O(M+N)</code> 的空间而已，</p>
+<p><strong>实测</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run ./s02/main.go</span><br><span class="line">Result is 0.053856927386339154</span><br><span class="line">Time consumed 7.98652ms</span><br></pre></td></tr></table></figure>
+
+<h2 id="Solution03"><a href="#Solution03" class="headerlink" title="Solution03"></a>Solution03</h2><p>状态保留</p>
+<p>我们调用<code>numOfPossibleCases</code>函数的时候发现，很多参数一模一样的被调用了很多次。<br>我们建立一个HashMap保存一下状态，当遇到已经吊用过的函数时候，直接返回即可，不需要再次计算。<br>达到免除重复计算的剪枝效果。</p>
+<p><strong>算法复杂度</strong></p>
+<p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p>
+<p><strong>时间复杂度</strong></p>
+<p><code>O(N*T*M^2)</code> 将指数级别的复杂度降到了多项式级别。</p>
+<p><strong>空间复杂度</strong></p>
+<p>需要用一个 <code>HashMap</code> 来暂存状态</p>
+<p>复杂度为<code>O(N*T*M)</code></p>
+<p>实测：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run ./s03/main.go</span><br><span class="line">Result is 0.053856927386339154</span><br><span class="line">Time consumed 1.408398ms</span><br></pre></td></tr></table></figure>
+
+<h2 id="Solution04"><a href="#Solution04" class="headerlink" title="Solution04"></a>Solution04</h2><p>动态规划</p>
+<p>var dp [maxCardsToPick + 1][maxThreshold + 1][maxStart + 1]int</p>
+<p>dp[i][j][k]的含义为：摸i张牌，最大不超过j，从第k张开始到最后一张牌是可选的范围，那么有几种摸牌的可能性。</p>
+<p>状态转移方程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j][k] = ∑ (l from k to totalNum) dp[i-1][j-pokers[l]][l+1]</span><br></pre></td></tr></table></figure>
+
+<p><strong>算法复杂度</strong></p>
+<p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p>
+<p><strong>时间复杂度</strong></p>
+<p><code>O(N*T*M^2)</code> 将指数级别的复杂度降到了多项式级别。</p>
+<p><strong>空间复杂度</strong></p>
+<p>建立了一个三维数组 var dp [maxCardsToPick + 1][maxThreshold + 1][maxStart + 1]int<br>复杂度为<code>O(N*T*M)</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run ./s04/main.go</span><br><span class="line">Result is 0.053856927386339154</span><br><span class="line">Time consumed 474.663µs</span><br></pre></td></tr></table></figure>
+
+<h2 id="Solution05"><a href="#Solution05" class="headerlink" title="Solution05"></a>Solution05</h2><p>优化空间复杂度的动态规划</p>
+<p>因为三维数组的每一层只和前面一层有关系，因此可以通过翻转的方式，减少内存消耗。</p>
+<p><strong>算法复杂度</strong></p>
+<p>以总牌数为 <code>M</code>， 需要摸的牌数为 <code>N</code>，阈值为 <code>T</code>。</p>
+<p><strong>时间复杂度</strong></p>
+<p>和 Solution04 一致</p>
+<p><strong>空间复杂度</strong></p>
+<p>建立了一个三维数组 var dp [2][maxThreshold + 1][maxStart + 1]int<br>复杂度为<code>O(T*M)</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go run ./s05/main.go</span><br><span class="line">Result is 0.053856927386339154</span><br><span class="line">Time consumed 402.794µs</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>代码库位置 <a target="_blank" rel="noopener" href="https://github.com/pkumza/coding/tree/master/q01">https://github.com/pkumza/coding/tree/master/q01</a></p>
+<p>附：测试环境</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">MacBook Pro</span><br><span class="line">macOS Mojave 10.14.2</span><br><span class="line">2.4 GHz Intel Core i7</span><br><span class="line">16 GB 1867 MHz LPDDR3</span><br></pre></td></tr></table></figure></div></article></div></main><footer><div class="paginator"><a href="/2019/03/30/q02/" class="prev">上一篇</a><a href="/2018/12/23/CloudNative/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'maziang';
+var disqus_identifier = '2018/12/30/q01/';
+var disqus_title = '计算21点在摸五张的情况下不爆牌的概率';
+var disqus_url = 'https://zablog.me/2018/12/30/q01/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//maziang.disqus.com/count.js" async></script><div class="copyright"><p>© 2014 - 2022 <a href="https://zablog.me">Zachary Marv</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-71255155-1",'auto');ga('send','pageview');</script></body></html>
